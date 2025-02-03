@@ -28,6 +28,9 @@ $staff_list = getAllStaff();
   <!-- Add icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Add the new JavaScript file -->
+  <script src="assets/js/staff.js"></script>
+  <script src="https://cdn.lordicon.com/lordicon.js"></script>
 </head>
 
 <body class="bg-gray-100">
@@ -58,8 +61,11 @@ $staff_list = getAllStaff();
       <div class="p-6">
         <div class="flex justify-end mb-6">
           <button onclick="document.getElementById('addStaffModal').classList.remove('hidden')"
-            class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-            Add Staff!
+            class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center">
+            <lord-icon src="https://cdn.lordicon.com/dxjqoygy.json" trigger="hover" colors="primary:#ffffff"
+              style="width:24px;height:24px">
+            </lord-icon>
+            <span class="ml-2">Add Staff</span>
           </button>
         </div>
 
@@ -83,15 +89,21 @@ $staff_list = getAllStaff();
                 </td>
                 <td class="px-6 py-4" data-field="email"><?php echo htmlspecialchars($staff['email']); ?></td>
                 <td class="px-6 py-4">**********</td>
-                <td class="px-6 py-4 space-x-2">
-                    <button onclick="openViewModal(<?php echo htmlspecialchars($staff['id']); ?>)" 
-                        class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
-                        Edit
-                    </button>
-                    <button onclick="removeStaff(<?php echo htmlspecialchars($staff['id']); ?>)"
-                        class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
-                        Remove
-                    </button>
+                <td class="px-6 py-4 space-x-2 flex items-center">
+                  <button onclick="openViewModal(<?php echo htmlspecialchars($staff['id']); ?>)"
+                    class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 flex items-center">
+                    <lord-icon src="https://cdn.lordicon.com/bxxnzvfm.json" trigger="hover" colors="primary:#ffffff"
+                      style="width:20px;height:20px">
+                    </lord-icon>
+                    <span class="ml-1">Edit</span>
+                  </button>
+                  <button onclick="removeStaff(<?php echo htmlspecialchars($staff['id']); ?>)"
+                    class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 flex items-center">
+                    <lord-icon src="https://cdn.lordicon.com/jmkrnisz.json" trigger="hover" colors="primary:#ffffff"
+                      style="width:20px;height:20px">
+                    </lord-icon>
+                    <span class="ml-1">Remove</span>
+                  </button>
                 </td>
               </tr>
               <?php endforeach; ?>
@@ -112,34 +124,45 @@ $staff_list = getAllStaff();
           <i class="fas fa-times"></i>
         </button>
       </div>
-      <form method="POST" action="" class="space-y-4">
+      <form method="POST" action="" class="space-y-4" onsubmit="validateAddStaffForm(event)">
         <div>
           <label class="block text-gray-700 text-sm font-bold mb-2">Staff Name:</label>
           <input type="text" name="staff_name" required
             class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-emerald-500">
+          <p class="text-gray-500 text-xs mt-1">Letters only, minimum 2 characters</p>
         </div>
         <div>
           <label class="block text-gray-700 text-sm font-bold mb-2">Contact Number:</label>
-          <input type="text" name="contact_number" required
+          <input type="text" name="contact_number" required placeholder="09xxxxxxxxx"
             class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-emerald-500">
+          <p class="text-gray-500 text-xs mt-1">Must start with 09 and be 11 digits long</p>
         </div>
         <div>
           <label class="block text-gray-700 text-sm font-bold mb-2">Email Address:</label>
           <input type="email" name="email" required
             class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-emerald-500">
+          <p class="text-gray-500 text-xs mt-1">Enter a valid email address</p>
         </div>
         <div>
           <label class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
           <input type="password" name="password" required
             class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-emerald-500">
+          <p class="text-gray-500 text-xs mt-1">Must be at least 8 characters and contain both letters and numbers</p>
         </div>
         <div class="flex justify-end space-x-3">
           <button type="button" onclick="document.getElementById('addStaffModal').classList.add('hidden')"
-            class="px-4 py-2 border rounded-lg hover:bg-gray-50">
-            Cancel
+            class="px-4 py-2 border rounded-lg hover:bg-gray-50 flex items-center">
+            <lord-icon src="https://cdn.lordicon.com/nqtddedc.json" trigger="hover" colors="primary:#333333"
+              style="width:20px;height:20px">
+            </lord-icon>
+            <span class="ml-2">Cancel</span>
           </button>
-          <button type="submit" class="bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-600">
-            Add Staff
+          <button type="submit"
+            class="bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-600 flex items-center">
+            <lord-icon src="https://cdn.lordicon.com/dxjqoygy.json" trigger="hover" colors="primary:#ffffff"
+              style="width:20px;height:20px">
+            </lord-icon>
+            <span class="ml-2">Add Staff</span>
           </button>
         </div>
       </form>
@@ -174,161 +197,24 @@ $staff_list = getAllStaff();
             class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-emerald-500 bg-gray-100" readonly>
         </div>
         <div class="flex justify-end space-x-3 mt-6">
-          <button type="button" onclick="closeViewModal()" 
-            class="px-4 py-2 border rounded-lg hover:bg-gray-50">
-            Cancel
+          <button type="button" onclick="closeViewModal()"
+            class="px-4 py-2 border rounded-lg hover:bg-gray-50 flex items-center">
+            <lord-icon src="https://cdn.lordicon.com/nqtddedc.json" trigger="hover" colors="primary:#333333"
+              style="width:20px;height:20px">
+            </lord-icon>
+            <span class="ml-2">Cancel</span>
           </button>
           <button type="button" onclick="updateStaffDetails()"
-            class="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600">
-            Save Changes
+            class="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 flex items-center">
+            <lord-icon src="https://cdn.lordicon.com/oqdmuxru.json" trigger="hover" colors="primary:#ffffff"
+              style="width:20px;height:20px">
+            </lord-icon>
+            <span class="ml-2">Save Changes</span>
           </button>
         </div>
       </form>
     </div>
   </div>
-
-  <script>
-  async function removeStaff(staffId) {
-    // Show confirmation dialog
-    const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'Cancel'
-    });
-
-    if (!result.isConfirmed) {
-      return;
-    }
-
-    try {
-      const response = await fetch('staff_management.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `action=remove_staff&staff_id=${staffId}`
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        // Remove the row and close modal
-        document.querySelector(`tr[data-staff-id="${staffId}"]`).remove();
-        document.getElementById('viewStaffModal').classList.add('hidden');
-
-        // Show success message
-        await Swal.fire({
-          title: 'Deleted!',
-          text: 'Staff has been removed successfully.',
-          icon: 'success',
-          timer: 1500
-        });
-      } else {
-        // Show error message
-        await Swal.fire({
-          title: 'Error!',
-          text: 'Failed to remove staff.',
-          icon: 'error'
-        });
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      await Swal.fire({
-        title: 'Error!',
-        text: 'An error occurred while removing staff.',
-        icon: 'error'
-      });
-    }
-  }
-
-  function openViewModal(staffId) {
-    // Find staff data from the table
-    const staffRow = document.querySelector(`tr[data-staff-id="${staffId}"]`);
-    const staffName = staffRow.querySelector('[data-field="name"]').textContent;
-    const staffContact = staffRow.querySelector('[data-field="contact"]').textContent;
-    const staffEmail = staffRow.querySelector('[data-field="email"]').textContent;
-    
-    // Fill the modal with data
-    document.getElementById('view-staff-name').value = staffName;
-    document.getElementById('view-contact-number').value = staffContact;
-    document.getElementById('view-email').value = staffEmail;
-    
-    // Store the staff ID in the form
-    document.getElementById('view-staff-id').value = staffId;
-    
-    // Start in edit mode
-    const inputs = ['view-staff-name', 'view-contact-number', 'view-email'];
-    inputs.forEach(id => {
-        const input = document.getElementById(id);
-        input.readOnly = false;
-        input.classList.remove('bg-gray-100');
-        input.classList.add('bg-white');
-    });
-    
-    // Show the modal
-    document.getElementById('viewStaffModal').classList.remove('hidden');
-  }
-
-  function closeViewModal() {
-    document.getElementById('viewStaffModal').classList.add('hidden');
-  }
-
-  async function updateStaffDetails() {
-    const staffId = document.getElementById('view-staff-id').value;
-    const staffName = document.getElementById('view-staff-name').value;
-    const contactNumber = document.getElementById('view-contact-number').value;
-    const email = document.getElementById('view-email').value;
-
-    try {
-        const response = await fetch('staff_management.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `action=update_staff&staff_id=${staffId}&staff_name=${encodeURIComponent(staffName)}&contact_number=${encodeURIComponent(contactNumber)}&email=${encodeURIComponent(email)}`
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            // Update the table row
-            const row = document.querySelector(`tr[data-staff-id="${staffId}"]`);
-            row.querySelector('[data-field="name"]').textContent = staffName;
-            row.querySelector('[data-field="contact"]').textContent = contactNumber;
-            row.querySelector('[data-field="email"]').textContent = email;
-
-            // Show success message
-            await Swal.fire({
-                title: 'Updated!',
-                text: 'Staff details have been updated successfully.',
-                icon: 'success',
-                timer: 1500
-            });
-
-            // Close the modal
-            document.getElementById('viewStaffModal').classList.add('hidden');
-        } else {
-            await Swal.fire({
-                title: 'Error!',
-                text: 'Failed to update staff details.',
-                icon: 'error'
-            });
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        await Swal.fire({
-            title: 'Error!',
-            text: 'An error occurred while updating staff details.',
-            icon: 'error'
-        });
-    }
-  }
-  </script>
 </body>
 
 </html>
