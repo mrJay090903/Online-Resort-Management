@@ -52,6 +52,16 @@ function removeStaff($staff_id) {
     return $stmt->execute();
 }
 
+// Add this new function
+function updateStaff($staff_id, $staff_name, $contact_number, $email) {
+    global $conn;
+    
+    $stmt = $conn->prepare("UPDATE staff SET staff_name = ?, contact_number = ?, email = ? WHERE id = ?");
+    $stmt->bind_param("sssi", $staff_name, $contact_number, $email, $staff_id);
+    
+    return $stmt->execute();
+}
+
 // Add this to handle staff removal
 if (isset($_POST['action']) && $_POST['action'] === 'remove_staff') {
     $staff_id = $_POST['staff_id'];
@@ -62,4 +72,25 @@ if (isset($_POST['action']) && $_POST['action'] === 'remove_staff') {
     }
     exit;
 }
-?> 
+
+// Update the staff update handler
+if (isset($_POST['action']) && $_POST['action'] === 'update_staff') {
+    header('Content-Type: application/json');
+    
+    try {
+        $staff_id = $_POST['staff_id'];
+        $staff_name = $_POST['staff_name'];
+        $contact_number = $_POST['contact_number'];
+        $email = $_POST['email'];
+        
+        if (updateStaff($staff_id, $staff_name, $contact_number, $email)) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Database update failed']);
+        }
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+    exit;
+}
+?>

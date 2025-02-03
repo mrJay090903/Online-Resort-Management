@@ -83,11 +83,15 @@ $staff_list = getAllStaff();
                 </td>
                 <td class="px-6 py-4" data-field="email"><?php echo htmlspecialchars($staff['email']); ?></td>
                 <td class="px-6 py-4">**********</td>
-                <td class="px-6 py-4">
-                  <button onclick="openViewModal(<?php echo htmlspecialchars($staff['id']); ?>)"
-                    class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
-                    View
-                  </button>
+                <td class="px-6 py-4 space-x-2">
+                    <button onclick="openViewModal(<?php echo htmlspecialchars($staff['id']); ?>)" 
+                        class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+                        Edit
+                    </button>
+                    <button onclick="removeStaff(<?php echo htmlspecialchars($staff['id']); ?>)"
+                        class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
+                        Remove
+                    </button>
                 </td>
               </tr>
               <?php endforeach; ?>
@@ -146,40 +150,37 @@ $staff_list = getAllStaff();
   <div id="viewStaffModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
     <div class="bg-white rounded-lg p-8 w-1/2">
       <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xl font-semibold">View Staff Details</h3>
+        <h3 class="text-xl font-semibold">Edit Staff Details</h3>
         <button onclick="document.getElementById('viewStaffModal').classList.add('hidden')"
           class="text-gray-500 hover:text-gray-700">
           <i class="fas fa-times"></i>
         </button>
       </div>
-      <form method="POST" action="" class="space-y-4">
+      <form id="viewStaffForm" class="space-y-4">
         <input type="hidden" id="view-staff-id" name="staff_id">
         <div>
           <label class="block text-gray-700 text-sm font-bold mb-2">Staff Name:</label>
-          <input type="text" id="view-staff-name" name="staff_name" readonly
-            class="w-full px-3 py-2 bg-gray-100 border rounded-lg focus:outline-none">
+          <input type="text" id="view-staff-name" name="staff_name"
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-emerald-500 bg-gray-100" readonly>
         </div>
         <div>
           <label class="block text-gray-700 text-sm font-bold mb-2">Contact Number:</label>
-          <input type="text" id="view-contact-number" name="contact_number" readonly
-            class="w-full px-3 py-2 bg-gray-100 border rounded-lg focus:outline-none">
+          <input type="text" id="view-contact-number" name="contact_number"
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-emerald-500 bg-gray-100" readonly>
         </div>
         <div>
           <label class="block text-gray-700 text-sm font-bold mb-2">Email Address:</label>
-          <input type="email" id="view-email" name="email" readonly
-            class="w-full px-3 py-2 bg-gray-100 border rounded-lg focus:outline-none">
+          <input type="email" id="view-email" name="email"
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-emerald-500 bg-gray-100" readonly>
         </div>
         <div class="flex justify-end space-x-3 mt-6">
-          <button type="button" onclick="removeStaff(document.getElementById('view-staff-id').value)"
-            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
-            Remove
-          </button>
-          <button type="button" onclick="document.getElementById('viewStaffModal').classList.add('hidden')"
+          <button type="button" onclick="closeViewModal()" 
             class="px-4 py-2 border rounded-lg hover:bg-gray-50">
-            Back
+            Cancel
           </button>
-          <button type="submit" class="bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-600">
-            Save
+          <button type="button" onclick="updateStaffDetails()"
+            class="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600">
+            Save Changes
           </button>
         </div>
       </form>
@@ -251,17 +252,81 @@ $staff_list = getAllStaff();
     const staffName = staffRow.querySelector('[data-field="name"]').textContent;
     const staffContact = staffRow.querySelector('[data-field="contact"]').textContent;
     const staffEmail = staffRow.querySelector('[data-field="email"]').textContent;
-
+    
     // Fill the modal with data
     document.getElementById('view-staff-name').value = staffName;
     document.getElementById('view-contact-number').value = staffContact;
     document.getElementById('view-email').value = staffEmail;
-
+    
     // Store the staff ID in the form
     document.getElementById('view-staff-id').value = staffId;
-
+    
+    // Start in edit mode
+    const inputs = ['view-staff-name', 'view-contact-number', 'view-email'];
+    inputs.forEach(id => {
+        const input = document.getElementById(id);
+        input.readOnly = false;
+        input.classList.remove('bg-gray-100');
+        input.classList.add('bg-white');
+    });
+    
     // Show the modal
     document.getElementById('viewStaffModal').classList.remove('hidden');
+  }
+
+  function closeViewModal() {
+    document.getElementById('viewStaffModal').classList.add('hidden');
+  }
+
+  async function updateStaffDetails() {
+    const staffId = document.getElementById('view-staff-id').value;
+    const staffName = document.getElementById('view-staff-name').value;
+    const contactNumber = document.getElementById('view-contact-number').value;
+    const email = document.getElementById('view-email').value;
+
+    try {
+        const response = await fetch('staff_management.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `action=update_staff&staff_id=${staffId}&staff_name=${encodeURIComponent(staffName)}&contact_number=${encodeURIComponent(contactNumber)}&email=${encodeURIComponent(email)}`
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Update the table row
+            const row = document.querySelector(`tr[data-staff-id="${staffId}"]`);
+            row.querySelector('[data-field="name"]').textContent = staffName;
+            row.querySelector('[data-field="contact"]').textContent = contactNumber;
+            row.querySelector('[data-field="email"]').textContent = email;
+
+            // Show success message
+            await Swal.fire({
+                title: 'Updated!',
+                text: 'Staff details have been updated successfully.',
+                icon: 'success',
+                timer: 1500
+            });
+
+            // Close the modal
+            document.getElementById('viewStaffModal').classList.add('hidden');
+        } else {
+            await Swal.fire({
+                title: 'Error!',
+                text: 'Failed to update staff details.',
+                icon: 'error'
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        await Swal.fire({
+            title: 'Error!',
+            text: 'An error occurred while updating staff details.',
+            icon: 'error'
+        });
+    }
   }
   </script>
 </body>
