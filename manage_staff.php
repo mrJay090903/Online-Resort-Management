@@ -27,6 +27,7 @@ $staff_list = getAllStaff();
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Add icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="bg-gray-100">
@@ -187,7 +188,19 @@ $staff_list = getAllStaff();
 
   <script>
   async function removeStaff(staffId) {
-    if (!confirm('Are you sure you want to remove this staff?')) {
+    // Show confirmation dialog
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (!result.isConfirmed) {
       return;
     }
 
@@ -200,21 +213,35 @@ $staff_list = getAllStaff();
         body: `action=remove_staff&staff_id=${staffId}`
       });
 
-      const result = await response.json();
+      const data = await response.json();
 
-      if (result.success) {
-        // Remove the row from the table
+      if (data.success) {
+        // Remove the row and close modal
         document.querySelector(`tr[data-staff-id="${staffId}"]`).remove();
-        // Close the modal
         document.getElementById('viewStaffModal').classList.add('hidden');
-        // Optional: Show success message
-        alert('Staff removed successfully');
+
+        // Show success message
+        await Swal.fire({
+          title: 'Deleted!',
+          text: 'Staff has been removed successfully.',
+          icon: 'success',
+          timer: 1500
+        });
       } else {
-        alert('Failed to remove staff');
+        // Show error message
+        await Swal.fire({
+          title: 'Error!',
+          text: 'Failed to remove staff.',
+          icon: 'error'
+        });
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('An error occurred while removing staff');
+      await Swal.fire({
+        title: 'Error!',
+        text: 'An error occurred while removing staff.',
+        icon: 'error'
+      });
     }
   }
 
