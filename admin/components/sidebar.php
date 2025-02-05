@@ -4,7 +4,7 @@
 <head>
   <!-- ... other head elements ... -->
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
   <style>
   [x-cloak] {
     display: none !important;
@@ -61,18 +61,35 @@
       Features
     </a>
 
-    <a href="reservation.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
-        stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-      Reservation
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-auto" fill="none" viewBox="0 0 24 24"
-        stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-      </svg>
-    </a>
+    <div class="relative" x-data="{ open: false }">
+      <button @click="open = !open" class="flex items-center w-full px-6 py-3 text-white hover:bg-emerald-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        Reservation
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-auto transition-transform duration-200"
+          :class="{ 'rotate-180': open }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      <div x-show="open" x-transition:enter="transition ease-out duration-100"
+        x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100"
+        x-transition:leave-end="transform opacity-0 scale-95" class="pl-11">
+        <a href="new_reservation.php" class="flex items-center px-6 py-2 text-white hover:bg-emerald-600">Status</a>
+        <a href="reservation_list.php" class="flex items-center px-6 py-2 text-white hover:bg-emerald-600">Pending</a>
+        <a href="reservation_list.php" class="flex items-center px-6 py-2 text-white hover:bg-emerald-600">Reserved</a>
+        <a href="reservation_list.php" class="flex items-center px-6 py-2 text-white hover:bg-emerald-600">Fullpaid</a>
+        <a href="reservation_list.php"
+          class="flex items-center px-6 py-2 text-white hover:bg-emerald-600">Reschedule</a>
+
+      </div>
+    </div>
+
+
 
     <div class="relative"
       x-data="{ open: window.location.pathname.includes('customer_account.php') || window.location.pathname.includes('staff_account.php') }">
