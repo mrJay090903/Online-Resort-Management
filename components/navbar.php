@@ -8,27 +8,27 @@
 
         <ul class="flex space-x-12 ml-4 -mr-120">
             <li class="relative group">
-                <a href="index.php" class="text-black hover:text-gray-600">Home
+                <a href="../index.php" class="text-black hover:text-gray-600">Home
                     <span class="absolute left-0 bottom-0 w-0 h-0.5 bg-black group-hover:w-full transition-all duration-300"></span>
                 </a>
             </li>
             <li class="relative group">
-                <a href="rooms.php" class="text-black hover:text-gray-600">Rooms
+                <a href="../components/rooms.php" class="text-black hover:text-gray-600">Rooms
                     <span class="absolute left-0 bottom-0 w-0 h-0.5 bg-black group-hover:w-full transition-all duration-300"></span>
                 </a>
             </li>
             <li class="relative group">
-                <a href="reservation.php" class="text-black hover:text-gray-600">Reservations
+                <a href="../components/reservation.php" class="text-black hover:text-gray-600">Reservations
                     <span class="absolute left-0 bottom-0 w-0 h-0.5 bg-black group-hover:w-full transition-all duration-300"></span>
                 </a>
             </li>
             <li class="relative group">
-                <a href="index.php#features" class="text-black hover:text-gray-600">Features
+                <a href="../index.php#features" class="text-black hover:text-gray-600">Features
                     <span class="absolute left-0 bottom-0 w-0 h-0.5 bg-black group-hover:w-full transition-all duration-300"></span>
                 </a>
             </li>
             <li class="relative group">
-                <a href="aboutus.php" class="text-black hover:text-gray-600">About us
+                <a href="../components/aboutus.php" class="text-black hover:text-gray-600">About us
                     <span class="absolute left-0 bottom-0 w-0 h-0.5 bg-black group-hover:w-full transition-all duration-300"></span>
                 </a>
             </li>
