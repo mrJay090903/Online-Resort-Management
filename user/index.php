@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
@@ -57,43 +57,7 @@
 
 <body class="font-sans">
 
-    <!-- Navbar -->
-    <nav class="flex justify-between items-center p-2 bg-white shadow-xl sticky top-0 w-full z-50">
-        <div class="flex items-center">
-            <img src="../assets/casitalogo-removebg-preview.png" alt="Casita De Grands" class="h-13">
-        </div>
-
-        <ul class="flex space-x-12 ml-4 -mr-120">
-            <li class="relative group">
-                <a href="#" class="text-black hover:text-gray-600">Home
-                    <span class="absolute left-0 bottom-0 w-0 h-0.5 bg-black group-hover:w-full transition-all duration-300"></span>
-                </a>
-            </li>
-            <li class="relative group">
-                <a href="#" class="text-black hover:text-gray-600">Rooms
-                    <span class="absolute left-0 bottom-0 w-0 h-0.5 bg-black group-hover:w-full transition-all duration-300"></span>
-                </a>
-            </li>
-            <li class="relative group">
-                <a href="#" class="text-black hover:text-gray-600">Reservations
-                    <span class="absolute left-0 bottom-0 w-0 h-0.5 bg-black group-hover:w-full transition-all duration-300"></span>
-                </a>
-            </li>
-            <li class="relative group">
-                <a href="#" class="text-black hover:text-gray-600">Features
-                    <span class="absolute left-0 bottom-0 w-0 h-0.5 bg-black group-hover:w-full transition-all duration-300"></span>
-                </a>
-            </li>
-            <li class="relative group">
-                <a href="#" class="text-black hover:text-gray-600">About us
-                    <span class="absolute left-0 bottom-0 w-0 h-0.5 bg-black group-hover:w-full transition-all duration-300"></span>
-                </a>
-            </li>
-        </ul>
-        <button onclick="toggleModal()" class="font-['Lexend'] border px-6 py-1.5 transition-colors duration-300 hover:bg-[#3b3b3b] hover:text-white">
-            LOGIN
-        </button>
-    </nav>
+    <?php include 'navbar.php'; ?>
 
     <!-- Login Modal -->
     <div id="loginModal" class="hidden fixed inset-0 flex items-center justify-center z-50">
@@ -274,7 +238,7 @@
     </script>
 
     <!-- Feature Section -->
-    <section class="bg-gray-100 py-16">
+    <section id="features" class="bg-gray-100 py-30">
         <div class="container mx-auto px-6 text-center">
             <h2 class="text-4xl font-bold text-gray-800 mb-6">Our Features</h2>
             <p class="text-gray-600 mb-12 text-lg">Discover the luxurious amenities and breathtaking experiences at Casita De Grands.</p>
@@ -355,15 +319,15 @@
             <div>
                 <p class="font-semibold mb-2">EMAIL</p>
                 <a href="mailto:casitadegrands@gmail.com" class="flex items-center justify-center md:justify-start space-x-2">
-                    <img src="assets/email.svg" alt="Email Icon" class="w-4 h-4">
+                    <img src="../assets/email.svg" alt="Email Icon" class="w-4 h-4">
                     <span class="font-semibold text-sm">casitadegrands@gmail.com</span>
                 </a>
             </div>
             <!-- Location -->
             <div>
                 <p class="font-semibold mb-2">LOCATION</p>
-                <a href="https://www.google.com/maps" target="_blank" class="text-blue-400 flex items-center justify-center md:justify-start space-x-2">
-                    <img src="assets/location.svg" alt="Location Icon" class="w-4 h-4">
+                <a href="https://www.google.com/maps" target="_blank" class=" flex items-center justify-center md:justify-start space-x-2">
+                    <img src="../assets/location.svg" alt="Location Icon" class="w-4 h-4">
                     <span class="font-semibold hover:underline text-sm">See Us On Google Maps</span>
                 </a>
             </div>
@@ -371,7 +335,7 @@
             <div>
                 <p class="font-semibold mb-2">PHONE</p>
                 <a href="tel:+639458510079" class="flex items-center justify-center md:justify-start space-x-2">
-                    <img src="assets/phone-call.png" alt="Contact Number" class="w-4 h-4">
+                    <img src="../assets/phone-call.png" alt="Contact Number" class="w-4 h-4">
                     <span class="font-semibold text-sm">+63 945 851 0079</span>
                 </a>
             </div>
@@ -380,13 +344,13 @@
                 <p class="font-semibold mb-2">FOLLOW US</p>
                 <div class="flex justify-center md:justify-start space-x-4 text-xl">
                     <a href="https://web.facebook.com/profile.php?id=100086503127265" class="hover:text-white">
-                        <img src="assets/facebook.svg" alt="Facebook" class="w-5 h-5">
+                        <img src="../assets/facebook.svg" alt="Facebook" class="w-5 h-5">
                     </a>
                     <a href="https://www.instagram.com/casitadegrands?igsh=Nmc4eHd4bzdyNWNt" class="hover:text-white">
-                        <img src="assets/insta.svg" alt="Instagram" class="w-5 h-5">
+                        <img src="../assets/insta.svg" alt="Instagram" class="w-5 h-5">
                     </a>
                     <a href="https://www.tiktok.com/@casitadegrands?_t=ZS-8towhdTSauO&_r=1" class="hover:text-white">
-                        <img src="assets/tiktok.svg" alt="TikTok" class="w-5 h-5">
+                        <img src="../assets/tiktok.svg" alt="TikTok" class="w-5 h-5">
                     </a>
                 </div>
             </div>
