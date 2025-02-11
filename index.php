@@ -93,7 +93,7 @@
           <!-- Show Password -->
           <button type="button" onclick="togglePassword('password','eyeIcon', event)"
             class="absolute inset-y-0 right-12 flex items-center pt-4">
-            <img id="eyeIcon" src="assets/hidden.png" alt="Show Password"
+            <img id="eyeIcon" src="components/hidden.png" alt="Show Password"
               class="w-6 h-6 opacity-70 hover:opacity-100 transition">
           </button>
         </div>
@@ -160,7 +160,7 @@
           <!-- Show Password Button -->
           <button type="button" onclick="togglePassword('signupPassword', 'signupEyeIcon', event)"
             class="absolute inset-y-0 right-3 flex items-center">
-            <img id="signupEyeIcon" src="assets/hidden.png" alt="Show Password"
+            <img id="signupEyeIcon" src="components/hidden.png" alt="Show Password"
               class="w-6 h-6 opacity-70 hover:opacity-100 transition">
           </button>
         </div>
@@ -173,7 +173,7 @@
           <!-- Show Password Button -->
           <button type="button" onclick="togglePassword('confirmPassword', 'confirmEyeIcon', event)"
             class="absolute inset-y-0 right-3 flex items-center">
-            <img id="confirmEyeIcon" src="assets/hidden.png" alt="Show Password"
+            <img id="confirmEyeIcon" src="components/hidden.png" alt="Show Password"
               class="w-6 h-6 opacity-70 hover:opacity-100 transition">
           </button>
         </div>
@@ -194,7 +194,7 @@
   <!-- Hero Section -->
   <section class="relative w-full h-[570px] overflow-hidden">
     <video class="absolute inset-0 w-full h-full object-cover brightness-85" autoplay loop muted>
-      <source src="../videos/bg-vid.mp4" type="video/mp4">
+      <source src="videos/bg-vid.mp4" type="video/mp4">
       Your browser does not support the video tag.
     </video>
 
@@ -230,9 +230,9 @@
       <h2 class="text-center mb-4 text-4xl font-['Ephesis']">Discover Your Perfect Stay</h2>
       <!-- Carousel Container -->
       <div id="carousel" class="flex transition-transform duration-500 ease-in-out">
-        <img src="assets/image1.jpg" alt="Image 1" class="w-full flex-shrink-0">
-        <img src="assets/image2.jpg" alt="Image 2" class="w-full flex-shrink-0">
-        <img src="assets/image3.jpg" alt="Image 3" class="w-full flex-shrink-0">
+        <img src="components/image1.jpg" alt="Image 1" class="w-full flex-shrink-0">
+        <img src="components/image2.jpg" alt="Image 2" class="w-full flex-shrink-0">
+        <img src="components/image3.jpg" alt="Image 3" class="w-full flex-shrink-0">
       </div>
 
       <!-- Left Button -->
