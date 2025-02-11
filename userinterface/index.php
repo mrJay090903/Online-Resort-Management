@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Casita De Grands</title>
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+
     <script>
+        //ModalToggle
         function toggleModal() {
             document.getElementById('loginModal').classList.toggle('hidden');
         }
@@ -16,9 +18,35 @@
             document.getElementById('loginModal').classList.add('hidden');
         }
 
+        function toggleForgotpass(){
+            document.getElementById('forgotPasswordModal').classList.toggle('hidden');
+        }
+
         function switchToLogin() {
             toggleSignupModal(); 
             toggleModal(); 
+        }
+    </script>
+
+    <script>
+        //ShowPasswordToggle
+        function togglePassword(inputId, eyeIconId, event) {
+            if(event){event.preventDefault();}
+            const passwordInput = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(eyeIconId);
+
+            console.log(`Toggling password visibility for: ${inputId}`);
+            console.log(`Current input type: ${passwordInput.type}`);
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeIcon.src = "assets/eye.png"; 
+            } else {
+                passwordInput.type = "password";
+                eyeIcon.src = "assets/hidden.png"; 
+            }
+
+            console.log(`New input type: ${passwordInput.type}`);
         }
     </script>
 
@@ -30,6 +58,8 @@
     <link href="https://fonts.cdnfonts.com/css/second-quotes" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Ubuntu+Sans:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">        
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Ephesis&display=swap" rel="stylesheet">
+
 </head>
 
 <body class="font-sans">
@@ -37,7 +67,7 @@
 <!-- Navbar -->
 <nav class="flex justify-between items-center p-2 bg-white shadow-xl sticky top-0 w-full bg-white z-50">
         <div class="flex items-center">
-            <img src="videos/casitalogo-removebg-preview.png" alt="Casita De Grands" class="h-13">
+            <img src="assets/casitalogo-removebg-preview.png" alt="Casita De Grands" class="h-13">
         </div>
 
         <ul class="flex space-x-12 ml-4 -mr-120">
@@ -99,6 +129,12 @@
                     <input type="password" id="password" name="password" 
                     class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700
                     outline-none transition-all duration-300 focus:border-[#00254a] focus:ring-1" required placeholder="Enter your password">
+                
+                <!-- Show Password -->
+                    <button type="button" onclick="togglePassword('password','eyeIcon', event)" class="absolute inset-y-0 right-12 flex items-center pt-4">
+                    <img id="eyeIcon" src="assets/hidden.png" alt="Show Password" class="w-6 h-6 opacity-70 hover:opacity-100 transition">
+                    </button>
+                
                 </div>
 
             <!-- Forgot Password -->
@@ -113,12 +149,21 @@
         </div>
     </div>
 
+    <!-- ForgotPassword -->
+     <div id="forgotPasswordModal" class="hidden fixed inset-0 flex items-center justify">
+        <div class="shadow-lg bg-white p-6 rounded-lg w-96 relative">
+            <button onclick="toggleForgotpass()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl font-bold">&times;></button>
+            <h2 class="text-2xl font-bold text-center mb-4">Forgot Password</h2>
+
+        </div>
+     </div>
+
     <!-- Signup Modal -->
     <div id="signupModal" class="hidden fixed inset-0 flex items-center justify-center z-50">
         <div class="relative bg-white p-6 rounded-lg shadow-xl w-100 relative">
             <button onclick="toggleSignupModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl font-bold">&times;</button>
 
-            <h2 class="text-3xl font-bold font-['Noto_Sans_Georgian'] mb-4 text-center">Sign Up</h2>
+            <h2 class="text-2xl font-bold font-['Noto_Sans_Georgian'] mb-4 text-center">Sign Up</h2>
             
             <form class="flex flex-col items-center">
                 <!-- Full Name -->
@@ -146,19 +191,31 @@
                 </div>
 
                 <!-- Password -->
-                <div class="mb-4 w-84 mx-auto">
-                    <input type="password" id="password" name="password" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700 
+                <div class="mb-4 w-84 mx-auto relative">
+                    <input type="password" id="signupPassword" name="password" 
+                        class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md bg-gray-100 text-gray-700 
                         outline-none transition-all duration-300 focus:border-[#00254a] focus:ring-1"
                         required placeholder="Password">
+                    
+                    <!-- Show Password Button -->
+                    <button type="button" onclick="togglePassword('signupPassword', 'signupEyeIcon', event)" 
+                        class="absolute inset-y-0 right-3 flex items-center">
+                        <img id="signupEyeIcon" src="assets/hidden.png" alt="Show Password" class="w-6 h-6 opacity-70 hover:opacity-100 transition">
+                    </button>
                 </div>
 
                 <!-- Confirm Password -->
-                <div class="mb-6 w-84 mx-auto">
+                <div class="mb-6 w-84 mx-auto relative">
                     <input type="password" id="confirmPassword" name="confirmPassword" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700 
+                        class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md bg-gray-100 text-gray-700 
                         outline-none transition-all duration-300 focus:border-[#00254a] focus:ring-1"
                         required placeholder="Confirm Password">
+                    
+                    <!-- Show Password Button -->
+                    <button type="button" onclick="togglePassword('confirmPassword', 'confirmEyeIcon', event)" 
+                        class="absolute inset-y-0 right-3 flex items-center">
+                        <img id="confirmEyeIcon" src="assets/hidden.png" alt="Show Password" class="w-6 h-6 opacity-70 hover:opacity-100 transition">
+                    </button>
                 </div>
 
                 <!-- Signup Button -->
@@ -205,5 +262,59 @@
         </p>
     </section>
 
+    <!-- Carousel Section -->
+    <section class="text-center py-50 px-6 mt-2 mb-10">
+        <div class="relative">
+            <h2 class="text-center mb-4 text-4xl font-['Ephesis']">Discover Your Perfecet Stay</h2>
+            <!-- Carousel Container -->
+            <div id="carousel" class="flex transition-transform duration-500 ease-in-out">
+                <img src="assets/image1.jpg" alt="Image 1" class="w-full flex-shrink-0">
+                <img src="assets/image2.jpg" alt="Image 2" class="w-full flex-shrink-0">
+                <img src="assets/image3.jpg" alt="Image 3" class="w-full flex-shrink-0">
+            </div>
+
+            <!-- Left Button -->
+            <button onclick="prevSlide()" class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full">
+                &#10094;
+            </button>
+
+            <!-- Right Button -->
+            <button onclick="nextSlide()" class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full">
+                &#10095;
+            </button>
+        </div>
+    </section>
+
+    <script>
+        let currentIndex = 0;
+        const carousel = document.getElementById('carousel');
+        const totalSlides = carousel.children.length;
+
+        function updateCarousel() {
+            const translateX = -currentIndex * 100;
+            carousel.style.transform = `translateX(${translateX}%)`;
+        }
+
+        function nextSlide() {
+            if (currentIndex < totalSlides - 1) {
+                currentIndex++;
+            } else {
+                currentIndex = 0;
+            }
+            updateCarousel();
+        }
+
+        function prevSlide() {
+            if (currentIndex > 0) {
+                currentIndex--;
+            } else {
+                currentIndex = totalSlides - 1;
+            }
+            updateCarousel();
+        }
+    </script>
+
+
 </body>
+
 </html>
