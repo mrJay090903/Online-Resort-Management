@@ -6,9 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Casita De Grands</title>
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+<<<<<<< HEAD:userinterface/index.php
 
     <script>
         //ModalToggle
+=======
+    <script>
+>>>>>>> 2b90e8fc23fa83599d99b96576a8ed5da9618044:index.php
         function toggleModal() {
             document.getElementById('loginModal').classList.toggle('hidden');
         }
@@ -18,16 +22,20 @@
             document.getElementById('loginModal').classList.add('hidden');
         }
 
+<<<<<<< HEAD:userinterface/index.php
         function toggleForgotpass(){
             document.getElementById('forgotPasswordModal').classList.toggle('hidden');
         }
 
+=======
+>>>>>>> 2b90e8fc23fa83599d99b96576a8ed5da9618044:index.php
         function switchToLogin() {
             toggleSignupModal(); 
             toggleModal(); 
         }
     </script>
 
+<<<<<<< HEAD:userinterface/index.php
     <script>
         //ShowPasswordToggle
         function togglePassword(inputId, eyeIconId, event) {
@@ -50,6 +58,8 @@
         }
     </script>
 
+=======
+>>>>>>> 2b90e8fc23fa83599d99b96576a8ed5da9618044:index.php
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair:ital,opsz,wght@0,5..1200,300..900;1,5..1200,300..900&display=swap" rel="stylesheet">
@@ -58,8 +68,11 @@
     <link href="https://fonts.cdnfonts.com/css/second-quotes" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Ubuntu+Sans:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">        
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
+<<<<<<< HEAD:userinterface/index.php
     <link href="https://fonts.googleapis.com/css2?family=Ephesis&display=swap" rel="stylesheet">
     <link href="https://fonts.cdnfonts.com/css/winter-story" rel="stylesheet">
+=======
+>>>>>>> 2b90e8fc23fa83599d99b96576a8ed5da9618044:index.php
 </head>
 
 <body class="font-sans">
@@ -67,7 +80,11 @@
 <!-- Navbar -->
 <nav class="flex justify-between items-center p-2 bg-white shadow-xl sticky top-0 w-full bg-white z-50">
         <div class="flex items-center">
+<<<<<<< HEAD:userinterface/index.php
             <img src="assets/casitalogo-removebg-preview.png" alt="Casita De Grands" class="h-13">
+=======
+            <img src="videos/casitalogo-removebg-preview.png" alt="Casita De Grands" class="h-13">
+>>>>>>> 2b90e8fc23fa83599d99b96576a8ed5da9618044:index.php
         </div>
 
         <ul class="flex space-x-12 ml-4 -mr-120">
@@ -114,6 +131,10 @@
             <h2 class="text-2xl font-bold text-center mb-4">Sign In</h2>
 
             <form class="flex flex-col items-center">
+<<<<<<< HEAD:userinterface/index.php
+=======
+
+>>>>>>> 2b90e8fc23fa83599d99b96576a8ed5da9618044:index.php
             <!-- Email -->
                 <div class="mb-4 w-80 mx-auto">
                     <label for="email" class="block text-sm text-gray-600">Email</label>
@@ -128,19 +149,26 @@
                     <input type="password" id="password" name="password" 
                     class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700
                     outline-none transition-all duration-300 focus:border-[#00254a] focus:ring-1" required placeholder="Enter your password">
+<<<<<<< HEAD:userinterface/index.php
                 
                 <!-- Show Password -->
                     <button type="button" onclick="togglePassword('password','eyeIcon', event)" class="absolute inset-y-0 right-12 flex items-center pt-4">
                     <img id="eyeIcon" src="assets/hidden.png" alt="Show Password" class="w-6 h-6 opacity-70 hover:opacity-100 transition">
                     </button>
                 
+=======
+>>>>>>> 2b90e8fc23fa83599d99b96576a8ed5da9618044:index.php
                 </div>
 
             <!-- Forgot Password -->
                 <p class="text-sm text-[#00B58B] font-semibold hover:underline cursor-pointer mb-4 w-80 mx-auto text-left">
                     <a href="#">Forgot your password?</a>
                 </p>
+<<<<<<< HEAD:userinterface/index.php
                 <button type="submit" name="login" class="w-40 px-4 py-2 bg-[#242424] text-white transition-transform transform hover:scale-105 hover:bg-gray-700">
+=======
+                <button type="submit" class="w-40 px-4 py-2 bg-[#242424] text-white transition-transform transform hover:scale-105 hover:bg-gray-700">
+>>>>>>> 2b90e8fc23fa83599d99b96576a8ed5da9618044:index.php
                     SIGN IN
                 </button>
                 <p class="mt-4 text-sm">Don't have an account? <span onclick="toggleSignupModal()" class="text-[#00B58B] cursor-pointer font-semibold hover:underline">Sign up</span></p>
@@ -148,6 +176,7 @@
         </div>
     </div>
 
+<<<<<<< HEAD:userinterface/index.php
     <!-- ForgotPassword -->
      <div id="forgotPasswordModal" class="hidden fixed inset-0 flex items-center justify">
         <div class="shadow-lg bg-white p-6 rounded-lg w-96 relative">
@@ -157,12 +186,18 @@
         </div>
      </div>
 
+=======
+>>>>>>> 2b90e8fc23fa83599d99b96576a8ed5da9618044:index.php
     <!-- Signup Modal -->
     <div id="signupModal" class="hidden fixed inset-0 flex items-center justify-center z-50">
         <div class="relative bg-white p-6 rounded-lg shadow-xl w-100 relative">
             <button onclick="toggleSignupModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl font-bold">&times;</button>
 
+<<<<<<< HEAD:userinterface/index.php
             <h2 class="text-2xl font-bold font-['Noto_Sans_Georgian'] mb-4 text-center">Sign Up</h2>
+=======
+            <h2 class="text-3xl font-bold font-['Noto_Sans_Georgian'] mb-4 text-center">Sign Up</h2>
+>>>>>>> 2b90e8fc23fa83599d99b96576a8ed5da9618044:index.php
             
             <form class="flex flex-col items-center">
                 <!-- Full Name -->
@@ -190,6 +225,7 @@
                 </div>
 
                 <!-- Password -->
+<<<<<<< HEAD:userinterface/index.php
                 <div class="mb-4 w-84 mx-auto relative">
                     <input type="password" id="signupPassword" name="password" 
                         class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md bg-gray-100 text-gray-700 
@@ -219,6 +255,25 @@
 
                 <!-- Signup Button -->
                 <button type="submit" name="signup" class="w-40 px-4 py-2 bg-[#242424] text-white transition-transform transform hover:scale-105 hover:bg-gray-700">
+=======
+                <div class="mb-4 w-84 mx-auto">
+                    <input type="password" id="password" name="password" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700 
+                        outline-none transition-all duration-300 focus:border-[#00254a] focus:ring-1"
+                        required placeholder="Password">
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="mb-6 w-84 mx-auto">
+                    <input type="password" id="confirmPassword" name="confirmPassword" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700 
+                        outline-none transition-all duration-300 focus:border-[#00254a] focus:ring-1"
+                        required placeholder="Confirm Password">
+                </div>
+
+                <!-- Signup Button -->
+                <button type="submit" class="w-40 px-4 py-2 bg-[#242424] text-white transition-transform transform hover:scale-105 hover:bg-gray-700">
+>>>>>>> 2b90e8fc23fa83599d99b96576a8ed5da9618044:index.php
                     SIGN UP
                 </button>
 
@@ -250,7 +305,11 @@
 
     <!-- Description Section -->
     <section class="text-center py-25 px-6 mt-2">
+<<<<<<< HEAD:userinterface/index.php
         <h2 class="text-4xl font-['Second_Quotes']">Your Escape to Serenity</h2>
+=======
+        <h2 class="text-4xl font-second-quotes font-['Second_Quotes']">Your Escape to Serenity</h2>
+>>>>>>> 2b90e8fc23fa83599d99b96576a8ed5da9618044:index.php
         <p class="mt-10 text-gray-600 max-w-3xl mx-auto font-['Ubuntu_Sans']">
             Looking for a relaxing escape? Casita De Grands, hidden away in the lush greenery of Muladbucad Grande, Guinobatan, Albay, is the perfect place to unwind.
             Just minutes from Guinobatan Centro, our resort offers a peaceful retreat surrounded by nature. Take a dip in our beautiful infinity pool and immerse yourself
@@ -261,6 +320,7 @@
         </p>
     </section>
 
+<<<<<<< HEAD:userinterface/index.php
     <!-- Carousel Section -->
     <section class="text-center py-50 px-6 mt-2 mb-10">
         <div class="relative">
@@ -443,4 +503,7 @@
 
 </body>
 
+=======
+</body>
+>>>>>>> 2b90e8fc23fa83599d99b96576a8ed5da9618044:index.php
 </html>

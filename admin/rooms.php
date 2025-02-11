@@ -19,9 +19,6 @@ if (!file_exists($upload_dir)) {
     echo "Created directory: $upload_dir";
 }
 
-
-
-
 // Add new room
 if (isset($_POST['add_room'])) {
     $room_name = $_POST['room_name'];
@@ -78,6 +75,57 @@ if (isset($_POST['add_room'])) {
     exit();
 }
 
+// Edit room
+if (isset($_POST['edit_room'])) {
+    $id = $_POST['id'];
+    $room_name = $_POST['room_name'];
+    $price = $_POST['price'];
+    $capacity = $_POST['capacity'];
+    $inclusions = $_POST['inclusions'];
+    $image = $_POST['current_image'];
+
+    // Handle image upload
+    if(isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+        $allowed = ['jpg', 'jpeg', 'png', 'webp'];
+        $filename = $_FILES['image']['name'];
+        $filetype = pathinfo($filename, PATHINFO_EXTENSION);
+        
+        if(in_array(strtolower($filetype), $allowed)) {
+            $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/Online-Resort-Management/uploads/rooms';
+            $new_filename = time() . '.' . $filetype;
+            $upload_path = $upload_dir . '/' . $new_filename;
+            
+            if(move_uploaded_file($_FILES['image']['tmp_name'], $upload_path)) {
+                $image = $new_filename;
+            } else {
+                $_SESSION['success'] = false;
+                $_SESSION['message'] = "Error uploading image. Error: " . $_FILES['image']['error'];
+                header("Location: rooms.php");
+                exit();
+            }
+        } else {
+            $_SESSION['success'] = false;
+            $_SESSION['message'] = "Invalid file type. Allowed types: " . implode(', ', $allowed);
+            header("Location: rooms.php");
+            exit();
+        }
+    }
+
+    $sql = "UPDATE rooms SET room_name = ?, price = ?, capacity = ?, inclusions = ?, image = ? WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sdissi", $room_name, $price, $capacity, $inclusions, $image, $id);
+    
+    if ($stmt->execute()) {
+        $_SESSION['success'] = true;
+        $_SESSION['message'] = "Room updated successfully!";
+    } else {
+        $_SESSION['success'] = false;
+        $_SESSION['message'] = "Error updating room.";
+    }
+    header("Location: rooms.php");
+    exit();
+}
+
 // Delete room
 if (isset($_GET['delete'])) {
     $id = $_GET['delete'];
@@ -118,8 +166,9 @@ if (isset($_GET['delete'])) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rooms Management</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.lordicon.com/bhenfmcm.js"></script>
 </head>
@@ -190,20 +239,15 @@ if (isset($_GET['delete'])) {
                     </div>
                     <?php endif; ?>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <button onclick="editRoom(<?php echo $row['id']; ?>)"
-                      class="flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-1 rounded-md mb-2">
-                      <lord-icon src="https://cdn.lordicon.com/wloilxuq.json" trigger="hover" colors="primary:#ffffff"
-                        style="width:25px;height:25px">
-                      </lord-icon>
-
+                  <td class="px-6 py-4 whitespace-nowrap flex items-center">
+                    <button
+                      onclick="editRoom(<?php echo $row['id']; ?>, '<?php echo $row['room_name']; ?>', <?php echo $row['price']; ?>, <?php echo $row['capacity']; ?>, '<?php echo $row['inclusions']; ?>', '<?php echo $row['image']; ?>')"
+                      class="text-yellow-500 hover:text-yellow-600 p-1 rounded-md">
+                      <span class="material-symbols-outlined">edit</span>
                     </button>
                     <button onclick="confirmDelete(<?php echo $row['id']; ?>)"
-                      class="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded-md">
-                      <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="hover" colors="primary:#ffffff"
-                        style="width:25px;height:25px">
-                      </lord-icon>
-
+                      class="text-red-500 hover:text-red-600 p-1 rounded-md ml-2">
+                      <span class="material-symbols-outlined">delete</span>
                     </button>
                   </td>
                 </tr>
@@ -270,6 +314,67 @@ if (isset($_GET['delete'])) {
               </form>
             </div>
           </div>
+
+          <!-- Edit Room Modal -->
+          <div id="editRoomModal"
+            class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+            <div class="bg-white rounded-lg shadow-xl w-11/12 md:w-2/3 lg:w-1/2">
+              <div class="bg-yellow-500 text-white p-4 rounded-t-lg">
+                <h3 class="text-lg font-semibold">Edit Room</h3>
+              </div>
+              <form action="" method="POST" enctype="multipart/form-data" class="p-6">
+                <input type="hidden" name="id" id="editRoomId">
+                <div class="grid grid-cols-2 gap-6">
+                  <div class="col-span-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                      Room Name
+                    </label>
+                    <input type="text" name="room_name" id="editRoomName" required
+                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                  </div>
+                  <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                      Price (₱)
+                    </label>
+                    <input type="number" name="price" id="editRoomPrice" step="0.01" required
+                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                  </div>
+                  <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                      Capacity (persons)
+                    </label>
+                    <input type="number" name="capacity" id="editRoomCapacity" required
+                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                  </div>
+                  <div class="col-span-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                      Inclusions
+                    </label>
+                    <textarea name="inclusions" id="editRoomInclusions" rows="3" required
+                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-yellow-500"></textarea>
+                  </div>
+                  <div class="col-span-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                      Room Image
+                    </label>
+                    <input type="file" name="image" accept="image/*"
+                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                    <input type="hidden" name="current_image" id="editRoomCurrentImage">
+                  </div>
+                </div>
+                <div class="flex justify-end gap-4 mt-6">
+                  <button type="button" onclick="document.getElementById('editRoomModal').classList.add('hidden')"
+                    class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    Cancel
+                  </button>
+                  <button type="submit" name="edit_room"
+                    class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                    Update Room
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       </main>
     </div>
@@ -308,9 +413,19 @@ if (isset($_GET['delete'])) {
     });
   }
 
+  function editRoom(id, name, price, capacity, inclusions, currentImage) {
+    document.getElementById('editRoomId').value = id;
+    document.getElementById('editRoomName').value = name;
+    document.getElementById('editRoomPrice').value = price;
+    document.getElementById('editRoomCapacity').value = capacity;
+    document.getElementById('editRoomInclusions').value = inclusions;
+    document.getElementById('editRoomCurrentImage').value = currentImage;
+    document.getElementById('editRoomModal').classList.remove('hidden');
+  }
+
   // Close modal when clicking outside
   window.onclick = function(event) {
-    let modal = document.getElementById('addRoomModal');
+    let modal = document.getElementById('editRoomModal');
     if (event.target == modal) {
       modal.classList.add('hidden');
     }

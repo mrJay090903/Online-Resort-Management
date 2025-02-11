@@ -170,9 +170,10 @@ if (isset($_POST['edit_staff'])) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Staff Account</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
   <!-- Add SweetAlert2 CSS and JS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <!-- Add Lordicon -->
   <script src="https://cdn.lordicon.com/bhenfmcm.js"></script>
@@ -231,14 +232,12 @@ if (isset($_POST['edit_staff'])) {
                   <td class="px-6 py-4 whitespace-nowrap flex gap-2">
                     <button
                       onclick="editStaff(<?php echo $row['id']; ?>, '<?php echo $row['staff_name']; ?>', '<?php echo $row['contact_number']; ?>', '<?php echo $row['email']; ?>')"
-                      class="flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-1 rounded-md mb-2">
-                      <lord-icon src="https://cdn.lordicon.com/wloilxuq.json" trigger="hover" colors="primary:#ffffff"
-                        style="width:25px;height:25px">
+                      class="text-yellow-500 hover:text-yellow-600 p-1 rounded-md">
+                      <span class="material-symbols-outlined">edit</span>
                     </button>
                     <button onclick="confirmDelete(<?php echo $row['id']; ?>)"
-                      class="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded-md mb-2">
-                      <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="hover" colors="primary:#ffffff"
-                        style="width:25px;height:25px ">
+                      class="text-red-500 hover:text-red-600 p-1 rounded-md ml-2">
+                      <span class="material-symbols-outlined">delete</span>
                     </button>
                   </td>
                 </tr>
@@ -257,15 +256,16 @@ if (isset($_POST['edit_staff'])) {
               </div>
               <!-- Modal Body -->
               <div class="p-6">
-                <form action="" method="POST">
+                <form action="" method="POST" id="addStaffForm">
                   <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="staff_name">
                       Staff Name
                     </label>
                     <input
                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      type="text" id="staff_name" name="staff_name" required>
-                    <!-- Error message will be inserted here -->
+                      type="text" id="staff_name" name="staff_name" required oninput="validateStaffName()">
+                    <p id="staff_name_error" class="text-red-500 text-xs hidden">Only letters and white space allowed.
+                    </p>
                   </div>
                   <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="contact">
@@ -273,8 +273,9 @@ if (isset($_POST['edit_staff'])) {
                     </label>
                     <input
                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      type="text" id="contact" name="contact" required>
-                    <!-- Error message will be inserted here -->
+                      type="text" id="contact" name="contact" required oninput="validateContact()">
+                    <p id="contact_error" class="text-red-500 text-xs hidden">Invalid contact number format (must be 11
+                      digits).</p>
                   </div>
                   <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
@@ -282,8 +283,8 @@ if (isset($_POST['edit_staff'])) {
                     </label>
                     <input
                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      type="email" id="email" name="email" required>
-                    <!-- Error message will be inserted here -->
+                      type="email" id="email" name="email" required oninput="validateEmail()">
+                    <p id="email_error" class="text-red-500 text-xs hidden">Invalid email format.</p>
                   </div>
                   <div class="mb-6">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
@@ -291,8 +292,9 @@ if (isset($_POST['edit_staff'])) {
                     </label>
                     <input
                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      type="password" id="password" name="password" required>
-                    <!-- Error message will be inserted here -->
+                      type="password" id="password" name="password" required oninput="validatePassword()">
+                    <p id="password_error" class="text-red-500 text-xs hidden">Password must be at least 6 characters.
+                    </p>
                   </div>
                   <!-- Modal Footer -->
                   <div class="flex items-center justify-end gap-4">
@@ -302,7 +304,7 @@ if (isset($_POST['edit_staff'])) {
                     </button>
                     <button
                       class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      type="submit" name="add_staff">
+                      type="submit" name="add_staff" id="add_staff_button">
                       Add Staff
                     </button>
                   </div>
@@ -310,6 +312,7 @@ if (isset($_POST['edit_staff'])) {
               </div>
             </div>
           </div>
+
 
           <!-- Edit Staff Modal -->
           <div id="editStaffModal"
@@ -433,6 +436,87 @@ if (isset($_POST['edit_staff'])) {
     }
     if (event.target == editModal) {
       editModal.classList.add('hidden');
+    }
+  }
+
+  function validateStaffName() {
+    const staffNameInput = document.getElementById('staff_name');
+    const staffNameError = document.getElementById('staff_name_error');
+    const regex = /^[a-zA-Z ]*$/;
+
+    if (staffNameInput.value.trim() === '') {
+      staffNameError.textContent = "Staff name is required.";
+      staffNameError.classList.remove('hidden');
+      staffNameInput.classList.add('border-red-500');
+      staffNameInput.classList.remove('border-green-500');
+    } else if (!regex.test(staffNameInput.value)) {
+      staffNameError.textContent = "Only letters and white space allowed.";
+      staffNameError.classList.remove('hidden');
+      staffNameInput.classList.add('border-red-500');
+      staffNameInput.classList.remove('border-green-500');
+    } else {
+      staffNameError.classList.add('hidden');
+      staffNameInput.classList.add('border-green-500');
+      staffNameInput.classList.remove('border-red-500');
+    }
+  }
+
+  function validateContact() {
+    const contactInput = document.getElementById('contact');
+    const contactError = document.getElementById('contact_error');
+    const regex = /^[0-9]{11}$/;
+
+    if (contactInput.value.trim() === '') {
+      contactError.textContent = "Contact number is required.";
+      contactError.classList.remove('hidden');
+      contactInput.classList.add('border-red-500');
+      contactInput.classList.remove('border-green-500');
+    } else if (!regex.test(contactInput.value)) {
+      contactError.textContent = "Invalid contact number format (must be 11 digits).";
+      contactError.classList.remove('hidden');
+      contactInput.classList.add('border-red-500');
+      contactInput.classList.remove('border-green-500');
+    } else {
+      contactError.classList.add('hidden');
+      contactInput.classList.add('border-green-500');
+      contactInput.classList.remove('border-red-500');
+    }
+  }
+
+  function validateEmail() {
+    const emailInput = document.getElementById('email');
+    const emailError = document.getElementById('email_error');
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (emailInput.value.trim() === '') {
+      emailError.textContent = "Email is required.";
+      emailError.classList.remove('hidden');
+      emailInput.classList.add('border-red-500');
+      emailInput.classList.remove('border-green-500');
+    } else if (!regex.test(emailInput.value)) {
+      emailError.textContent = "Invalid email format.";
+      emailError.classList.remove('hidden');
+      emailInput.classList.add('border-red-500');
+      emailInput.classList.remove('border-green-500');
+    } else {
+      emailError.classList.add('hidden');
+      emailInput.classList.add('border-green-500');
+      emailInput.classList.remove('border-red-500');
+    }
+  }
+
+  function validatePassword() {
+    const passwordInput = document.getElementById('password');
+    const passwordError = document.getElementById('password_error');
+
+    if (passwordInput.value.length < 6) {
+      passwordError.classList.remove('hidden');
+      passwordInput.classList.add('border-red-500');
+      passwordInput.classList.remove('border-green-500');
+    } else {
+      passwordError.classList.add('hidden');
+      passwordInput.classList.add('border-green-500');
+      passwordInput.classList.remove('border-red-500');
     }
   }
   </script>
