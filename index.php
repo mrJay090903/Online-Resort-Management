@@ -194,9 +194,9 @@
       <h2 class="text-center mb-4 text-4xl font-['Ephesis']">Discover Your Perfect Stay</h2>
       <!-- Carousel Container -->
       <div id="carousel" class="flex transition-transform duration-500 ease-in-out">
-        <img src="components/image1.jpg" alt="Image 1" class="w-full flex-shrink-0">
-        <img src="components/image2.jpg" alt="Image 2" class="w-full flex-shrink-0">
-        <img src="components/image3.jpg" alt="Image 3" class="w-full flex-shrink-0">
+        <img src="assets/image1.jpg" alt="Image 1" class="w-full flex-shrink-0">
+        <img src="assets/image2.jpg" alt="Image 2" class="w-full flex-shrink-0">
+        <img src="assets/image3.jpg" alt="Image 3" class="w-full flex-shrink-0">
       </div>
 
       <!-- Left Button -->
