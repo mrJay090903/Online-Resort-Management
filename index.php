@@ -7,43 +7,7 @@
   <title>Casita De Grands</title>
   <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 
-  <script>
-  // Modal Toggle
-  function toggleModal() {
-    document.getElementById('loginModal').classList.toggle('hidden');
-  }
 
-  function toggleSignupModal() {
-    document.getElementById('signupModal').classList.toggle('hidden');
-    document.getElementById('loginModal').classList.add('hidden');
-  }
-
-  function toggleForgotpass() {
-    document.getElementById('forgotPasswordModal').classList.toggle('hidden');
-  }
-
-  function switchToLogin() {
-    toggleSignupModal();
-    toggleModal();
-  }
-
-  // Show Password Toggle
-  function togglePassword(inputId, eyeIconId, event) {
-    if (event) {
-      event.preventDefault();
-    }
-    const passwordInput = document.getElementById(inputId);
-    const eyeIcon = document.getElementById(eyeIconId);
-
-    if (passwordInput.type === "password") {
-      passwordInput.type = "text";
-      eyeIcon.src = "components/eye.png";
-    } else {
-      passwordInput.type = "password";
-      eyeIcon.src = "components/hidden.png";
-    }
-  }
-  </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -413,3 +377,42 @@
 </body>
 
 </html>
+
+
+<script>
+// Modal Toggle
+function toggleModal() {
+  document.getElementById('loginModal').classList.toggle('hidden');
+}
+
+function toggleSignupModal() {
+  document.getElementById('signupModal').classList.toggle('hidden');
+  document.getElementById('loginModal').classList.add('hidden');
+}
+
+function toggleForgotpass() {
+  document.getElementById('forgotPasswordModal').classList.toggle('hidden');
+}
+
+function switchToLogin() {
+  toggleSignupModal();
+  toggleModal();
+}
+
+// Show Password Toggle
+function togglePassword(inputId, eyeIconId, event) {
+  if (event) {
+    event.preventDefault();
+  }
+  const passwordInput = document.getElementById(inputId);
+  const eyeIcon = document.getElementById(eyeIconId);
+
+  if (passwordInput.type === "password") {
+    passwordInput.type = "text";
+    eyeIcon.src = "components/eye.png";
+  } else {
+    passwordInput.type = "password";
+    eyeIcon.src = "components/hidden.png";
+  }
+}
+</script>
