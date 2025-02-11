@@ -59,7 +59,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Ubuntu+Sans:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">        
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Ephesis&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.cdnfonts.com/css/winter-story" rel="stylesheet">
 </head>
 
 <body class="font-sans">
@@ -114,7 +114,6 @@
             <h2 class="text-2xl font-bold text-center mb-4">Sign In</h2>
 
             <form class="flex flex-col items-center">
-
             <!-- Email -->
                 <div class="mb-4 w-80 mx-auto">
                     <label for="email" class="block text-sm text-gray-600">Email</label>
@@ -141,7 +140,7 @@
                 <p class="text-sm text-[#00B58B] font-semibold hover:underline cursor-pointer mb-4 w-80 mx-auto text-left">
                     <a href="#">Forgot your password?</a>
                 </p>
-                <button type="submit" class="w-40 px-4 py-2 bg-[#242424] text-white transition-transform transform hover:scale-105 hover:bg-gray-700">
+                <button type="submit" name="login" class="w-40 px-4 py-2 bg-[#242424] text-white transition-transform transform hover:scale-105 hover:bg-gray-700">
                     SIGN IN
                 </button>
                 <p class="mt-4 text-sm">Don't have an account? <span onclick="toggleSignupModal()" class="text-[#00B58B] cursor-pointer font-semibold hover:underline">Sign up</span></p>
@@ -219,7 +218,7 @@
                 </div>
 
                 <!-- Signup Button -->
-                <button type="submit" class="w-40 px-4 py-2 bg-[#242424] text-white transition-transform transform hover:scale-105 hover:bg-gray-700">
+                <button type="submit" name="signup" class="w-40 px-4 py-2 bg-[#242424] text-white transition-transform transform hover:scale-105 hover:bg-gray-700">
                     SIGN UP
                 </button>
 
@@ -251,7 +250,7 @@
 
     <!-- Description Section -->
     <section class="text-center py-25 px-6 mt-2">
-        <h2 class="text-4xl font-second-quotes font-['Second_Quotes']">Your Escape to Serenity</h2>
+        <h2 class="text-4xl font-['Second_Quotes']">Your Escape to Serenity</h2>
         <p class="mt-10 text-gray-600 max-w-3xl mx-auto font-['Ubuntu_Sans']">
             Looking for a relaxing escape? Casita De Grands, hidden away in the lush greenery of Muladbucad Grande, Guinobatan, Albay, is the perfect place to unwind.
             Just minutes from Guinobatan Centro, our resort offers a peaceful retreat surrounded by nature. Take a dip in our beautiful infinity pool and immerse yourself
@@ -313,6 +312,133 @@
             updateCarousel();
         }
     </script>
+
+    <!-- Feature Section -->
+    <section class="bg-gray-100 py-16">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-4xl font-bold text-gray-800 mb-6">Our Features</h2>
+            <p class="text-gray-600 mb-12 text-lg">Discover the luxurious amenities and breathtaking experiences at Casita De Grands.</p>
+
+            <div class="grid md:grid-cols-3 gap-12">
+                <!-- Feature 1 -->
+                <div class="bg-white p-6 shadow-lg rounded-lg hover:shadow-xl transition">
+                    <img src="assets/infinity-pool.png" alt="Infinity Pool" class="w-16 h-16 mx-auto mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800">Infinity Pool</h3>
+                    <p class="text-gray-600 mt-2">Enjoy a refreshing swim with a stunning view of nature.</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="bg-white p-6 shadow-lg rounded-lg hover:shadow-xl transition">
+                    <img src="assets/cottage.png" alt="Cozy Cottages" class="w-16 h-16 mx-auto mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800">Cozy Cottages</h3>
+                    <p class="text-gray-600 mt-2">Relax in our well-designed cottages surrounded by lush greenery.</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="bg-white p-6 shadow-lg rounded-lg hover:shadow-xl transition">
+                    <img src="assets/nature.png" alt="Nature Escape" class="w-16 h-16 mx-auto mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800">Nature Escape</h3>
+                    <p class="text-gray-600 mt-2">Experience tranquility and reconnect with nature.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+        <!-- Customer Feedback Section -->
+        <section class="bg-white py-24">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-4xl font-['Second_Quotes'] text-gray-800 mb-2">Customer’s Feedback</h2>
+                <p class="text-gray-500 uppercase text-xs tracking-[0.5em] mb-12 font-['Raleway']">Your Opinion Matters</p>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Feedback 1 -->
+                    <div class="bg-gray-100 p-8 rounded-lg shadow-md">
+                        <img src="assets/jay-ar.png" alt="Jay-Ar C." class="w-16 h-16 mx-auto rounded-full mb-4">
+                        <p class="italic text-gray-600">
+                            "An absolutely magical experience. The attention to detail and personalized service exceeded all our expectations. The Casita was a paradise within paradise."
+                        </p>
+                        <h3 class="mt-4 font-semibold text-gray-800">Jay-Ar C.</h3>
+                    </div>
+
+                    <!-- Feedback 2 -->
+                    <div class="bg-gray-100 p-8 rounded-lg shadow-md">
+                        <img src="assets/michael.png" alt="Michael John D." class="w-16 h-16 mx-auto rounded-full mb-4">
+                        <p class="italic text-gray-600">
+                            "The culinary experience was outstanding. Each meal was a journey through flavors, and the private dining setup in our La Villa Grande made every evening special."
+                        </p>
+                        <h3 class="mt-4 font-semibold text-gray-800">Michael John D.</h3>
+                    </div>
+
+                    <!-- Feedback 3 -->
+                    <div class="bg-gray-100 p-8 rounded-lg shadow-md">
+                        <img src="assets/jonathan.png" alt="Jonathan B." class="w-16 h-16 mx-auto rounded-full mb-4">
+                        <p class="italic text-gray-600">
+                            "The exceptional customer service and delicious catering exceeded all expectations. Paired with the stunning infinity pool and the serene environment, it truly became the perfect escape from city life."
+                        </p>
+                        <h3 class="mt-4 font-semibold text-gray-800">Jonathan B.</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Begin Your Journey Section -->
+        <section class="bg-gray-900 text-white py-35 text-center">
+            <h2 class="text-4xl font-cursive mb-4 font-['Winter_Story']">Begin Your Journey</h2>
+            <p class="text-gray-400 mb-6">Experience luxury beyond imagination at Casita De Grands</p>
+            <a href="#booking" class="border border-white text-white px-6 py-3 inline-block hover:bg-white hover:text-gray-900 transition">Book Your Stay</a>
+        </section>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-gray-300 py-12">
+            <div class="container mx-auto grid md:grid-cols-4 gap-8 text-center md:text-left px-6">
+                <!-- Email -->
+                <div>
+                    <p class="font-semibold mb-2">EMAIL</p>
+                    <a href="mailto:casitadegrands@gmail.com" class="flex items-center justify-center md:justify-start space-x-2">
+                        <img src="assets/email.svg" alt="Email Icon" class="w-4 h-4">
+                        <span class="font-semibold text-sm">casitadegrands@gmail.com</span>
+                    </a>
+                </div>
+                <!-- Location -->
+                <div>
+                    <p class="font-semibold mb-2">LOCATION</p>
+                    <a href="https://www.google.com/maps" target="_blank" class="text-blue-400 flex items-center justify-center md:justify-start space-x-2">
+                    <img src="assets/location.svg" alt="Location Icon" class="w-4 h-4">
+                        <span class="font-semibold hover:underline text-sm">See Us On Google Maps</span>
+                    </a>
+                </div>
+                <!-- Phone -->
+                <div>
+                    <p class="font-semibold mb-2">PHONE</p>
+                    <a href="tel:+639458510079" class="flex items-center justify-center md:justify-start space-x-2">
+                        <img src="assets/phone-call.png" alt="Contact Number" class="w-4 h-4">
+                        <span class="font-semibold text-sm">+63 945 851 0079</span>
+                    </a>
+                </div>
+                <!-- Social Media -->
+                <div>
+                    <p class="font-semibold mb-2">FOLLOW US</p>
+                    <div class="flex justify-center md:justify-start space-x-4 text-xl">
+                        <a href="https://web.facebook.com/profile.php?id=100086503127265" class="hover:text-white">
+                            <img src="assets/facebook.svg" alt="Facebook" class="w-5 h-5">
+                        </a>
+                        <a href="https://www.instagram.com/casitadegrands?igsh=Nmc4eHd4bzdyNWNt" class="hover:text-white">
+                            <img src="assets/insta.svg" alt="Instagram" class="w-5 h-5">
+                        </a>
+                        <a href="https://www.tiktok.com/@casitadegrands?_t=ZS-8towhdTSauO&_r=1" class="hover:text-white">
+                            <img src="assets/tiktok.svg" alt="TikTok" class="w-5 h-5">
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Copyright -->
+            <div class="text-center text-gray-500 mt-15">
+                &copy; Copyright 2024 Casita De Grands - All Rights Reserved
+            </div>
+        </footer>
+
 
 
 </body>
