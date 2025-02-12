@@ -132,6 +132,7 @@
         <span x-show="open" x-cloak class="ml-3">Guest Feedback</span>
       </a>
 
+<<<<<<< HEAD
       <a href="logout.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
         :class="{'justify-center': !open}">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -142,4 +143,23 @@
       </a>
     </nav>
   </div>
+=======
+        <a href="guest_feedback.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600" :class="{'justify-center': !open}">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+          </svg>
+          <span x-show="open" x-cloak class="ml-3">Guest Feedback</span>
+        </a>
+
+    <a href="logout.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+      </svg>
+      Logout
+    </a>
+  </nav>
+>>>>>>> cb9c94f55812c50a8c324495e9a8cb5aef405141
 </div>
