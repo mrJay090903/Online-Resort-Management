@@ -12,7 +12,7 @@
       </a>
     </li>
     <li class="relative group">
-      <a href="rooms.php" class="text-black hover:text-gray-600">Rooms
+      <a href="#" class="text-black hover:text-gray-600">Rooms
         <span class="absolute left-0 bottom-0 w-0 h-0.5 bg-black group-hover:w-full transition-all duration-300"></span>
       </a>
     </li>
@@ -27,7 +27,7 @@
       </a>
     </li>
     <li class="relative group">
-      <a href="about-us.php" class="text-black hover:text-gray-600">About us
+      <a href="aboutus.php" class="text-black hover:text-gray-600">About us
         <span class="absolute left-0 bottom-0 w-0 h-0.5 bg-black group-hover:w-full transition-all duration-300"></span>
       </a>
     </li>
