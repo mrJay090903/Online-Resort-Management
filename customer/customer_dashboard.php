@@ -512,9 +512,7 @@ if (isset($_POST['signup'])) {
       <div>
         <p class="font-semibold mb-2">EMAIL</p>
         <a href="mailto:casitadegrands@gmail.com" class="flex items-center justify-center md:justify-start space-x-2">
-          <svg class="w-4 h-4 fill-current text-gray-300" viewBox="0 0 24 24">
-            <path d="M12 13.5l-11-7V6l11 7 11-7v.5l-11 7zm0 1.5l-11-7V18h22V8l-11 7z"></path>
-          </svg>
+          <img src="../assets/email.svg" alt="Email Icon" class="w-4 h-4">
           <span class="font-semibold text-sm">casitadegrands@gmail.com</span>
         </a>
       </div>
@@ -522,12 +520,8 @@ if (isset($_POST['signup'])) {
       <div>
         <p class="font-semibold mb-2">LOCATION</p>
         <a href="https://www.google.com/maps" target="_blank"
-          class="flex items-center justify-center md:justify-start space-x-2">
-          <svg class="w-4 h-4 fill-current text-gray-300" viewBox="0 0 24 24">
-            <path
-              d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z">
-            </path>
-          </svg>
+          class=" flex items-center justify-center md:justify-start space-x-2">
+          <img src="../assets/location.svg" alt="Location Icon" class="w-4 h-4">
           <span class="font-semibold hover:underline text-sm">See Us On Google Maps</span>
         </a>
       </div>
@@ -535,11 +529,7 @@ if (isset($_POST['signup'])) {
       <div>
         <p class="font-semibold mb-2">PHONE</p>
         <a href="tel:+639458510079" class="flex items-center justify-center md:justify-start space-x-2">
-          <svg class="w-4 h-4 fill-current text-gray-300" viewBox="0 0 24 24">
-            <path
-              d="M6.6 10.2c1.2 2.6 3.2 4.7 5.8 5.8l1.9-1.9c.3-.3.7-.4 1.1-.3.9.3 1.8.4 2.7.4.6 0 1 .4 1 1v3c0 .6-.4 1-1 1C9.8 19.2 4.8 14.2 4.8 8c0-.6.4-1 1-1h3c.6 0 1 .4 1 1 .1.9.2 1.8.4 2.7.1.4 0 .8-.3 1.1l-1.9 1.9z">
-            </path>
-          </svg>
+          <img src="../assets/phone-call.png" alt="Contact Number" class="w-4 h-4">
           <span class="font-semibold text-sm">+63 945 851 0079</span>
         </a>
       </div>
@@ -548,36 +538,22 @@ if (isset($_POST['signup'])) {
         <p class="font-semibold mb-2">FOLLOW US</p>
         <div class="flex justify-center md:justify-start space-x-4 text-xl">
           <a href="https://web.facebook.com/profile.php?id=100086503127265" class="hover:text-white">
-            <svg class="w-5 h-5 fill-current text-gray-300" viewBox="0 0 24 24">
-              <path
-                d="M22 12a10 10 0 1 0-11.6 9.9v-7h-2v-3h2V9.6c0-2 1.2-3.2 3-3.2.9 0 1.8.2 1.8.2v2h-1c-1 0-1.3.6-1.3 1.2V12h2.6l-.4 3h-2.2v7A10 10 0 0 0 22 12z">
-              </path>
-            </svg>
+            <img src="../assets/facebook.svg" alt="Facebook" class="w-5 h-5">
           </a>
           <a href="https://www.instagram.com/casitadegrands?igsh=Nmc4eHd4bzdyNWNt" class="hover:text-white">
-            <svg class="w-5 h-5 fill-current text-gray-300" viewBox="0 0 24 24">
-              <path
-                d="M7.5 2C4.4 2 2 4.4 2 7.5v9C2 19.6 4.4 22 7.5 22h9c3.1 0 5.5-2.4 5.5-5.5v-9C22 4.4 19.6 2 16.5 2h-9zm9 2c2 0 3.5 1.5 3.5 3.5v9c0 2-1.5 3.5-3.5 3.5h-9c-2 0-3.5-1.5-3.5-3.5v-9C4 5.5 5.5 4 7.5 4h9zM12 6.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7zm5-1.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2z">
-              </path>
-            </svg>
+            <img src="../assets/insta.svg" alt="Instagram" class="w-5 h-5">
           </a>
           <a href="https://www.tiktok.com/@casitadegrands?_t=ZS-8towhdTSauO&_r=1" class="hover:text-white">
-            <svg class="w-5 h-5 fill-current text-gray-300" viewBox="0 0 24 24">
-              <path
-                d="M12 2c1.9 0 3.6.7 5 2 1.4 1.4 2 3.1 2 5h-3c0-.9-.2-1.8-.6-2.6-.4-.8-1-1.5-1.8-2-.8-.5-1.7-.8-2.6-.8-2.6 0-4.7 2.1-4.7 4.7S9.4 14 12 14c1.9 0 3.6-1 4.6-2.5h3.1c-1.2 3.1-4.1 5.5-7.6 5.5-4.4 0-8-3.6-8-8S7.6 2 12 2z">
-              </path>
-            </svg>
+            <img src="../assets/tiktok.svg" alt="TikTok" class="w-5 h-5">
           </a>
         </div>
       </div>
     </div>
-  </footer>
 
-
-  <!-- Copyright -->
-  <div class="text-center text-gray-500 mt-15">
-    &copy; Copyright 2024 Casita De Grands - All Rights Reserved
-  </div>
+    <!-- Copyright -->
+    <div class="text-center text-gray-500 mt-15">
+      &copy; Copyright 2024 Casita De Grands - All Rights Reserved
+    </div>
   </footer>
   </div>
   </main>

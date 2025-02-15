@@ -219,13 +219,126 @@ if (isset($_POST['signup'])) {
   endif; 
   ?>
 
-  <?php 
-  // Include the navbar
-  include('components/navbar.php'); 
-  ?>
+  <!-- Navigation -->
+  <nav class="bg-white shadow-lg fixed w-full z-50">
+    <div class="max-w-full px-4">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo -->
+        <div class="flex items-center">
+          <img src="assets/casitalogo-removebg-preview.png" alt="Logo" class="h-12 w-auto">
+        </div>
+
+        <!-- Navigation Links - Centered -->
+        <div class="hidden md:flex items-center justify-center flex-1">
+          <div class="flex space-x-8">
+            <a href="index.php"
+              class="relative font-medium text-gray-800 hover:text-gray-600 transition-colors duration-300 group">
+              Home
+              <span
+                class="absolute inset-x-0 bottom-0 h-0.5 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+            </a>
+
+            <a href="#"
+              class="relative font-medium text-gray-800 hover:text-gray-600 transition-colors duration-300 group">
+              Rooms
+              <span
+                class="absolute inset-x-0 bottom-0 h-0.5 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+            </a>
+
+            <a href="#"
+              class="relative font-medium text-gray-800 hover:text-gray-600 transition-colors duration-300 group">
+              Reservations
+              <span
+                class="absolute inset-x-0 bottom-0 h-0.5 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+            </a>
+
+            <a href="index.php#features"
+              class="relative font-medium text-gray-800 hover:text-gray-600 transition-colors duration-300 group">
+              Features
+              <span
+                class="absolute inset-x-0 bottom-0 h-0.5 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+            </a>
+
+            <a href="about-us.php"
+              class="relative font-medium text-gray-800 hover:text-gray-600 transition-colors duration-300 group">
+              About us
+              <span
+                class="absolute inset-x-0 bottom-0 h-0.5 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+            </a>
+          </div>
+        </div>
+
+        <!-- User Profile/Login Button -->
+        <div class="flex items-center space-x-4">
+          <?php if (isset($_SESSION['logged_in']) && $_SESSION['logged_in']): ?>
+          <div x-data="{ open: false }" class="relative">
+            <button @click="open = !open" class="flex items-center space-x-3 focus:outline-none">
+              <span class="text-gray-700">Welcome, <?php echo htmlspecialchars($_SESSION['name']); ?></span>
+              <div class="h-8 w-8 rounded-full bg-emerald-500 flex items-center justify-center text-white">
+                <?php echo strtoupper(substr($_SESSION['name'], 0, 1)); ?>
+              </div>
+              <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                fill="currentColor">
+                <path fill-rule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clip-rule="evenodd" />
+              </svg>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-100"
+              x-transition:enter-start="transform opacity-0 scale-95"
+              x-transition:enter-end="transform opacity-100 scale-100"
+              x-transition:leave="transition ease-in duration-75"
+              x-transition:leave-start="transform opacity-100 scale-100"
+              x-transition:leave-end="transform opacity-0 scale-95"
+              class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+              <?php if ($_SESSION['user_type'] === 'admin'): ?>
+              <a href="admin/dashboard.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
+              </a>
+              <?php elseif ($_SESSION['user_type'] === 'customer'): ?>
+              <a href="customer/customer_dashboard.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <i class="fas fa-user mr-2"></i> My Account
+              </a>
+              <?php endif; ?>
+              <hr class="my-1">
+              <a href="handlers/logout_handler.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                <i class="fas fa-sign-out-alt mr-2"></i> Logout
+              </a>
+            </div>
+          </div>
+          <?php else: ?>
+          <button onclick="toggleModal()"
+            class="bg-emerald-500 text-white px-4 py-2 rounded-md hover:bg-emerald-600 transition duration-300">
+            Login
+          </button>
+          <?php endif; ?>
+        </div>
+
+        <!-- Mobile menu button -->
+        <div class="md:hidden flex items-center">
+          <button class="mobile-menu-button">
+            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div class="mobile-menu hidden md:hidden">
+        <a href="#" class="block py-2 px-4 text-sm hover:bg-gray-200">Home</a>
+        <a href="#about" class="block py-2 px-4 text-sm hover:bg-gray-200">About</a>
+        <a href="#features" class="block py-2 px-4 text-sm hover:bg-gray-200">Features</a>
+        <a href="#contact" class="block py-2 px-4 text-sm hover:bg-gray-200">Contact</a>
+      </div>
+    </div>
+  </nav>
 
   <!-- Add margin-top to account for fixed navbar -->
-  <div class="mt-20">
+  <div class="pt-16">
 
     <!-- Login Modal -->
     <div id="loginModal" class="hidden fixed inset-0 flex items-center justify-center z-50">
@@ -514,9 +627,7 @@ if (isset($_POST['signup'])) {
         <div>
           <p class="font-semibold mb-2">EMAIL</p>
           <a href="mailto:casitadegrands@gmail.com" class="flex items-center justify-center md:justify-start space-x-2">
-            <svg class="w-4 h-4 fill-current text-gray-300" viewBox="0 0 24 24">
-              <path d="M12 13.5l-11-7V6l11 7 11-7v.5l-11 7zm0 1.5l-11-7V18h22V8l-11 7z"></path>
-            </svg>
+            <img src="../assets/email.svg" alt="Email Icon" class="w-4 h-4">
             <span class="font-semibold text-sm">casitadegrands@gmail.com</span>
           </a>
         </div>
@@ -524,12 +635,8 @@ if (isset($_POST['signup'])) {
         <div>
           <p class="font-semibold mb-2">LOCATION</p>
           <a href="https://www.google.com/maps" target="_blank"
-            class="flex items-center justify-center md:justify-start space-x-2">
-            <svg class="w-4 h-4 fill-current text-gray-300" viewBox="0 0 24 24">
-              <path
-                d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z">
-              </path>
-            </svg>
+            class=" flex items-center justify-center md:justify-start space-x-2">
+            <img src="../assets/location.svg" alt="Location Icon" class="w-4 h-4">
             <span class="font-semibold hover:underline text-sm">See Us On Google Maps</span>
           </a>
         </div>
@@ -537,11 +644,7 @@ if (isset($_POST['signup'])) {
         <div>
           <p class="font-semibold mb-2">PHONE</p>
           <a href="tel:+639458510079" class="flex items-center justify-center md:justify-start space-x-2">
-            <svg class="w-4 h-4 fill-current text-gray-300" viewBox="0 0 24 24">
-              <path
-                d="M6.6 10.2c1.2 2.6 3.2 4.7 5.8 5.8l1.9-1.9c.3-.3.7-.4 1.1-.3.9.3 1.8.4 2.7.4.6 0 1 .4 1 1v3c0 .6-.4 1-1 1C9.8 19.2 4.8 14.2 4.8 8c0-.6.4-1 1-1h3c.6 0 1 .4 1 1 .1.9.2 1.8.4 2.7.1.4 0 .8-.3 1.1l-1.9 1.9z">
-              </path>
-            </svg>
+            <img src="../assets/phone-call.png" alt="Contact Number" class="w-4 h-4">
             <span class="font-semibold text-sm">+63 945 851 0079</span>
           </a>
         </div>
@@ -550,36 +653,22 @@ if (isset($_POST['signup'])) {
           <p class="font-semibold mb-2">FOLLOW US</p>
           <div class="flex justify-center md:justify-start space-x-4 text-xl">
             <a href="https://web.facebook.com/profile.php?id=100086503127265" class="hover:text-white">
-              <svg class="w-5 h-5 fill-current text-gray-300" viewBox="0 0 24 24">
-                <path
-                  d="M22 12a10 10 0 1 0-11.6 9.9v-7h-2v-3h2V9.6c0-2 1.2-3.2 3-3.2.9 0 1.8.2 1.8.2v2h-1c-1 0-1.3.6-1.3 1.2V12h2.6l-.4 3h-2.2v7A10 10 0 0 0 22 12z">
-                </path>
-              </svg>
+              <img src="../assets/facebook.svg" alt="Facebook" class="w-5 h-5">
             </a>
             <a href="https://www.instagram.com/casitadegrands?igsh=Nmc4eHd4bzdyNWNt" class="hover:text-white">
-              <svg class="w-5 h-5 fill-current text-gray-300" viewBox="0 0 24 24">
-                <path
-                  d="M7.5 2C4.4 2 2 4.4 2 7.5v9C2 19.6 4.4 22 7.5 22h9c3.1 0 5.5-2.4 5.5-5.5v-9C22 4.4 19.6 2 16.5 2h-9zm9 2c2 0 3.5 1.5 3.5 3.5v9c0 2-1.5 3.5-3.5 3.5h-9c-2 0-3.5-1.5-3.5-3.5v-9C4 5.5 5.5 4 7.5 4h9zM12 6.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7zm5-1.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2z">
-                </path>
-              </svg>
+              <img src="../assets/insta.svg" alt="Instagram" class="w-5 h-5">
             </a>
             <a href="https://www.tiktok.com/@casitadegrands?_t=ZS-8towhdTSauO&_r=1" class="hover:text-white">
-              <svg class="w-5 h-5 fill-current text-gray-300" viewBox="0 0 24 24">
-                <path
-                  d="M12 2c1.9 0 3.6.7 5 2 1.4 1.4 2 3.1 2 5h-3c0-.9-.2-1.8-.6-2.6-.4-.8-1-1.5-1.8-2-.8-.5-1.7-.8-2.6-.8-2.6 0-4.7 2.1-4.7 4.7S9.4 14 12 14c1.9 0 3.6-1 4.6-2.5h3.1c-1.2 3.1-4.1 5.5-7.6 5.5-4.4 0-8-3.6-8-8S7.6 2 12 2z">
-                </path>
-              </svg>
+              <img src="../assets/tiktok.svg" alt="TikTok" class="w-5 h-5">
             </a>
           </div>
         </div>
       </div>
-    </footer>
 
-
-    <!-- Copyright -->
-    <div class="text-center text-gray-500 mt-15">
-      &copy; Copyright 2024 Casita De Grands - All Rights Reserved
-    </div>
+      <!-- Copyright -->
+      <div class="text-center text-gray-500 mt-15">
+        &copy; Copyright 2024 Casita De Grands - All Rights Reserved
+      </div>
     </footer>
 
   </div>

@@ -20,21 +20,21 @@
               class="absolute inset-x-0 bottom-0 h-0.5 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
           </a>
 
-          <a href="#rooms"
+          <a href="#"
             class="relative font-medium text-gray-800 hover:text-gray-600 transition-colors duration-300 group">
             Rooms
             <span
               class="absolute inset-x-0 bottom-0 h-0.5 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
           </a>
 
-          <a href="#reservations"
+          <a href="#"
             class="relative font-medium text-gray-800 hover:text-gray-600 transition-colors duration-300 group">
             Reservations
             <span
               class="absolute inset-x-0 bottom-0 h-0.5 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
           </a>
 
-          <a href="#features"
+          <a href="index.php#features"
             class="relative font-medium text-gray-800 hover:text-gray-600 transition-colors duration-300 group">
             Features
             <span
@@ -50,24 +50,21 @@
         </div>
       </div>
 
-      <!-- Right Side: Login Button -->
+      <!-- Right Side: Login Button and Mobile Menu -->
       <div class="flex items-center space-x-4">
-        <?php if(isset($_SESSION['user_id'])): ?>
-          <a href="<?php echo $_SESSION['user_type'] === 'admin' ? 'admin/dashboard.php' : 'dashboard.php'; ?>" 
-            class="font-['Lexend'] px-6 py-2 border-2 border-gray-800 text-gray-800 rounded-md transition-all duration-300 hover:bg-gray-800 hover:text-white">
-            Dashboard
-          </a>
-        <?php else: ?>
-          <button onclick="toggleModal()" 
-            class="font-['Lexend'] px-6 py-2 border-2 border-gray-800 text-gray-800 rounded-md transition-all duration-300 hover:bg-gray-800 hover:text-white">
-            LOGIN
-          </button>
-        <?php endif; ?>
+        <!-- Login Button -->
+        <button onclick="toggleModal()" class="font-['Lexend'] px-6 py-2 border-2 border-gray-800 text-gray-800 
+                       rounded-md transition-all duration-300 
+                       hover:bg-gray-800 hover:text-white 
+                       focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+          LOGIN
+        </button>
 
         <!-- Mobile Menu Button -->
         <div class="md:hidden">
-          <button type="button" onclick="toggleMobileMenu()" 
-            class="inline-flex items-center justify-center p-2 rounded-md text-gray-800 hover:text-gray-600 hover:bg-gray-100">
+          <button type="button" onclick="toggleMobileMenu()" class="inline-flex items-center justify-center p-2 rounded-md text-gray-800 
+                         hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 
+                         focus:ring-inset focus:ring-gray-500">
             <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
