@@ -1,6 +1,6 @@
 <?php
-include('../config/database.php');
 session_start();
+require_once '../config/database.php';
 
 // Function to validate inputs
 function validateInput($data) {
@@ -10,87 +10,69 @@ function validateInput($data) {
     return $data;
 }
 
-// Add new staff
+// Handle staff creation
 if (isset($_POST['add_staff'])) {
+    // Validate inputs
     $errors = [];
-    
-    // Validate staff name
-    $staff_name = validateInput($_POST['staff_name']);
-    if (empty($staff_name)) {
-        $errors[] = "Staff name is required";
-    } elseif (!preg_match("/^[a-zA-Z ]*$/", $staff_name)) {
-        $errors[] = "Only letters and white space allowed in name";
-    }
-    
-    // Validate contact number
-    $contact = validateInput($_POST['contact']);
-    if (empty($contact)) {
-        $errors[] = "Contact number is required";
-    } elseif (!preg_match("/^[0-9]{11}$/", $contact)) {
-        $errors[] = "Invalid contact number format (must be 11 digits)";
-    }
-    
-    // Validate email
-    $email = validateInput($_POST['email']);
-    if (empty($email)) {
-        $errors[] = "Email is required";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = "Invalid email format";
-    } else {
-        // Check if email already exists
-        $check_email = "SELECT u.id FROM users u WHERE u.email = ?";
-        $stmt = $conn->prepare($check_email);
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if ($result->num_rows > 0) {
-            $errors[] = "Email already exists";
-        }
-    }
-    
-    // Validate password
+    $staff_name = trim($conn->real_escape_string($_POST['staff_name']));
+    $email = trim($conn->real_escape_string($_POST['email']));
+    $contact_number = trim($conn->real_escape_string($_POST['contact_number']));
     $password = $_POST['password'];
-    if (empty($password)) {
-        $errors[] = "Password is required";
-    } elseif (strlen($password) < 6) {
-        $errors[] = "Password must be at least 6 characters";
-    }
+
+    // Validation
+    if (empty($staff_name)) $errors[] = "Staff name is required";
+    if (empty($email)) $errors[] = "Email is required";
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Invalid email format";
+    if (empty($contact_number)) $errors[] = "Contact number is required";
+    if (empty($password)) $errors[] = "Password is required";
+    if (strlen($password) < 8) $errors[] = "Password must be at least 8 characters";
 
     if (empty($errors)) {
+        // Start transaction
         $conn->begin_transaction();
-        
+
         try {
-            // First, create user account
-            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            $sql = "INSERT INTO users (email, password, user_type) VALUES (?, ?, 'staff')";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ss", $email, $hashedPassword);
-            $stmt->execute();
+            // Check if email exists
+            $check_sql = "SELECT id FROM users WHERE email = ?";
+            $check_stmt = $conn->prepare($check_sql);
+            $check_stmt->bind_param("s", $email);
+            $check_stmt->execute();
+            if ($check_stmt->get_result()->num_rows > 0) {
+                throw new Exception("Email already exists");
+            }
+
+            // Insert into users table
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $user_sql = "INSERT INTO users (email, password, user_type) VALUES (?, ?, 'staff')";
+            $user_stmt = $conn->prepare($user_sql);
+            $user_stmt->bind_param("ss", $email, $hashed_password);
+            
+            if (!$user_stmt->execute()) {
+                throw new Exception("Error creating user account");
+            }
             
             $user_id = $conn->insert_id;
+
+            // Insert into staff table
+            $staff_sql = "INSERT INTO staff (user_id, staff_name, contact_number) VALUES (?, ?, ?)";
+            $staff_stmt = $conn->prepare($staff_sql);
+            $staff_stmt->bind_param("iss", $user_id, $staff_name, $contact_number);
             
-            // Then, create staff record
-            $sql = "INSERT INTO staff (user_id, staff_name, contact_number, email) 
-                    VALUES (?, ?, ?, ?)";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("isss", $user_id, $staff_name, $contact, $email);
-            
-            if ($stmt->execute()) {
-                $conn->commit();
-                $_SESSION['success'] = true;
-                $_SESSION['message'] = "Staff added successfully!";
-            } else {
-                throw new Exception("Error adding staff");
+            if (!$staff_stmt->execute()) {
+                throw new Exception("Error creating staff record");
             }
+
+            $conn->commit();
+            $_SESSION['success'] = "Staff account created successfully";
+
         } catch (Exception $e) {
             $conn->rollback();
-            $_SESSION['success'] = false;
-            $_SESSION['message'] = $e->getMessage();
+            $_SESSION['error'] = $e->getMessage();
         }
     } else {
-        $_SESSION['success'] = false;
-        $_SESSION['message'] = implode("<br>", $errors);
+        $_SESSION['error'] = implode("<br>", $errors);
     }
+
     header("Location: staff_account.php");
     exit();
 }
@@ -134,94 +116,77 @@ if (isset($_GET['delete'])) {
 
 // Update staff
 if (isset($_POST['edit_staff'])) {
-    $errors = [];
-    $id = $_POST['staff_id'];
-    
-    // Validate staff name
-    $staff_name = validateInput($_POST['staff_name']);
-    if (empty($staff_name)) {
-        $errors[] = "Staff name is required";
-    } elseif (!preg_match("/^[a-zA-Z ]*$/", $staff_name)) {
-        $errors[] = "Only letters and white space allowed in name";
-    }
-    
-    // Validate contact number
-    $contact = validateInput($_POST['contact']);
-    if (empty($contact)) {
-        $errors[] = "Contact number is required";
-    } elseif (!preg_match("/^[0-9]{11}$/", $contact)) {
-        $errors[] = "Invalid contact number format (must be 11 digits)";
-    }
-    
-    // Validate email
-    $email = validateInput($_POST['email']);
-    if (empty($email)) {
-        $errors[] = "Email is required";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = "Invalid email format";
-    } else {
-        // Check if email already exists for other staff
-        $check_email = "SELECT u.id FROM users u 
-                        JOIN staff s ON u.id = s.user_id 
-                        WHERE u.email = ? AND s.id != ?";
-        $stmt = $conn->prepare($check_email);
-        $stmt->bind_param("si", $email, $id);
+    $staff_id = $_POST['staff_id'];
+    $staff_name = $_POST['staff_name'];
+    $contact_number = $_POST['contact_number'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    $conn->begin_transaction();
+
+    try {
+        // First get the user_id for this staff member
+        $get_user_id = "SELECT user_id FROM staff WHERE id = ?";
+        $stmt = $conn->prepare($get_user_id);
+        $stmt->bind_param("i", $staff_id);
         $stmt->execute();
         $result = $stmt->get_result();
-        if ($result->num_rows > 0) {
-            $errors[] = "Email already exists";
-        }
-    }
-
-    if (empty($errors)) {
-        $conn->begin_transaction();
         
-        try {
-            // Update staff information
-            $sql = "UPDATE staff SET staff_name=?, contact_number=?, email=? WHERE id=?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("sssi", $staff_name, $contact, $email, $id);
-            
-            if ($stmt->execute()) {
-                // Update email in users table
-                $sql = "UPDATE users u 
-                        JOIN staff s ON u.id = s.user_id 
-                        SET u.email = ? 
-                        WHERE s.id = ?";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("si", $email, $id);
-                $stmt->execute();
-
-                // If password is provided, update it in users table
-                if (!empty($_POST['password'])) {
-                    $hashedPassword = password_hash($_POST['password'], PASSWORD_DEFAULT);
-                    $sql = "UPDATE users u 
-                            JOIN staff s ON u.id = s.user_id 
-                            SET u.password = ? 
-                            WHERE s.id = ?";
-                    $stmt = $conn->prepare($sql);
-                    $stmt->bind_param("si", $hashedPassword, $id);
-                    $stmt->execute();
-                }
-                
-                $conn->commit();
-                $_SESSION['success'] = true;
-                $_SESSION['message'] = "Staff updated successfully!";
-            } else {
-                throw new Exception("Error updating staff");
-            }
-        } catch (Exception $e) {
-            $conn->rollback();
-            $_SESSION['success'] = false;
-            $_SESSION['message'] = $e->getMessage();
+        if ($result->num_rows === 0) {
+            throw new Exception("Staff not found");
         }
-    } else {
-        $_SESSION['success'] = false;
-        $_SESSION['message'] = implode("<br>", $errors);
+        
+        $staff = $result->fetch_assoc();
+        $user_id = $staff['user_id'];
+
+        // Update staff information (name and contact)
+        $update_staff = "UPDATE staff SET staff_name = ?, contact_number = ? WHERE id = ?";
+        $stmt = $conn->prepare($update_staff);
+        $stmt->bind_param("ssi", $staff_name, $contact_number, $staff_id);
+        
+        if (!$stmt->execute()) {
+            throw new Exception("Error updating staff information");
+        }
+
+        // Update email in users table
+        $update_email = "UPDATE users SET email = ? WHERE id = ?";
+        $stmt = $conn->prepare($update_email);
+        $stmt->bind_param("si", $email, $user_id);
+        
+        if (!$stmt->execute()) {
+            throw new Exception("Error updating email");
+        }
+
+        // Update password if provided
+        if (!empty($password)) {
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $update_password = "UPDATE users SET password = ? WHERE id = ?";
+            $stmt = $conn->prepare($update_password);
+            $stmt->bind_param("si", $hashed_password, $user_id);
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Error updating password");
+            }
+        }
+
+        $conn->commit();
+        $_SESSION['success'] = "Staff updated successfully";
+
+    } catch (Exception $e) {
+        $conn->rollback();
+        $_SESSION['error'] = $e->getMessage();
     }
+
     header("Location: staff_account.php");
     exit();
 }
+
+// Fetch existing staff members
+$staff_query = "SELECT s.*, u.email 
+                FROM staff s 
+                JOIN users u ON s.user_id = u.id 
+                WHERE u.user_type = 'staff'";
+$staff_result = $conn->query($staff_query);
 ?>
 
 <!DOCTYPE html>
@@ -280,26 +245,19 @@ if (isset($_POST['edit_staff'])) {
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
-                <?php
-  $sql = "SELECT s.*, u.email as user_email 
-          FROM staff s 
-          JOIN users u ON s.user_id = u.id 
-          ORDER BY s.id DESC";
-  $result = $conn->query($sql);
-  while ($row = $result->fetch_assoc()):
-  ?>
+                <?php while($staff = $staff_result->fetch_assoc()): ?>
                 <tr>
-                  <td class="px-6 py-4 whitespace-nowrap"><?php echo $row['staff_name']; ?></td>
-                  <td class="px-6 py-4 whitespace-nowrap"><?php echo $row['contact_number']; ?></td>
-                  <td class="px-6 py-4 whitespace-nowrap"><?php echo $row['user_email']; ?></td>
+                  <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($staff['staff_name']); ?></td>
+                  <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($staff['contact_number']); ?></td>
+                  <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($staff['email']); ?></td>
                   <td class="px-6 py-4 whitespace-nowrap">********</td>
                   <td class="px-6 py-4 whitespace-nowrap flex gap-2">
                     <button
-                      onclick="editStaff(<?php echo $row['id']; ?>, '<?php echo $row['staff_name']; ?>', '<?php echo $row['contact_number']; ?>', '<?php echo $row['user_email']; ?>')"
+                      onclick="editStaff(<?php echo $staff['id']; ?>, '<?php echo htmlspecialchars($staff['staff_name']); ?>', '<?php echo htmlspecialchars($staff['contact_number']); ?>', '<?php echo htmlspecialchars($staff['email']); ?>')"
                       class="text-yellow-500 hover:text-yellow-600 p-1 rounded-md">
                       <span class="material-symbols-outlined">edit</span>
                     </button>
-                    <button onclick="confirmDelete(<?php echo $row['id']; ?>)"
+                    <button onclick="confirmDelete(<?php echo $staff['id']; ?>)"
                       class="text-red-500 hover:text-red-600 p-1 rounded-md ml-2">
                       <span class="material-symbols-outlined">delete</span>
                     </button>
@@ -332,12 +290,12 @@ if (isset($_POST['edit_staff'])) {
                     </p>
                   </div>
                   <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="contact">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="contact_number">
                       Contact Number
                     </label>
                     <input
                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      type="text" id="contact" name="contact" required oninput="validateContact()">
+                      type="text" id="contact_number" name="contact_number" required oninput="validateContact()">
                     <p id="contact_error" class="text-red-500 text-xs hidden">Invalid contact number format (must be 11
                       digits).</p>
                   </div>
@@ -357,7 +315,7 @@ if (isset($_POST['edit_staff'])) {
                     <input
                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
                       type="password" id="password" name="password" required oninput="validatePassword()">
-                    <p id="password_error" class="text-red-500 text-xs hidden">Password must be at least 6 characters.
+                    <p id="password_error" class="text-red-500 text-xs hidden">Password must be at least 8 characters.
                     </p>
                   </div>
                   <!-- Modal Footer -->
@@ -382,61 +340,37 @@ if (isset($_POST['edit_staff'])) {
           <div id="editStaffModal"
             class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
             <div class="bg-white rounded-lg shadow-xl w-11/12 md:w-1/2 lg:w-1/3">
-              <!-- Modal Header -->
               <div class="bg-yellow-500 text-white p-4 rounded-t-lg">
                 <h3 class="text-lg font-semibold">Edit Staff</h3>
               </div>
-              <!-- Modal Body -->
               <div class="p-6">
-                <form action="" method="POST">
+                <form action="staff_account.php" method="POST" id="editStaffForm">
                   <input type="hidden" id="edit_staff_id" name="staff_id">
                   <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_staff_name">
-                      Staff Name
-                    </label>
-                    <input
-                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                      type="text" id="edit_staff_name" name="staff_name" required>
-                    <!-- Error message will be inserted here -->
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Staff Name</label>
+                    <input type="text" id="edit_staff_name" name="staff_name" required
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
                   </div>
                   <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_contact">
-                      Contact Number
-                    </label>
-                    <input
-                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                      type="text" id="edit_contact" name="contact" required>
-                    <!-- Error message will be inserted here -->
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Contact Number</label>
+                    <input type="text" id="edit_contact_number" name="contact_number" required
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
                   </div>
                   <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_email">
-                      Email Address
-                    </label>
-                    <input
-                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                      type="email" id="edit_email" name="email" required>
-                    <!-- Error message will be inserted here -->
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                    <input type="email" id="edit_email" name="email" required
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
                   </div>
-                  <div class="mb-6">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit_password">
-                      Password (Leave blank to keep current password)
-                    </label>
-                    <input
-                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                      type="password" id="edit_password" name="password">
-                    <!-- Error message will be inserted here -->
+                  <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">New Password (leave blank to keep current)</label>
+                    <input type="password" id="edit_password" name="password"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
                   </div>
-                  <!-- Modal Footer -->
-                  <div class="flex items-center justify-end gap-4">
+                  <div class="flex justify-end space-x-3">
                     <button type="button" onclick="document.getElementById('editStaffModal').classList.add('hidden')"
-                      class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-500">
-                      Cancel
-                    </button>
-                    <button
-                      class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                      type="submit" name="edit_staff">
-                      Update Staff
-                    </button>
+                        class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">Cancel</button>
+                    <button type="submit" name="edit_staff"
+                        class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">Update Staff</button>
                   </div>
                 </form>
               </div>
@@ -485,7 +419,7 @@ if (isset($_POST['edit_staff'])) {
   function editStaff(id, name, contact, email) {
     document.getElementById('edit_staff_id').value = id;
     document.getElementById('edit_staff_name').value = name;
-    document.getElementById('edit_contact').value = contact;
+    document.getElementById('edit_contact_number').value = contact;
     document.getElementById('edit_email').value = email;
     document.getElementById('edit_password').value = ''; // Clear password field
     document.getElementById('editStaffModal').classList.remove('hidden');
@@ -526,7 +460,7 @@ if (isset($_POST['edit_staff'])) {
   }
 
   function validateContact() {
-    const contactInput = document.getElementById('contact');
+    const contactInput = document.getElementById('contact_number');
     const contactError = document.getElementById('contact_error');
     const regex = /^[0-9]{11}$/;
 
@@ -573,7 +507,7 @@ if (isset($_POST['edit_staff'])) {
     const passwordInput = document.getElementById('password');
     const passwordError = document.getElementById('password_error');
 
-    if (passwordInput.value.length < 6) {
+    if (passwordInput.value.length < 8) {
       passwordError.classList.remove('hidden');
       passwordInput.classList.add('border-red-500');
       passwordInput.classList.remove('border-green-500');
@@ -583,6 +517,109 @@ if (isset($_POST['edit_staff'])) {
       passwordInput.classList.remove('border-red-500');
     }
   }
+
+  // Add form submission validation
+  document.getElementById('addStaffForm').addEventListener('submit', function(e) {
+    const staffName = document.getElementById('staff_name').value.trim();
+    const contactNumber = document.getElementById('contact_number').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    let isValid = true;
+    let errors = [];
+
+    // Validate staff name
+    if (!/^[a-zA-Z ]*$/.test(staffName)) {
+      isValid = false;
+      errors.push("Staff name should only contain letters and spaces");
+    }
+
+    // Validate contact number
+    if (!/^[0-9]{11}$/.test(contactNumber)) {
+      isValid = false;
+      errors.push("Contact number must be 11 digits");
+    }
+
+    // Validate email
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      isValid = false;
+      errors.push("Invalid email format");
+    }
+
+    // Validate password
+    if (password.length < 8) {
+      isValid = false;
+      errors.push("Password must be at least 8 characters");
+    }
+
+    if (!isValid) {
+      e.preventDefault();
+      Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        html: errors.join('<br>'),
+        confirmButtonColor: '#3085d6'
+      });
+    }
+  });
+
+  // Add edit form validation
+  document.getElementById('editStaffForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const staffName = document.getElementById('edit_staff_name').value.trim();
+    const contactNumber = document.getElementById('edit_contact_number').value.trim();
+    const email = document.getElementById('edit_email').value.trim();
+    const password = document.getElementById('edit_password').value;
+
+    let isValid = true;
+    let errors = [];
+
+    if (!staffName) {
+        errors.push("Staff name is required");
+        isValid = false;
+    }
+
+    if (!contactNumber) {
+        errors.push("Contact number is required");
+        isValid = false;
+    }
+
+    if (!email) {
+        errors.push("Email is required");
+        isValid = false;
+    }
+
+    if (password && password.length < 8) {
+        errors.push("Password must be at least 8 characters");
+        isValid = false;
+    }
+
+    if (!isValid) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Validation Error',
+            html: errors.join('<br>'),
+            confirmButtonColor: '#3085d6'
+        });
+        return;
+    }
+
+    // Show confirmation before submitting
+    Swal.fire({
+        title: 'Update Staff',
+        text: 'Are you sure you want to update this staff member?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, update it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            this.submit();
+        }
+    });
+  });
   </script>
 </body>
 

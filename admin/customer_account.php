@@ -1,24 +1,62 @@
 <?php
-include('../config/database.php');
 session_start();
+require_once '../config/database.php';
+
+// Check if user is logged in and is an admin
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
+    header('Location: ../index.php');
+    exit();
+}
 
 // Delete customer
 if (isset($_GET['delete'])) {
     $id = $_GET['delete'];
-    $sql = "DELETE FROM customers WHERE id = ?";
+    
+    // First get the user_id associated with this customer
+    $sql = "SELECT user_id FROM customers WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $customer = $result->fetch_assoc();
     
-    if ($stmt->execute()) {
-        $_SESSION['success'] = true;
-        $_SESSION['message'] = "Customer deleted successfully!";
-    } else {
-        $_SESSION['success'] = false;
-        $_SESSION['message'] = "Error deleting customer.";
+    if ($customer) {
+        // Start transaction
+        $conn->begin_transaction();
+        
+        try {
+            // Delete from customers table first
+            $sql = "DELETE FROM customers WHERE id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            
+            // Then delete from users table
+            $sql = "DELETE FROM users WHERE id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $customer['user_id']);
+            $stmt->execute();
+            
+            $conn->commit();
+            $_SESSION['success'] = true;
+            $_SESSION['message'] = "Customer deleted successfully!";
+        } catch (Exception $e) {
+            $conn->rollback();
+            $_SESSION['success'] = false;
+            $_SESSION['message'] = "Error deleting customer: " . $e->getMessage();
+        }
     }
+    
     header("Location: customer_account.php");
     exit();
 }
+
+// Fetch all customers with their user data
+$sql = "SELECT c.*, u.email 
+        FROM customers c 
+        JOIN users u ON c.user_id = u.id 
+        ORDER BY c.id DESC";
+$result = $conn->query($sql);
 ?>
 
 <!DOCTYPE html>
@@ -27,11 +65,11 @@ if (isset($_GET['delete'])) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Customer Account</title>
+  <title>Customer Accounts - Admin Dashboard</title>
   <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="https://cdn.lordicon.com/bhenfmcm.js"></script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 
 <body class="bg-gray-50">
@@ -45,48 +83,57 @@ if (isset($_GET['delete'])) {
         <div class="max-w-7xl mx-auto">
           <!-- Header -->
           <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-semibold text-gray-900">Customer Account</h1>
+            <h1 class="text-2xl font-semibold text-gray-900">Customer Accounts</h1>
           </div>
 
           <!-- Table -->
-          <div class="bg-white rounded-lg shadow overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
+          <div class="bg-white rounded-lg shadow">
+            <table class="w-full">
               <thead class="bg-gray-50">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Customer Name
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Full Name
                   </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Email
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Contact Number
                   </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email Address
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Password
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <?php
-                                $sql = "SELECT * FROM customers ORDER BY id DESC";
-                                $result = $conn->query($sql);
-                                while ($row = $result->fetch_assoc()):
-                                ?>
-                <tr>
-                  <td class="px-6 py-4 whitespace-nowrap"><?php echo $row['customer_name']; ?></td>
-                  <td class="px-6 py-4 whitespace-nowrap"><?php echo $row['contact_number']; ?></td>
-                  <td class="px-6 py-4 whitespace-nowrap"><?php echo $row['email']; ?></td>
-                  <td class="px-6 py-4 whitespace-nowrap">********</td>
-                  <td class="px-6 py-4 whitespace-nowrap">
+              <tbody>
+                <?php while ($row = $result->fetch_assoc()): ?>
+                <tr class="border-t border-gray-200">
+                  <td class="px-6 py-4 relative">
+                    <button onclick="toggleDropdown(<?php echo $row['id']; ?>)"
+                      class="text-left hover:text-gray-700 focus:outline-none">
+                      <?php echo htmlspecialchars($row['full_name']); ?>
+                      <span class="material-icons text-sm align-middle ml-1">expand_more</span>
+                    </button>
+                    <div id="dropdown-<?php echo $row['id']; ?>"
+                      class="hidden absolute z-10 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                      <div class="py-1">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">View Details</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Edit Customer</a>
+                        <a href="#" onclick="confirmDelete(<?php echo $row['id']; ?>); return false;"
+                          class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Delete Customer</a>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <?php echo htmlspecialchars($row['email']); ?>
+                  </td>
+                  <td class="px-6 py-4">
+                    <?php echo htmlspecialchars($row['contact_number']); ?>
+                  </td>
+                  <td class="px-6 py-4">
                     <button onclick="confirmDelete(<?php echo $row['id']; ?>)"
-                      class="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded-md">
-                      <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="hover" colors="primary:#ffffff"
-                        style="width:20px;height:20px">
-                      </lord-icon>
+                      class="text-red-600 hover:text-red-900 transition-colors duration-200">
+                      <span class="material-icons">delete</span>
                     </button>
                   </td>
                 </tr>
@@ -111,21 +158,42 @@ if (isset($_GET['delete'])) {
   });
   </script>
   <?php 
-    unset($_SESSION['message']);
-    unset($_SESSION['success']);
+        unset($_SESSION['message']);
+        unset($_SESSION['success']);
     endif; ?>
 
   <script>
-  // Function to show delete confirmation
+  let activeDropdown = null;
+
+  function toggleDropdown(customerId) {
+    const dropdown = document.getElementById(`dropdown-${customerId}`);
+
+    // Close previously opened dropdown
+    if (activeDropdown && activeDropdown !== dropdown) {
+      activeDropdown.classList.add('hidden');
+    }
+
+    dropdown.classList.toggle('hidden');
+    activeDropdown = dropdown;
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(event) {
+    if (!event.target.closest('button') && activeDropdown) {
+      activeDropdown.classList.add('hidden');
+      activeDropdown = null;
+    }
+  });
+
   function confirmDelete(customerId) {
     Swal.fire({
       title: 'Are you sure?',
-      text: "You won't be able to revert this!",
+      text: "This action cannot be undone!",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, remove it!'
+      confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
       if (result.isConfirmed) {
         window.location.href = `?delete=${customerId}`;

@@ -11,9 +11,34 @@
 
 <div x-data="{ 
     open: localStorage.getItem('sidebarOpen') === 'true', 
+    reservationOpen: localStorage.getItem('reservationOpen') === 'true',
+    userAccountOpen: localStorage.getItem('userAccountOpen') === 'true',
     toggleSidebar() {
         this.open = !this.open;
+        // Close dropdowns when sidebar is closed
+        if (!this.open) {
+            this.reservationOpen = false;
+            this.userAccountOpen = false;
+            localStorage.setItem('reservationOpen', false);
+            localStorage.setItem('userAccountOpen', false);
+        }
         localStorage.setItem('sidebarOpen', this.open);
+    },
+    toggleReservation() {
+        this.reservationOpen = !this.reservationOpen;
+        localStorage.setItem('reservationOpen', this.reservationOpen);
+        if (!this.open) {
+            this.open = true;
+            localStorage.setItem('sidebarOpen', true);
+        }
+    },
+    toggleUserAccount() {
+        this.userAccountOpen = !this.userAccountOpen;
+        localStorage.setItem('userAccountOpen', this.userAccountOpen);
+        if (!this.open) {
+            this.open = true;
+            localStorage.setItem('sidebarOpen', true);
+        }
     }
 }" x-cloak class="flex">
   <!-- Sidebar -->
@@ -69,7 +94,7 @@
 
       <!-- Reservation Dropdown -->
       <div class="relative" x-data="{ dropdownOpen: false }">
-        <button @click="dropdownOpen = !dropdownOpen" class="flex items-center w-full px-6 py-3 hover:bg-emerald-600"
+        <button @click="toggleReservation()" class="flex items-center w-full px-6 py-3 hover:bg-emerald-600"
           :class="{'justify-center': !open}">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -77,13 +102,13 @@
           </svg>
           <span x-show="open" x-cloak class="ml-3">Reservation</span>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-auto transition-transform duration-200"
-            :class="{ 'rotate-180': dropdownOpen, 'hidden': !open }" fill="none" viewBox="0 0 24 24"
+            :class="{ 'rotate-180': reservationOpen, 'hidden': !open }" fill="none" viewBox="0 0 24 24"
             stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
 
-        <div x-show="dropdownOpen" x-cloak x-transition class="pl-11" :class="{'pl-0': !open}">
+        <div x-show="reservationOpen" x-cloak x-transition class="pl-11" :class="{'pl-0': !open}">
           <a href="new_reservation.php" class="block px-6 py-2 hover:bg-emerald-600">Status</a>
           <a href="reservation_list.php" class="block px-6 py-2 hover:bg-emerald-600">Pending</a>
           <a href="reservation_list.php" class="block px-6 py-2 hover:bg-emerald-600">Reserved</a>
@@ -93,9 +118,8 @@
       </div>
 
       <!-- User Account Dropdown -->
-      <div class="relative"
-        x-data="{ dropdownOpen: window.location.pathname.includes('customer_account.php') || window.location.pathname.includes('staff_account.php') }">
-        <button @click="dropdownOpen = !dropdownOpen" class="flex items-center w-full px-6 py-3 hover:bg-emerald-600"
+      <div class="relative">
+        <button @click="toggleUserAccount()" class="flex items-center w-full px-6 py-3 hover:bg-emerald-600"
           :class="{'justify-center': !open}">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -103,13 +127,13 @@
           </svg>
           <span x-show="open" x-cloak class="ml-3">User Account</span>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-auto transition-transform duration-200"
-            :class="{ 'rotate-180': dropdownOpen, 'hidden': !open }" fill="none" viewBox="0 0 24 24"
+            :class="{ 'rotate-180': userAccountOpen, 'hidden': !open }" fill="none" viewBox="0 0 24 24"
             stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
 
-        <div x-show="dropdownOpen" x-cloak x-transition class="pl-11" :class="{'pl-0': !open}">
+        <div x-show="userAccountOpen" x-cloak x-transition class="pl-11" :class="{'pl-0': !open}">
           <a href="customer_account.php"
             class="block px-6 py-2 hover:bg-emerald-600 <?php echo strpos($_SERVER['PHP_SELF'], 'customer_account.php') !== false ? 'bg-emerald-600' : ''; ?>">
             Customer
@@ -138,6 +162,7 @@
         </svg>
         <span x-show="open" x-cloak class="ml-3">Guest Feedback</span>
       </a>
+
 
 
     </nav>

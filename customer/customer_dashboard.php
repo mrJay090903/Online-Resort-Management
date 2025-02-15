@@ -3,21 +3,11 @@
 session_start();
 require_once '../config/database.php';
 
-// Initialize error/success messages if not set
-if (!isset($_SESSION['error'])) {
-    $_SESSION['error'] = '';
-}
-if (!isset($_SESSION['success'])) {
-    $_SESSION['success'] = '';
-}
-
 // Check if user is logged in and is a customer
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'customer') {
     header('Location: ../index.php');
     exit();
 }
-
-
 
 // Handle Login
 if (isset($_POST['login'])) {
@@ -183,158 +173,23 @@ if (isset($_POST['signup'])) {
   <!-- Add SweetAlert2 CSS and JS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-material-ui/material-ui.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/winter-story" rel="stylesheet">
+  <style>
+  .font-winter-story {
+    font-family: 'Winter Story', sans-serif;
+  }
+  </style>
 </head>
 
-<body class="font-sans bg-gray-100">
+<body class="font-sans bg-gray-100" x-data>
 
-  <?php
-  // Handle alerts using SweetAlert2
-  if (!empty($_SESSION['error'])): ?>
-  <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
-      text: <?php echo json_encode($_SESSION['error']); ?>,
-      confirmButtonColor: '#242424'
-    });
-  });
-  </script>
-  <?php 
-    unset($_SESSION['error']);
-  endif; 
-
-  if (!empty($_SESSION['success'])): ?>
-  <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    Swal.fire({
-      icon: 'success',
-      title: 'Success!',
-      text: <?php echo json_encode($_SESSION['success']); ?>,
-      confirmButtonColor: '#242424'
-    });
-  });
-  </script>
-  <?php 
-    unset($_SESSION['success']);
-  endif; 
-  ?>
-
-  <!-- Navigation -->
-  <nav class="bg-white shadow-lg fixed w-full z-50">
-    <div class="max-w-full px-4">
-      <div class="flex justify-between items-center h-16">
-        <!-- Logo -->
-        <div class="flex items-center">
-          <img src="../assets/casitalogo-removebg-preview.png" alt="Logo" class="h-12 w-auto">
-        </div>
-
-        <!-- Navigation Links - Centered -->
-        <div class="hidden md:flex items-center justify-center flex-1">
-          <div class="flex space-x-8">
-            <a href="index.php"
-              class="relative font-medium text-gray-800 hover:text-gray-600 transition-colors duration-300 group">
-              Home
-              <span
-                class="absolute inset-x-0 bottom-0 h-0.5 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-            </a>
-
-            <a href="#"
-              class="relative font-medium text-gray-800 hover:text-gray-600 transition-colors duration-300 group">
-              Rooms
-              <span
-                class="absolute inset-x-0 bottom-0 h-0.5 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-            </a>
-
-            <a href="#"
-              class="relative font-medium text-gray-800 hover:text-gray-600 transition-colors duration-300 group">
-              Reservations
-              <span
-                class="absolute inset-x-0 bottom-0 h-0.5 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-            </a>
-
-            <a href="index.php#features"
-              class="relative font-medium text-gray-800 hover:text-gray-600 transition-colors duration-300 group">
-              Features
-              <span
-                class="absolute inset-x-0 bottom-0 h-0.5 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-            </a>
-
-            <a href="about-us.php"
-              class="relative font-medium text-gray-800 hover:text-gray-600 transition-colors duration-300 group">
-              About us
-              <span
-                class="absolute inset-x-0 bottom-0 h-0.5 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-            </a>
-          </div>
-        </div>
-
-        <!-- User Profile -->
-        <div class="flex items-center space-x-4 pr-4">
-          <div x-data="{ open: false }" class="relative">
-            <button @click="open = !open" class="flex items-center space-x-3 focus:outline-none">
-              <span class="text-gray-700">Welcome, <?php echo htmlspecialchars($_SESSION['full_name']); ?></span>
-              <div class="h-8 w-8 rounded-full bg-emerald-500 flex items-center justify-center text-white">
-                <?php echo strtoupper(substr($_SESSION['full_name'], 0, 1)); ?>
-              </div>
-              <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                fill="currentColor">
-                <path fill-rule="evenodd"
-                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                  clip-rule="evenodd" />
-              </svg>
-            </button>
-
-            <!-- Dropdown Menu -->
-            <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-100"
-              x-transition:enter-start="transform opacity-0 scale-95"
-              x-transition:enter-end="transform opacity-100 scale-100"
-              x-transition:leave="transition ease-in duration-75"
-              x-transition:leave-start="transform opacity-100 scale-100"
-              x-transition:leave-end="transform opacity-0 scale-95"
-              class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-              <a href="profile.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                <i class="fas fa-user mr-2"></i> My Profile
-              </a>
-              <a href="my_reservations.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                <i class="fas fa-calendar-check mr-2"></i> My Reservations
-              </a>
-              <a href="settings.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                <i class="fas fa-cog mr-2"></i> Settings
-              </a>
-              <hr class="my-1">
-              <a href="../handlers/logout_handler.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                <i class="fas fa-sign-out-alt mr-2"></i> Logout
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Mobile menu button -->
-        <div class="md:hidden flex items-center">
-          <button class="mobile-menu-button">
-            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Mobile Menu -->
-      <div class="mobile-menu hidden md:hidden">
-        <a href="#" class="block py-2 px-4 text-sm hover:bg-gray-200">Home</a>
-        <a href="#about" class="block py-2 px-4 text-sm hover:bg-gray-200">About</a>
-        <a href="#features" class="block py-2 px-4 text-sm hover:bg-gray-200">Features</a>
-        <a href="#contact" class="block py-2 px-4 text-sm hover:bg-gray-200">Contact</a>
-      </div>
-    </div>
-  </nav>
-
+  <?php include('components/nav.php'); ?>
 
   <!-- Hero Section -->
   <section class="relative w-full h-[570px] overflow-hidden">
-    <video class="absolute inset-0 w-full h-full object-cover brightness-85" autoplay loop muted>
+    <video class="absolute inset-0 w-full h-full object-cover brightness-85" autoplay loop muted playsinline>
       <source src="../videos/bg-vid.mp4" type="video/mp4">
       Your browser does not support the video tag.
     </video>
@@ -343,91 +198,77 @@ if (isset($_POST['signup'])) {
       <p class="font-['Raleway'] text-sm uppercase tracking-widest">Welcome To</p>
       <h1 class="text-6xl font-bold font-['playfair']">CASITA DE GRANDS</h1>
       <p class="mt-2 text-lg">Escape to Tranquility, Your Hidden Paradise Awaits</p>
-      <button
+      <a href="new_booking.php"
         class="w-40 mt-6 px-4 py-2 border-2 border-white text-white bg-transparent bg-opacity-40 backdrop-blur-md hover:bg-white hover:text-black transition-all duration-300">
-        Stay with Us
-      </button>
+        Book Now
+      </a>
     </div>
   </section>
 
   <!-- Description Section -->
-  <section class="text-center py-25 px-6 mt-2">
+  <section class="text-center py-16 px-6">
     <h2 class="text-4xl font-['Second_Quotes']">Your Escape to Serenity</h2>
     <p class="mt-10 text-gray-600 max-w-3xl mx-auto font-['Ubuntu_Sans']">
       Looking for a relaxing escape? Casita De Grands, hidden away in the lush greenery of Muladbucad Grande,
-      Guinobatan, Albay, is the perfect place to unwind.
-      Just minutes from Guinobatan Centro, our resort offers a peaceful retreat surrounded by nature. Take a dip
-      in our
-      beautiful infinity pool and immerse yourself
-      in the calming view of lush nature all around.
+      Guinobatan, Albay, is the perfect place to unwind. Just minutes from Guinobatan Centro, our resort offers
+      a peaceful retreat surrounded by nature.
     </p>
-    <p class="mt-2 text-gray-600">
-      We're located at Purok 7, Muladbucad Grande, Guinobatan, Albay. Come and make unforgettable memories with
-      us!
+    <p class="mt-4 text-gray-600 max-w-3xl mx-auto">
+      Take a dip in our beautiful infinity pool and immerse yourself in the calming view of lush nature all around.
     </p>
   </section>
 
   <!-- Carousel Section -->
-  <section class="text-center py-50 px-6 mt-2 mb-10">
-    <div class="relative">
-      <h2 class="text-center mb-4 text-4xl font-['Ephesis']">Discover Your Perfect Stay</h2>
+  <section class="text-center py-16 px-6">
+    <h2 class="text-4xl font-['Ephesis'] mb-8">Discover Your Perfect Stay</h2>
+    <div class="max-w-6xl mx-auto relative">
       <!-- Carousel Container -->
-      <div id="carousel" class="flex transition-transform duration-500 ease-in-out">
-        <img src="assets/image1.jpg" alt="Image 1" class="w-full flex-shrink-0">
-        <img src="assets/image2.jpg" alt="Image 2" class="w-full flex-shrink-0">
-        <img src="assets/image3.jpg" alt="Image 3" class="w-full flex-shrink-0">
+      <div class="overflow-hidden relative h-[400px] rounded-lg">
+        <div id="carousel" class="flex transition-transform duration-500 ease-in-out h-full">
+          <div class="flex-shrink-0 w-full">
+            <img src="../uploads/rooms/1739542980.png" alt="Room 1" class="w-full h-full object-cover">
+          </div>
+          <div class="flex-shrink-0 w-full">
+            <img src="../assets/rooms/room2.jpg" alt="Room 2" class="w-full h-full object-cover">
+          </div>
+          <div class="flex-shrink-0 w-full">
+            <img src="../assets/rooms/room3.jpg" alt="Room 3" class="w-full h-full object-cover">
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <button onclick="prevSlide()"
+          class="absolute top-1/2 left-4 -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        <button onclick="nextSlide()"
+          class="absolute top-1/2 right-4 -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        <!-- Dots Navigation -->
+        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+          <button onclick="goToSlide(0)"
+            class="w-3 h-3 rounded-full bg-white opacity-50 hover:opacity-100 transition-opacity duration-200"></button>
+          <button onclick="goToSlide(1)"
+            class="w-3 h-3 rounded-full bg-white opacity-50 hover:opacity-100 transition-opacity duration-200"></button>
+          <button onclick="goToSlide(2)"
+            class="w-3 h-3 rounded-full bg-white opacity-50 hover:opacity-100 transition-opacity duration-200"></button>
+        </div>
       </div>
-
-      <!-- Left Button -->
-      <button onclick="prevSlide()"
-        class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full">
-        &#10094;
-      </button>
-
-      <!-- Right Button -->
-      <button onclick="nextSlide()"
-        class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full">
-        &#10095;
-      </button>
     </div>
   </section>
 
-  <script>
-  let currentIndex = 0;
-  const carousel = document.getElementById('carousel');
-  const totalSlides = carousel.children.length;
-
-  function updateCarousel() {
-    const translateX = -currentIndex * 100;
-    carousel.style.transform = `translateX(${translateX}%)`;
-  }
-
-  function nextSlide() {
-    if (currentIndex < totalSlides - 1) {
-      currentIndex++;
-    } else {
-      currentIndex = 0;
-    }
-    updateCarousel();
-  }
-
-  function prevSlide() {
-    if (currentIndex > 0) {
-      currentIndex--;
-    } else {
-      currentIndex = totalSlides - 1;
-    }
-    updateCarousel();
-  }
-  </script>
-
   <!-- Feature Section -->
-  <section id="features" class="bg-gray-100 py-30">
+  <section class="bg-gray-100 py-16">
     <div class="container mx-auto px-6 text-center">
       <h2 class="text-4xl font-bold text-gray-800 mb-6">Our Features</h2>
-      <p class="text-gray-600 mb-12 text-lg">Discover the luxurious amenities and breathtaking experiences at
-        Casita De
-        Grands.</p>
+      <p class="text-gray-600 mb-12 text-lg">Discover the luxurious amenities and breathtaking experiences.</p>
 
       <div class="grid md:grid-cols-3 gap-12">
         <!-- Feature 1 -->
@@ -455,208 +296,440 @@ if (isset($_POST['signup'])) {
   </section>
 
   <!-- Customer Feedback Section -->
-  <section class="bg-white py-24">
+  <section class="bg-white py-16">
     <div class="container mx-auto px-6 text-center">
-      <h2 class="text-4xl font-['Second_Quotes'] text-gray-800 mb-2">Customer's Feedback</h2>
-      <p class="text-gray-500 uppercase text-xs tracking-[0.5em] mb-12 font-['Raleway']">Your Opinion Matters</p>
+        <h2 class="text-4xl font-['Second_Quotes'] text-gray-800 mb-2">Customer's Feedback</h2>
+        <p class="text-gray-500 uppercase text-xs tracking-[0.5em] mb-12 font-['Raleway']">Your Opinion Matters</p>
 
-      <div class="grid md:grid-cols-3 gap-8">
-        <!-- Feedback 1 -->
-        <div class="bg-gray-100 p-8 rounded-lg shadow-md">
-          <img src="assets/jay-ar.png" alt="Jay-Ar C." class="w-16 h-16 mx-auto rounded-full mb-4">
-          <p class="italic text-gray-600">
-            "An absolutely magical experience. The attention to detail and personalized service exceeded all our
-            expectations. The Casita was a paradise within paradise."
-          </p>
-          <h3 class="mt-4 font-semibold text-gray-800">Jay-Ar C.</h3>
-        </div>
+        <?php
+        // Check for pending feedback
+        $pending_sql = "SELECT f.*, c.full_name 
+                       FROM feedbacks f 
+                       JOIN customers c ON f.customer_id = c.id 
+                       WHERE f.customer_id = (SELECT id FROM customers WHERE user_id = ?) 
+                       AND f.status = 'pending'";
+        $stmt = $conn->prepare($pending_sql);
+        $stmt->bind_param("i", $_SESSION['user_id']);
+        $stmt->execute();
+        $pending_result = $stmt->get_result();
 
-        <!-- Feedback 2 -->
-        <div class="bg-gray-100 p-8 rounded-lg shadow-md">
-          <img src="assets/michael.png" alt="Michael John D." class="w-16 h-16 mx-auto rounded-full mb-4">
-          <p class="italic text-gray-600">
-            "The culinary experience was outstanding. Each meal was a journey through flavors, and the private
-            dining
-            setup in our La Villa Grande made every evening special."
-          </p>
-          <h3 class="mt-4 font-semibold text-gray-800">Michael John D.</h3>
-        </div>
+        if ($pending_result->num_rows > 0) {
+            echo '<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8">
+                    <p class="text-yellow-800">
+                        <span class="font-semibold">Thank you for your feedback!</span> 
+                        Your feedback is currently pending approval from our administrators.
+                    </p>
+                  </div>';
+        }
 
-        <!-- Feedback 3 -->
-        <div class="bg-gray-100 p-8 rounded-lg shadow-md">
-          <img src="assets/jonathan.png" alt="Jonathan B." class="w-16 h-16 mx-auto rounded-full mb-4">
-          <p class="italic text-gray-600">
-            "The exceptional customer service and delicious catering exceeded all expectations. Paired with the
-            stunning
-            infinity pool and the serene environment, it truly became the perfect escape from city life."
-          </p>
-          <h3 class="mt-4 font-semibold text-gray-800">Jonathan B.</h3>
+        // Fetch all approved feedbacks
+        $sql = "SELECT f.*, c.full_name 
+                FROM feedbacks f 
+                JOIN customers c ON f.customer_id = c.id 
+                WHERE f.status = 'approved' 
+                ORDER BY f.created_at DESC";
+        $result = $conn->query($sql);
+        $feedbacks = $result->fetch_all(MYSQLI_ASSOC);
+        $total_feedbacks = count($feedbacks);
+        ?>
+
+        <?php if ($total_feedbacks > 0): ?>
+            <div class="relative overflow-hidden">
+                <!-- Carousel Container -->
+                <div id="feedbackCarousel" class="relative w-full">
+                    <div class="flex transition-transform duration-500 ease-in-out">
+                        <?php
+                        // Split feedbacks into groups of 3
+                        $feedback_groups = array_chunk($feedbacks, 3);
+                        foreach ($feedback_groups as $group):
+                        ?>
+                            <div class="w-full flex-none grid md:grid-cols-3 gap-8">
+                                <?php foreach ($group as $feedback): ?>
+                                    <div class="bg-gray-100 p-8 rounded-lg shadow-md">
+                                        <!-- Rating Stars -->
+                                        <div class="flex justify-center mb-6">
+                                            <?php for ($i = 0; $i < $feedback['rating']; $i++): ?>
+                                                <svg class="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 24 24">
+                                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                                                </svg>
+                                            <?php endfor; ?>
+                                        </div>
+
+                                        <!-- Feedback Message -->
+                                        <p class="italic text-gray-600 mb-6">
+                                            "<?php echo htmlspecialchars($feedback['message']); ?>"
+                                        </p>
+
+                                        <!-- Customer Name -->
+                                        <h3 class="font-semibold text-gray-800 mb-2">
+                                            <?php echo htmlspecialchars($feedback['full_name']); ?>
+                                        </h3>
+
+                                        <!-- Feedback Date -->
+                                        <p class="text-sm text-gray-500">
+                                            <?php echo date('F d, Y', strtotime($feedback['created_at'])); ?>
+                                        </p>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <?php if ($total_feedbacks > 3): ?>
+                    <!-- Navigation Arrows -->
+                    <button onclick="prevFeedbackSlide()" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-lg hover:bg-white transition-all -ml-4">
+                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button onclick="nextFeedbackSlide()" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-lg hover:bg-white transition-all -mr-4">
+                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+
+                    <!-- Dots Navigation -->
+                    <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex space-x-2 mb-4">
+                        <?php for ($i = 0; $i < ceil($total_feedbacks / 3); $i++): ?>
+                            <button onclick="goToFeedbackSlide(<?php echo $i; ?>)" 
+                                    class="w-2 h-2 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors duration-200">
+                            </button>
+                        <?php endfor; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+        <?php else: ?>
+            <!-- Fallback content if no feedbacks -->
+            <div class="text-center text-gray-500">
+                <p>No approved customer feedbacks yet. Share your experience and be the first!</p>
+            </div>
+        <?php endif; ?>
+
+        <!-- Share Feedback Button -->
+        <div class="mt-12">
+            <button onclick="showFeedbackModal()" 
+                    class="inline-flex items-center px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                <span class="mr-2">✨</span>
+                Share Your Experience
+            </button>
         </div>
-      </div>
     </div>
-  </section>
-
-  <!-- Booknow Section -->
-  <section class="bg-gray-900 text-white py-35 text-center">
-    <h2 class="text-4xl font-cursive mb-4 font-['Winter_Story']">Begin Your Journey</h2>
-    <p class="text-gray-400 mb-6">Experience luxury beyond imagination at Casita De Grands</p>
-    <a href="#booking"
-      class="border border-white text-white px-6 py-3 inline-block hover:bg-white hover:text-gray-900 transition">Book
-      Your Stay</a>
   </section>
 
   <!-- Footer -->
   <footer class="bg-gray-800 text-gray-300 py-12">
-    <div class="container mx-auto grid md:grid-cols-4 gap-8 text-center md:text-left px-6">
-      <!-- Email -->
-      <div>
-        <p class="font-semibold mb-2">EMAIL</p>
-        <a href="mailto:casitadegrands@gmail.com" class="flex items-center justify-center md:justify-start space-x-2">
-          <svg class="w-4 h-4 fill-current text-gray-300" viewBox="0 0 24 24">
-            <path d="M12 13.5l-11-7V6l11 7 11-7v.5l-11 7zm0 1.5l-11-7V18h22V8l-11 7z"></path>
-          </svg>
-          <span class="font-semibold text-sm">casitadegrands@gmail.com</span>
-        </a>
-      </div>
-      <!-- Location -->
-      <div>
-        <p class="font-semibold mb-2">LOCATION</p>
-        <a href="https://www.google.com/maps" target="_blank"
-          class="flex items-center justify-center md:justify-start space-x-2">
-          <svg class="w-4 h-4 fill-current text-gray-300" viewBox="0 0 24 24">
-            <path
-              d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z">
-            </path>
-          </svg>
-          <span class="font-semibold hover:underline text-sm">See Us On Google Maps</span>
-        </a>
-      </div>
-      <!-- Phone -->
-      <div>
-        <p class="font-semibold mb-2">PHONE</p>
-        <a href="tel:+639458510079" class="flex items-center justify-center md:justify-start space-x-2">
-          <svg class="w-4 h-4 fill-current text-gray-300" viewBox="0 0 24 24">
-            <path
-              d="M6.6 10.2c1.2 2.6 3.2 4.7 5.8 5.8l1.9-1.9c.3-.3.7-.4 1.1-.3.9.3 1.8.4 2.7.4.6 0 1 .4 1 1v3c0 .6-.4 1-1 1C9.8 19.2 4.8 14.2 4.8 8c0-.6.4-1 1-1h3c.6 0 1 .4 1 1 .1.9.2 1.8.4 2.7.1.4 0 .8-.3 1.1l-1.9 1.9z">
-            </path>
-          </svg>
-          <span class="font-semibold text-sm">+63 945 851 0079</span>
-        </a>
-      </div>
-      <!-- Social Media -->
-      <div>
-        <p class="font-semibold mb-2">FOLLOW US</p>
-        <div class="flex justify-center md:justify-start space-x-4 text-xl">
-          <a href="https://web.facebook.com/profile.php?id=100086503127265" class="hover:text-white">
-            <svg class="w-5 h-5 fill-current text-gray-300" viewBox="0 0 24 24">
-              <path
-                d="M22 12a10 10 0 1 0-11.6 9.9v-7h-2v-3h2V9.6c0-2 1.2-3.2 3-3.2.9 0 1.8.2 1.8.2v2h-1c-1 0-1.3.6-1.3 1.2V12h2.6l-.4 3h-2.2v7A10 10 0 0 0 22 12z">
-              </path>
-            </svg>
-          </a>
-          <a href="https://www.instagram.com/casitadegrands?igsh=Nmc4eHd4bzdyNWNt" class="hover:text-white">
-            <svg class="w-5 h-5 fill-current text-gray-300" viewBox="0 0 24 24">
-              <path
-                d="M7.5 2C4.4 2 2 4.4 2 7.5v9C2 19.6 4.4 22 7.5 22h9c3.1 0 5.5-2.4 5.5-5.5v-9C22 4.4 19.6 2 16.5 2h-9zm9 2c2 0 3.5 1.5 3.5 3.5v9c0 2-1.5 3.5-3.5 3.5h-9c-2 0-3.5-1.5-3.5-3.5v-9C4 5.5 5.5 4 7.5 4h9zM12 6.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7zm5-1.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2z">
-              </path>
-            </svg>
-          </a>
-          <a href="https://www.tiktok.com/@casitadegrands?_t=ZS-8towhdTSauO&_r=1" class="hover:text-white">
-            <svg class="w-5 h-5 fill-current text-gray-300" viewBox="0 0 24 24">
-              <path
-                d="M12 2c1.9 0 3.6.7 5 2 1.4 1.4 2 3.1 2 5h-3c0-.9-.2-1.8-.6-2.6-.4-.8-1-1.5-1.8-2-.8-.5-1.7-.8-2.6-.8-2.6 0-4.7 2.1-4.7 4.7S9.4 14 12 14c1.9 0 3.6-1 4.6-2.5h3.1c-1.2 3.1-4.1 5.5-7.6 5.5-4.4 0-8-3.6-8-8S7.6 2 12 2z">
-              </path>
-            </svg>
-          </a>
+    <div class="container mx-auto px-6">
+      <div class="grid md:grid-cols-4 gap-8 text-center md:text-left">
+        <div>
+          <h3 class="font-semibold mb-4">Contact Us</h3>
+          <p>Phone: +63 945 851 0079</p>
+          <p>Email: casitadegrands@gmail.com</p>
         </div>
+        <div>
+          <h3 class="font-semibold mb-4">Location</h3>
+          <p>Purok 7, Muladbucad Grande</p>
+          <p>Guinobatan, Albay</p>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-4">Quick Links</h3>
+          <ul>
+            <li><a href="about-us.php" class="hover:text-white">About Us</a></li>
+            <li><a href="my_bookings.php" class="hover:text-white">My Bookings</a></li>
+            <li><a href="settings.php" class="hover:text-white">Settings</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-4">Follow Us</h3>
+          <div class="flex justify-center md:justify-start space-x-4">
+            <a href="https://facebook.com" class="hover:text-white"><i class="fab fa-facebook"></i></a>
+            <a href="https://instagram.com" class="hover:text-white"><i class="fab fa-instagram"></i></a>
+            <a href="https://twitter.com" class="hover:text-white"><i class="fab fa-twitter"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="text-center mt-8">
+        <p>&copy; 2024 Casita De Grands. All rights reserved.</p>
       </div>
     </div>
   </footer>
 
+  <script>
+  let currentIndex = 0;
+  const carousel = document.getElementById('carousel');
+  const totalSlides = document.querySelectorAll('#carousel > div').length;
+  const dots = document.querySelectorAll('.absolute.bottom-4 button');
 
-  <!-- Copyright -->
-  <div class="text-center text-gray-500 mt-15">
-    &copy; Copyright 2024 Casita De Grands - All Rights Reserved
+  function updateCarousel() {
+    carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
+    // Update dots
+    dots.forEach((dot, index) => {
+      dot.style.opacity = index === currentIndex ? '1' : '0.5';
+    });
+  }
+
+  function nextSlide() {
+    currentIndex = (currentIndex + 1) % totalSlides;
+    updateCarousel();
+  }
+
+  function prevSlide() {
+    currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+    updateCarousel();
+  }
+
+  function goToSlide(index) {
+    currentIndex = index;
+    updateCarousel();
+  }
+
+  // Auto-advance slides every 5 seconds
+  let slideInterval = setInterval(nextSlide, 5000);
+
+  // Pause auto-advance on hover
+  carousel.parentElement.addEventListener('mouseenter', () => {
+    clearInterval(slideInterval);
+  });
+
+  // Resume auto-advance when mouse leaves
+  carousel.parentElement.addEventListener('mouseleave', () => {
+    slideInterval = setInterval(nextSlide, 5000);
+  });
+
+  // Initial update
+  updateCarousel();
+  </script>
+
+  <script>
+  let currentFeedbackSlide = 0;
+  const feedbackCarousel = document.getElementById('feedbackCarousel');
+  const totalFeedbackSlides = <?php echo ceil($total_feedbacks / 3); ?>;
+
+  function updateFeedbackCarousel() {
+      const translateX = currentFeedbackSlide * -100;
+      feedbackCarousel.querySelector('.flex').style.transform = `translateX(${translateX}%)`;
+      
+      // Update dots
+      document.querySelectorAll('.bottom-0 button').forEach((dot, index) => {
+          dot.classList.toggle('bg-gray-400', index === currentFeedbackSlide);
+          dot.classList.toggle('bg-gray-300', index !== currentFeedbackSlide);
+      });
+  }
+
+  function nextFeedbackSlide() {
+      currentFeedbackSlide = (currentFeedbackSlide + 1) % totalFeedbackSlides;
+      updateFeedbackCarousel();
+  }
+
+  function prevFeedbackSlide() {
+      currentFeedbackSlide = (currentFeedbackSlide - 1 + totalFeedbackSlides) % totalFeedbackSlides;
+      updateFeedbackCarousel();
+  }
+
+  function goToFeedbackSlide(index) {
+      currentFeedbackSlide = index;
+      updateFeedbackCarousel();
+  }
+
+  // Auto-advance slides every 5 seconds
+  let feedbackInterval = setInterval(nextFeedbackSlide, 5000);
+
+  // Pause auto-advance on hover
+  feedbackCarousel.addEventListener('mouseenter', () => {
+      clearInterval(feedbackInterval);
+  });
+
+  // Resume auto-advance when mouse leaves
+  feedbackCarousel.addEventListener('mouseleave', () => {
+      feedbackInterval = setInterval(nextFeedbackSlide, 5000);
+  });
+
+  // Initial update
+  updateFeedbackCarousel();
+  </script>
+
+  <!-- Add this modal form before the closing body tag -->
+  <div id="feedbackModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 transform transition-all duration-300">
+          <div class="p-6">
+              <h3 class="text-2xl font-semibold text-gray-900 mb-4">Share Your Feedback</h3>
+              <form id="feedbackForm" method="POST" action="../handlers/feedback_handler.php" class="space-y-4">
+                  <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+                      <div class="flex space-x-4">
+                          <?php for($i = 1; $i <= 5; $i++): ?>
+                          <label class="cursor-pointer">
+                              <input type="radio" name="rating" value="<?php echo $i; ?>" class="hidden peer" required>
+                              <svg class="w-8 h-8 star-rating fill-current peer-checked:text-yellow-400 hover:text-yellow-400 text-gray-300 transition-colors duration-200"
+                                  viewBox="0 0 24 24">
+                                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                              </svg>
+                          </label>
+                          <?php endfor; ?>
+                      </div>
+                  </div>
+
+                  <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">Your Message</label>
+                      <textarea name="message" rows="4" required
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+                          placeholder="Tell us about your experience..."></textarea>
+                  </div>
+
+                  <div class="flex justify-end space-x-3 mt-6">
+                      <button type="button" onclick="closeFeedbackModal()"
+                          class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-200">
+                          Cancel
+                      </button>
+                      <button type="submit"
+                          class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors duration-200">
+                          Submit Feedback
+                      </button>
+                  </div>
+              </form>
+          </div>
+      </div>
   </div>
-  </footer>
-  </div>
-  </main>
-  </div>
+
+  <!-- Add this JavaScript for the feedback modal -->
+  <script>
+  function showFeedbackModal() {
+      document.getElementById('feedbackModal').classList.remove('hidden');
+  }
+
+  function closeFeedbackModal() {
+      const modal = document.getElementById('feedbackModal');
+      modal.classList.add('hidden');
+      document.getElementById('feedbackForm').reset();
+      // Reset star appearance
+      document.querySelectorAll('.star-rating').forEach(star => {
+          star.classList.remove('text-yellow-400');
+          star.classList.add('text-gray-300');
+      });
+  }
+
+  // Star rating functionality
+  document.querySelectorAll('.star-rating').forEach((star, index) => {
+      const container = star.parentElement;
+      
+      container.addEventListener('mouseover', () => {
+          // Fill in stars up to the current one
+          document.querySelectorAll('.star-rating').forEach((s, i) => {
+              if (i <= index) {
+                  s.classList.remove('text-gray-300');
+                  s.classList.add('text-yellow-400');
+              }
+          });
+      });
+
+      container.addEventListener('mouseout', () => {
+          // Reset stars to selected state
+          const selectedRating = document.querySelector('input[name="rating"]:checked');
+          const selectedIndex = selectedRating ? parseInt(selectedRating.value) - 1 : -1;
+          
+          document.querySelectorAll('.star-rating').forEach((s, i) => {
+              if (i <= selectedIndex) {
+                  s.classList.remove('text-gray-300');
+                  s.classList.add('text-yellow-400');
+              } else {
+                  s.classList.remove('text-yellow-400');
+                  s.classList.add('text-gray-300');
+              }
+          });
+      });
+
+      container.addEventListener('click', () => {
+          const input = container.querySelector('input');
+          input.checked = true;
+      });
+  });
+
+  // Close modal when clicking outside
+  document.getElementById('feedbackModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+          closeFeedbackModal();
+      }
+  });
+
+  // Form validation and submission
+  document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+      e.preventDefault(); // Prevent default form submission
+      const rating = this.querySelector('input[name="rating"]:checked');
+      const message = this.querySelector('textarea[name="message"]').value.trim();
+
+      if (!rating) {
+          Swal.fire({
+              icon: 'error',
+              title: 'Please select a rating',
+              toast: true,
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 3000
+          });
+          return;
+      }
+
+      if (!message) {
+          Swal.fire({
+              icon: 'error',
+              title: 'Please enter your feedback message',
+              toast: true,
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 3000
+          });
+          return;
+      }
+
+      // Show loading state
+      showLoading();
+
+      // Submit form using fetch
+      fetch(this.action, {
+          method: 'POST',
+          body: new FormData(this)
+      })
+      .then(response => response.json())
+      .then(data => {
+          Swal.fire({
+              icon: data.success ? 'success' : 'error',
+              title: data.message,
+              toast: true,
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 3000
+          }).then(() => {
+              closeFeedbackModal();
+              location.reload(); // Refresh the page after showing the message
+          });
+      })
+      .catch(error => {
+          Swal.fire({
+              icon: 'error',
+              title: 'An error occurred. Please try again.',
+              toast: true,
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 3000
+          });
+      });
+  });
+  </script>
+
+  <script>
+  // Function to show loading state
+  function showLoading() {
+    Swal.fire({
+      title: 'Please wait...',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      }
+    });
+  }
+  </script>
 
 </body>
 
 </html>
-
-
-<script>
-// Function to show loading state
-function showLoading() {
-  Swal.fire({
-    title: 'Please wait...',
-    allowOutsideClick: false,
-    showConfirmButton: false,
-    willOpen: () => {
-      Swal.showLoading();
-    }
-  });
-}
-
-// Modal Toggle
-function toggleModal() {
-  document.getElementById('loginModal').classList.toggle('hidden');
-}
-
-function toggleSignupModal() {
-  document.getElementById('signupModal').classList.toggle('hidden');
-  document.getElementById('loginModal').classList.add('hidden');
-}
-
-function toggleForgotpass() {
-  document.getElementById('forgotPasswordModal').classList.toggle('hidden');
-}
-
-function switchToLogin() {
-  toggleSignupModal();
-  toggleModal();
-}
-
-// Show Password Toggle
-function togglePassword(inputId, eyeIconId, event) {
-  if (event) {
-    event.preventDefault();
-  }
-  const passwordInput = document.getElementById(inputId);
-  const eyeIcon = document.getElementById(eyeIconId);
-
-  if (passwordInput.type === "password") {
-    passwordInput.type = "text";
-    eyeIcon.src = "components/eye.png";
-  } else {
-    passwordInput.type = "password";
-    eyeIcon.src = "components/hidden.png";
-  }
-}
-
-// Add form submission handlers
-document.addEventListener('DOMContentLoaded', function() {
-  // Login form submission
-  const loginForm = document.querySelector('form[action="index.php"]');
-  if (loginForm) {
-    loginForm.addEventListener('submit', function(e) {
-      if (this.querySelector('[name="login"]')) {
-        showLoading();
-      }
-    });
-  }
-
-  // Signup form submission
-  const signupForm = document.querySelector('form[action="index.php"]');
-  if (signupForm) {
-    signupForm.addEventListener('submit', function(e) {
-      if (this.querySelector('[name="signup"]')) {
-        showLoading();
-      }
-    });
-  }
-});
-</script>

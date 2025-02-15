@@ -19,17 +19,26 @@ if (isset($_POST['login'])) {
     // Debug log
     error_log("Login attempt - Email: " . $email . ", Password: " . $password);
     
-    // Query to check user credentials
-    $sql = "SELECT u.id, u.email, u.password, u.user_type,
-            CASE 
-                WHEN u.user_type = 'customer' THEN c.full_name
-                WHEN u.user_type = 'staff' THEN s.staff_name
-                WHEN u.user_type = 'admin' THEN u.email
-            END as name
-            FROM users u
-            LEFT JOIN customers c ON u.id = c.user_id AND u.user_type = 'customer'
-            LEFT JOIN staff s ON u.id = s.user_id AND u.user_type = 'staff'
-            WHERE u.email = ?";
+    // Query to check user credentials with proper joins
+    $sql = "SELECT 
+        u.id,
+        u.email,
+        u.password,
+        u.user_type,
+        CASE 
+            WHEN u.user_type = 'customer' THEN c.full_name
+            WHEN u.user_type = 'staff' THEN s.staff_name
+            WHEN u.user_type = 'admin' THEN u.email
+        END as display_name,
+        CASE 
+            WHEN u.user_type = 'customer' THEN c.contact_number
+            WHEN u.user_type = 'staff' THEN s.contact_number
+            ELSE NULL
+        END as contact_number
+        FROM users u
+        LEFT JOIN customers c ON u.id = c.user_id AND u.user_type = 'customer'
+        LEFT JOIN staff s ON u.id = s.user_id AND u.user_type = 'staff'
+        WHERE u.email = ?";
     
     if ($stmt = $conn->prepare($sql)) {
         $stmt->bind_param("s", $email);
@@ -39,46 +48,38 @@ if (isset($_POST['login'])) {
         if ($result->num_rows === 1) {
             $user = $result->fetch_assoc();
             
-            // For testing: If it's admin and password is admin123, allow login
+            // For admin with default password
             if ($user['user_type'] === 'admin' && $password === 'admin123') {
                 $_SESSION['user_id'] = $user['id'];
-                $_SESSION['name'] = $user['name'];
                 $_SESSION['email'] = $user['email'];
-                $_SESSION['user_type'] = $user['user_type'];
-                $_SESSION['logged_in'] = true;
-                
+                $_SESSION['user_type'] = 'admin';
+                $_SESSION['full_name'] = $user['display_name'];
                 header('Location: admin/dashboard.php');
                 exit();
             }
-            // For regular users, use password verification
+            // For regular users (staff and customers)
             else if (password_verify($password, $user['password'])) {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['email'] = $user['email'];
                 $_SESSION['user_type'] = $user['user_type'];
-                $_SESSION['logged_in'] = true;
+                $_SESSION['full_name'] = $user['display_name'];
                 
-                switch($_SESSION['user_type']) {
-                    case 'customer':
-                        // Get customer details
-                        $customer_sql = "SELECT * FROM customers WHERE user_id = ?";
-                        $stmt = $conn->prepare($customer_sql);
-                        $stmt->bind_param("i", $user['id']);
-                        $stmt->execute();
-                        $customer_result = $stmt->get_result();
-                        if ($customer_data = $customer_result->fetch_assoc()) {
-                            $_SESSION['customer_id'] = $customer_data['id'];
-                            $_SESSION['full_name'] = $customer_data['full_name'];
-                            $_SESSION['contact_number'] = $customer_data['contact_number'];
-                        }
-                        header('Location: customer/customer_dashboard.php');
-                        exit();
+                if ($user['contact_number']) {
+                    $_SESSION['contact_number'] = $user['contact_number'];
+                }
+                
+                // Redirect based on user type
+                switch($user['user_type']) {
                     case 'staff':
                         header('Location: staff/staff_dashboard.php');
-                        exit();
-                    case 'admin':
-                        header('Location: admin/dashboard.php');
-                        exit();
+                        break;
+                    case 'customer':
+                        header('Location: customer/customer_dashboard.php');
+                        break;
+                    default:
+                        header('Location: index.php');
                 }
+                exit();
             } else {
                 $_SESSION['error'] = "Invalid password";
             }
@@ -94,62 +95,50 @@ if (isset($_POST['login'])) {
 
 // Handle Signup
 if (isset($_POST['signup'])) {
+    $full_name = $conn->real_escape_string($_POST['full_name']);
+    $email = $conn->real_escape_string($_POST['email']);
+    $contact_number = $conn->real_escape_string($_POST['contact_number']);
+    $password = $_POST['password'];
+    $confirm_password = $_POST['confirm_password'];
+
+    // Validation
+    if ($password !== $confirm_password) {
+        $_SESSION['error'] = "Passwords do not match";
+        header('Location: index.php');
+        exit();
+    }
+
+    // Start transaction
     $conn->begin_transaction();
-    
+
     try {
-        $name = $conn->real_escape_string($_POST['fullName']);
-        $email = $conn->real_escape_string($_POST['email']);
-        $password = $_POST['password'];
-        $confirmPassword = $_POST['confirmPassword'];
-        $contactNumber = $conn->real_escape_string($_POST['contactNumber']);
-        
-        // Validate password match
-        if ($password !== $confirmPassword) {
-            throw new Exception("Passwords do not match");
-        }
-        
-        // Check if email already exists
-        $checkEmail = "SELECT id FROM users WHERE email = ?";
-        if ($stmt = $conn->prepare($checkEmail)) {
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            
-            if ($result->num_rows > 0) {
-                throw new Exception("Email already exists");
-            }
-            $stmt->close();
-        }
-        
-        // Hash password
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        
-        // Insert into users table
+        // First insert into users table
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         $sql = "INSERT INTO users (email, password, user_type) VALUES (?, ?, 'customer')";
-        if ($stmt = $conn->prepare($sql)) {
-            $stmt->bind_param("ss", $email, $hashedPassword);
-            $stmt->execute();
-            $userId = $conn->insert_id;
-            $stmt->close();
-            
-            // Insert into customers table
-            $sql = "INSERT INTO customers (user_id, full_name, contact_number, email) VALUES (?, ?, ?, ?)";
-            if ($stmt = $conn->prepare($sql)) {
-                $stmt->bind_param("isss", $userId, $name, $contactNumber, $email);
-                $stmt->execute();
-                $stmt->close();
-                
-                $conn->commit();
-                $_SESSION['success'] = "Registration successful! Please login.";
-            }
-        }
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ss", $email, $hashed_password);
+        $stmt->execute();
+        
+        $user_id = $conn->insert_id;
+
+        // Then insert into customers table
+        $sql = "INSERT INTO customers (user_id, full_name, contact_number) VALUES (?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("iss", $user_id, $full_name, $contact_number);
+        $stmt->execute();
+
+        $conn->commit();
+
+        $_SESSION['success'] = "Registration successful! Please login.";
+        header('Location: index.php');
+        exit();
+
     } catch (Exception $e) {
         $conn->rollback();
-        $_SESSION['error'] = $e->getMessage();
+        $_SESSION['error'] = "Registration failed: " . $e->getMessage();
+        header('Location: index.php');
+        exit();
     }
-    
-    header('Location: index.php');
-    exit();
 }
 ?>
 <!DOCTYPE html>
@@ -291,7 +280,7 @@ if (isset($_POST['signup'])) {
         <form class="flex flex-col items-center" action="index.php" method="POST">
           <!-- Full Name -->
           <div class="mb-4 w-84 mx-auto mt-4">
-            <input type="text" id="fullName" name="fullName"
+            <input type="text" id="fullName" name="full_name"
               class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700 outline-none transition-all duration-300 focus:border-[#00254a] focus:ring-1"
               required placeholder="Full Name" pattern="[A-Za-z\s]+"
               title="Please enter a valid name (letters and spaces only)">
@@ -299,7 +288,7 @@ if (isset($_POST['signup'])) {
 
           <!-- Contact Number -->
           <div class="mb-4 w-84 mx-auto">
-            <input type="tel" id="contactNumber" name="contactNumber"
+            <input type="tel" id="contactNumber" name="contact_number"
               class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700 outline-none transition-all duration-300 focus:border-[#00254a] focus:ring-1"
               required placeholder="Contact Number" pattern="[0-9]+" title="Please enter a valid phone number">
           </div>
@@ -320,7 +309,7 @@ if (isset($_POST['signup'])) {
 
           <!-- Confirm Password -->
           <div class="mb-6 w-84 mx-auto">
-            <input type="password" id="confirmPassword" name="confirmPassword"
+            <input type="password" id="confirmPassword" name="confirm_password"
               class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700 outline-none transition-all duration-300 focus:border-[#00254a] focus:ring-1"
               required placeholder="Confirm Password">
           </div>
@@ -463,37 +452,52 @@ if (isset($_POST['signup'])) {
         <h2 class="text-4xl font-['Second_Quotes'] text-gray-800 mb-2">Customer's Feedback</h2>
         <p class="text-gray-500 uppercase text-xs tracking-[0.5em] mb-12 font-['Raleway']">Your Opinion Matters</p>
 
+        <?php
+        // Fetch approved feedbacks with customer details
+        $sql = "SELECT f.*, c.full_name 
+                FROM feedbacks f 
+                JOIN customers c ON f.customer_id = c.id 
+                WHERE f.status = 'approved' 
+                ORDER BY f.created_at DESC 
+                LIMIT 3";
+        $result = $conn->query($sql);
+        ?>
+
         <div class="grid md:grid-cols-3 gap-8">
-          <!-- Feedback 1 -->
-          <div class="bg-gray-100 p-8 rounded-lg shadow-md">
-            <img src="assets/jay-ar.png" alt="Jay-Ar C." class="w-16 h-16 mx-auto rounded-full mb-4">
-            <p class="italic text-gray-600">
-              "An absolutely magical experience. The attention to detail and personalized service exceeded all our
-              expectations. The Casita was a paradise within paradise."
-            </p>
-            <h3 class="mt-4 font-semibold text-gray-800">Jay-Ar C.</h3>
-          </div>
+          <?php if ($result->num_rows > 0): ?>
+          <?php while ($feedback = $result->fetch_assoc()): ?>
+          <div class="bg-gray-100 p-8 rounded-lg shadow-md transform hover:scale-105 transition-transform duration-300">
+            <!-- Rating Stars -->
+            <div class="flex justify-center mb-6">
+              <?php for ($i = 0; $i < $feedback['rating']; $i++): ?>
+              <svg class="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 24 24">
+                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+              </svg>
+              <?php endfor; ?>
+            </div>
 
-          <!-- Feedback 2 -->
-          <div class="bg-gray-100 p-8 rounded-lg shadow-md">
-            <img src="assets/michael.png" alt="Michael John D." class="w-16 h-16 mx-auto rounded-full mb-4">
-            <p class="italic text-gray-600">
-              "The culinary experience was outstanding. Each meal was a journey through flavors, and the private dining
-              setup in our La Villa Grande made every evening special."
+            <!-- Feedback Message -->
+            <p class="italic text-gray-600 mb-6">
+              "<?php echo htmlspecialchars($feedback['message']); ?>"
             </p>
-            <h3 class="mt-4 font-semibold text-gray-800">Michael John D.</h3>
-          </div>
 
-          <!-- Feedback 3 -->
-          <div class="bg-gray-100 p-8 rounded-lg shadow-md">
-            <img src="assets/jonathan.png" alt="Jonathan B." class="w-16 h-16 mx-auto rounded-full mb-4">
-            <p class="italic text-gray-600">
-              "The exceptional customer service and delicious catering exceeded all expectations. Paired with the
-              stunning
-              infinity pool and the serene environment, it truly became the perfect escape from city life."
+            <!-- Customer Name -->
+            <h3 class="font-semibold text-gray-800 mb-2">
+              <?php echo htmlspecialchars($feedback['full_name']); ?>
+            </h3>
+
+            <!-- Feedback Date -->
+            <p class="text-sm text-gray-500">
+              <?php echo date('F d, Y', strtotime($feedback['created_at'])); ?>
             </p>
-            <h3 class="mt-4 font-semibold text-gray-800">Jonathan B.</h3>
           </div>
+          <?php endwhile; ?>
+          <?php else: ?>
+          <!-- Fallback content if no feedbacks -->
+          <div class="col-span-3 text-center text-gray-500">
+            <p>No customer feedbacks yet. Be the first to share your experience!</p>
+          </div>
+          <?php endif; ?>
         </div>
       </div>
     </section>
@@ -573,13 +577,13 @@ if (isset($_POST['signup'])) {
           </div>
         </div>
       </div>
-    </footer>
 
 
-    <!-- Copyright -->
-    <div class="text-center text-gray-500 mt-15">
-      &copy; Copyright 2024 Casita De Grands - All Rights Reserved
-    </div>
+
+      <!-- Copyright -->
+      <div class="text-center text-gray-500 mt-15">
+        &copy; Copyright 2024 Casita De Grands - All Rights Reserved
+      </div>
     </footer>
 
   </div>
@@ -660,4 +664,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+</script>
+</script>
+</script>
+</script>
+</script>
+</script>
+</script>
 </script>
