@@ -146,7 +146,8 @@ if (isset($_POST['signup'])) {
   <title>Customer Dashboard - Casita de Grands</title>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
   <style>
   [x-cloak] {
     display: none !important;
@@ -223,45 +224,59 @@ if (isset($_POST['signup'])) {
     <h2 class="text-4xl font-['Ephesis'] mb-8">Discover Your Perfect Stay</h2>
     <div class="max-w-6xl mx-auto relative">
       <!-- Carousel Container -->
-      <div class="overflow-hidden relative h-[400px] rounded-lg">
+      <div class="overflow-hidden relative h-[650px] rounded-lg">
         <div id="carousel" class="flex transition-transform duration-500 ease-in-out h-full">
           <div class="flex-shrink-0 w-full">
-            <img src="../uploads/rooms/1739542980.png" alt="Room 1" class="w-full h-full object-cover">
+            <img src="../assets/picture/picture1.jpg" alt="Room 1" class="w-full h-full object-cover">
           </div>
           <div class="flex-shrink-0 w-full">
-            <img src="../assets/rooms/room2.jpg" alt="Room 2" class="w-full h-full object-cover">
+            <img src="../assets/picture/picture2.png" alt="Room 2" class="w-full h-full object-cover">
           </div>
           <div class="flex-shrink-0 w-full">
-            <img src="../assets/rooms/room3.jpg" alt="Room 3" class="w-full h-full object-cover">
+            <img src="../assets/picture/picture3.png" alt="Room 3" class="w-full h-full object-cover">
           </div>
+          <div class="flex-shrink-0 w-full">
+            <img src="../assets/picture/picture4.png" alt="Room 4" class="w-full h-full object-cover">
+          </div>
+          <div class="flex-shrink-0 w-full">
+            <img src="../assets/picture/picture5.png" alt="Room 5" class="w-full h-full object-cover">
+          </div>
+
         </div>
 
-        <!-- Navigation Buttons -->
-        <button onclick="prevSlide()"
-          class="absolute top-1/2 left-4 -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-
-        <button onclick="nextSlide()"
-          class="absolute top-1/2 right-4 -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-
-        <!-- Dots Navigation -->
-        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-          <button onclick="goToSlide(0)"
-            class="w-3 h-3 rounded-full bg-white opacity-50 hover:opacity-100 transition-opacity duration-200"></button>
-          <button onclick="goToSlide(1)"
-            class="w-3 h-3 rounded-full bg-white opacity-50 hover:opacity-100 transition-opacity duration-200"></button>
-          <button onclick="goToSlide(2)"
-            class="w-3 h-3 rounded-full bg-white opacity-50 hover:opacity-100 transition-opacity duration-200"></button>
-        </div>
       </div>
+
+      <!-- Navigation Buttons -->
+      <button onclick="prevSlide()"
+        class="absolute top-1/2 left-4 -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      <button onclick="nextSlide()"
+        class="absolute top-1/2 right-4 -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+
+      <!-- Dots Navigation -->
+      <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+        <button onclick="goToSlide(0)"
+          class="w-3 h-3 rounded-full bg-white opacity-50 hover:opacity-100 transition-opacity duration-200"></button>
+        <button onclick="goToSlide(1)"
+          class="w-3 h-3 rounded-full bg-white opacity-50 hover:opacity-100 transition-opacity duration-200"></button>
+        <button onclick="goToSlide(2)"
+          class="w-3 h-3 rounded-full bg-white opacity-50 hover:opacity-100 transition-opacity duration-200"></button>
+        <button onclick="goToSlide(3)"
+          class="w-3 h-3 rounded-full bg-white opacity-50 hover:opacity-100 transition-opacity duration-200"></button>
+        <button onclick="goToSlide(4)"
+          class="w-3 h-3 rounded-full bg-white opacity-50 hover:opacity-100 transition-opacity duration-200"></button>
+      </div>
+
     </div>
+
   </section>
 
   <!-- Feature Section -->
@@ -298,10 +313,10 @@ if (isset($_POST['signup'])) {
   <!-- Customer Feedback Section -->
   <section class="bg-white py-16">
     <div class="container mx-auto px-6 text-center">
-        <h2 class="text-4xl font-['Second_Quotes'] text-gray-800 mb-2">Customer's Feedback</h2>
-        <p class="text-gray-500 uppercase text-xs tracking-[0.5em] mb-12 font-['Raleway']">Your Opinion Matters</p>
+      <h2 class="text-4xl font-['Second_Quotes'] text-gray-800 mb-2">Customer's Feedback</h2>
+      <p class="text-gray-500 uppercase text-xs tracking-[0.5em] mb-12 font-['Raleway']">Your Opinion Matters</p>
 
-        <?php
+      <?php
         // Check for pending feedback
         $pending_sql = "SELECT f.*, c.full_name 
                        FROM feedbacks f 
@@ -333,126 +348,368 @@ if (isset($_POST['signup'])) {
         $total_feedbacks = count($feedbacks);
         ?>
 
-        <?php if ($total_feedbacks > 0): ?>
-            <div class="relative overflow-hidden">
-                <!-- Carousel Container -->
-                <div id="feedbackCarousel" class="relative w-full">
-                    <div class="flex transition-transform duration-500 ease-in-out">
-                        <?php
+      <?php if ($total_feedbacks > 0): ?>
+      <div class="relative overflow-hidden">
+        <!-- Carousel Container -->
+        <div id="feedbackCarousel" class="relative w-full">
+          <div class="flex transition-transform duration-500 ease-in-out">
+            <?php
                         // Split feedbacks into groups of 3
                         $feedback_groups = array_chunk($feedbacks, 3);
                         foreach ($feedback_groups as $group):
                         ?>
-                            <div class="w-full flex-none grid md:grid-cols-3 gap-8">
-                                <?php foreach ($group as $feedback): ?>
-                                    <div class="bg-gray-100 p-8 rounded-lg shadow-md">
-                                        <!-- Rating Stars -->
-                                        <div class="flex justify-center mb-6">
-                                            <?php for ($i = 0; $i < $feedback['rating']; $i++): ?>
-                                                <svg class="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 24 24">
-                                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                                                </svg>
-                                            <?php endfor; ?>
-                                        </div>
-
-                                        <!-- Feedback Message -->
-                                        <p class="italic text-gray-600 mb-6">
-                                            "<?php echo htmlspecialchars($feedback['message']); ?>"
-                                        </p>
-
-                                        <!-- Customer Name -->
-                                        <h3 class="font-semibold text-gray-800 mb-2">
-                                            <?php echo htmlspecialchars($feedback['full_name']); ?>
-                                        </h3>
-
-                                        <!-- Feedback Date -->
-                                        <p class="text-sm text-gray-500">
-                                            <?php echo date('F d, Y', strtotime($feedback['created_at'])); ?>
-                                        </p>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
+            <div class="w-full flex-none grid md:grid-cols-3 gap-8">
+              <?php foreach ($group as $feedback): ?>
+              <div class="bg-gray-100 p-8 rounded-lg shadow-md">
+                <!-- Rating Stars -->
+                <div class="flex justify-center mb-6">
+                  <?php for ($i = 0; $i < $feedback['rating']; $i++): ?>
+                  <svg class="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 24 24">
+                    <path
+                      d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                  </svg>
+                  <?php endfor; ?>
                 </div>
 
-                <?php if ($total_feedbacks > 3): ?>
-                    <!-- Navigation Arrows -->
-                    <button onclick="prevFeedbackSlide()" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-lg hover:bg-white transition-all -ml-4">
-                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                        </svg>
-                    </button>
-                    <button onclick="nextFeedbackSlide()" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-lg hover:bg-white transition-all -mr-4">
-                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </button>
+                <!-- Feedback Message -->
+                <p class="italic text-gray-600 mb-6">
+                  "<?php echo htmlspecialchars($feedback['message']); ?>"
+                </p>
 
-                    <!-- Dots Navigation -->
-                    <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex space-x-2 mb-4">
-                        <?php for ($i = 0; $i < ceil($total_feedbacks / 3); $i++): ?>
-                            <button onclick="goToFeedbackSlide(<?php echo $i; ?>)" 
-                                    class="w-2 h-2 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors duration-200">
-                            </button>
-                        <?php endfor; ?>
-                    </div>
-                <?php endif; ?>
-            </div>
-        <?php else: ?>
-            <!-- Fallback content if no feedbacks -->
-            <div class="text-center text-gray-500">
-                <p>No approved customer feedbacks yet. Share your experience and be the first!</p>
-            </div>
-        <?php endif; ?>
+                <!-- Customer Name -->
+                <h3 class="font-semibold text-gray-800 mb-2">
+                  <?php echo htmlspecialchars($feedback['full_name']); ?>
+                </h3>
 
-        <!-- Share Feedback Button -->
-        <div class="mt-12">
-            <button onclick="showFeedbackModal()" 
-                    class="inline-flex items-center px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                <span class="mr-2">✨</span>
-                Share Your Experience
-            </button>
+                <!-- Feedback Date -->
+                <p class="text-sm text-gray-500">
+                  <?php echo date('F d, Y', strtotime($feedback['created_at'])); ?>
+                </p>
+              </div>
+              <?php endforeach; ?>
+            </div>
+            <?php endforeach; ?>
+          </div>
         </div>
+
+        <?php if ($total_feedbacks > 3): ?>
+        <!-- Navigation Arrows -->
+        <button onclick="prevFeedbackSlide()"
+          class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-lg hover:bg-white transition-all -ml-4">
+          <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <button onclick="nextFeedbackSlide()"
+          class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-lg hover:bg-white transition-all -mr-4">
+          <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        <!-- Dots Navigation -->
+        <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex space-x-2 mb-4">
+          <?php for ($i = 0; $i < ceil($total_feedbacks / 3); $i++): ?>
+          <button onclick="goToFeedbackSlide(<?php echo $i; ?>)"
+            class="w-2 h-2 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors duration-200">
+          </button>
+          <?php endfor; ?>
+        </div>
+        <?php endif; ?>
+      </div>
+      <?php else: ?>
+      <!-- Fallback content if no feedbacks -->
+      <div class="text-center text-gray-500">
+        <p>No approved customer feedbacks yet. Share your experience and be the first!</p>
+      </div>
+      <?php endif; ?>
+
+      <!-- Share Feedback Button -->
+      <div class="mt-12">
+        <button onclick="openFeedbackModal()"
+          class="inline-flex items-center px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+          <span class="mr-2">✨</span>
+          Share Your Experience
+        </button>
+      </div>
     </div>
+  </section>
+
+  <!-- Book Now Button -->
+  <section class="bg-gray-900 text-white py-16 text-center">
+    <h2 class="text-4xl font-['Second_Quotes'] mb-4">Ready to Book Your Stay?</h2>
+    <p class="text-gray-400 mb-8">Experience luxury and comfort at Casita De Grands</p>
+    <a href="reservations.php"
+      class="inline-flex items-center px-8 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+      <span class="mr-2">📅</span>
+      Make a Reservation
+    </a>
   </section>
 
   <!-- Footer -->
   <footer class="bg-gray-800 text-gray-300 py-12">
     <div class="container mx-auto px-6">
       <div class="grid md:grid-cols-4 gap-8 text-center md:text-left">
+        <!-- Contact -->
         <div>
-          <h3 class="font-semibold mb-4">Contact Us</h3>
-          <p>Phone: +63 945 851 0079</p>
-          <p>Email: casitadegrands@gmail.com</p>
+          <h3 class="font-semibold mb-4 flex items-center justify-center md:justify-start">
+            <i class="fas fa-address-card text-emerald-500 mr-3"></i>
+            Contact Us
+          </h3>
+          <p class="flex items-center justify-center md:justify-start mb-2">
+            <i class="fas fa-phone-alt text-sm mr-3"></i>
+            +63 945 851 0079
+          </p>
+          <p class="flex items-center justify-center md:justify-start">
+            <i class="fas fa-envelope text-sm mr-3"></i>
+            casitadegrands@gmail.com
+          </p>
         </div>
+
+        <!-- Location -->
         <div>
-          <h3 class="font-semibold mb-4">Location</h3>
-          <p>Purok 7, Muladbucad Grande</p>
-          <p>Guinobatan, Albay</p>
+          <h3 class="font-semibold mb-4 flex items-center justify-center md:justify-start">
+            <i class="fas fa-map-marker-alt text-emerald-500 mr-3"></i>
+            Location
+          </h3>
+          <p class="flex items-center justify-center md:justify-start mb-2">
+            <i class="fas fa-map-pin text-sm mr-3"></i>
+            Purok 7, Muladbucad Grande
+          </p>
+          <p class="flex items-center justify-center md:justify-start">
+            <i class="fas fa-city text-sm mr-3"></i>
+            Guinobatan, Albay
+          </p>
         </div>
+
+        <!-- Quick Links -->
         <div>
-          <h3 class="font-semibold mb-4">Quick Links</h3>
+          <h3 class="font-semibold mb-4 flex items-center justify-center md:justify-start">
+            <i class="fas fa-link text-emerald-500 mr-3"></i>
+            Quick Links
+          </h3>
           <ul>
-            <li><a href="about-us.php" class="hover:text-white">About Us</a></li>
-            <li><a href="my_bookings.php" class="hover:text-white">My Bookings</a></li>
-            <li><a href="settings.php" class="hover:text-white">Settings</a></li>
+            <li class="mb-2">
+              <a href="about-us.php"
+                class="hover:text-emerald-500 transition-colors flex items-center justify-center md:justify-start">
+                <i class="fas fa-info-circle text-sm mr-3"></i>
+                About Us
+              </a>
+            </li>
+            <li class="mb-2">
+              <a href="my_bookings.php"
+                class="hover:text-emerald-500 transition-colors flex items-center justify-center md:justify-start">
+                <i class="fas fa-calendar-check text-sm mr-3"></i>
+                My Bookings
+              </a>
+            </li>
+            <li>
+              <a href="settings.php"
+                class="hover:text-emerald-500 transition-colors flex items-center justify-center md:justify-start">
+                <i class="fas fa-cog text-sm mr-3"></i>
+                Settings
+              </a>
+            </li>
           </ul>
         </div>
+
+        <!-- Social Media -->
         <div>
-          <h3 class="font-semibold mb-4">Follow Us</h3>
+          <h3 class="font-semibold mb-4 flex items-center justify-center md:justify-start">
+            <i class="fas fa-share-alt text-emerald-500 mr-3"></i>
+            Follow Us
+          </h3>
           <div class="flex justify-center md:justify-start space-x-4">
-            <a href="https://facebook.com" class="hover:text-white"><i class="fab fa-facebook"></i></a>
-            <a href="https://instagram.com" class="hover:text-white"><i class="fab fa-instagram"></i></a>
-            <a href="https://twitter.com" class="hover:text-white"><i class="fab fa-twitter"></i></a>
+            <a href="https://web.facebook.com/profile.php?id=100086503127265"
+              class="hover:text-emerald-500 transition-colors text-2xl">
+              <i class="fab fa-facebook"></i>
+            </a>
+            <a href="https://www.instagram.com/casitadegrands?igsh=Nmc4eHd4bzdyNWNt"
+              class="hover:text-emerald-500 transition-colors text-2xl">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="https://www.tiktok.com/@casitadegrands?_t=ZS-8towhdTSauO&_r=1"
+              class="hover:text-emerald-500 transition-colors text-2xl">
+              <i class="fab fa-tiktok"></i>
+            </a>
           </div>
         </div>
       </div>
+
+      <!-- Copyright -->
       <div class="text-center mt-8">
-        <p>&copy; 2024 Casita De Grands. All rights reserved.</p>
+        <p class="text-gray-500 flex items-center justify-center">
+          <i class="far fa-copyright mr-2"></i>
+          2024 Casita De Grands. All rights reserved.
+        </p>
       </div>
     </div>
   </footer>
+
+  <!-- Feedback Modal -->
+  <div id="feedbackModal" class="hidden fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+      <div class="mt-3">
+        <div class="flex justify-between items-center pb-3">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">Share Your Experience</h3>
+          <button onclick="closeFeedbackModal()" class="text-gray-400 hover:text-gray-500">
+            <span class="sr-only">Close</span>
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form id="feedbackForm" class="mt-2">
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Rating</label>
+            <div class="flex items-center space-x-1">
+              <?php for($i = 1; $i <= 5; $i++): ?>
+              <button type="button"
+                class="rating-star p-1 text-3xl transition-transform duration-200 ease-in-out hover:scale-110 focus:outline-none"
+                data-value="<?php echo $i; ?>">
+                <span class="text-gray-300">★</span>
+              </button>
+              <?php endfor; ?>
+            </div>
+            <input type="hidden" name="rating" id="ratingInput" value="0" required>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Your Message</label>
+            <textarea name="message" rows="4" required
+              class="shadow-sm focus:ring-emerald-500 focus:border-emerald-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+              placeholder="Tell us about your experience..."></textarea>
+          </div>
+
+          <div class="flex justify-end space-x-3">
+            <button type="button" onclick="closeFeedbackModal()"
+              class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
+              Cancel
+            </button>
+            <button type="submit"
+              class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-emerald-600 border border-transparent rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
+              Submit Feedback
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  // Feedback Modal Functions
+  function openFeedbackModal() {
+    document.getElementById('feedbackModal').classList.remove('hidden');
+  }
+
+  function closeFeedbackModal() {
+    document.getElementById('feedbackModal').classList.add('hidden');
+    resetStars();
+  }
+
+  // Star rating functionality
+  const stars = document.querySelectorAll('.rating-star');
+  let currentRating = 0;
+
+  function updateStars(count, hover = false) {
+    stars.forEach((star, index) => {
+      const starSpan = star.querySelector('span');
+      if (index < count) {
+        starSpan.classList.remove('text-gray-300');
+        starSpan.classList.add('text-yellow-400');
+      } else {
+        starSpan.classList.remove('text-yellow-400');
+        starSpan.classList.add('text-gray-300');
+      }
+    });
+
+    if (!hover) {
+      currentRating = count;
+      document.getElementById('ratingInput').value = count;
+    }
+  }
+
+  stars.forEach((star, index) => {
+    // Click handler
+    star.addEventListener('click', () => {
+      updateStars(index + 1);
+    });
+
+    // Hover handlers
+    star.addEventListener('mouseenter', () => {
+      updateStars(index + 1, true);
+    });
+
+    star.addEventListener('mouseleave', () => {
+      updateStars(currentRating, true);
+    });
+  });
+
+  // Reset stars when closing modal
+  function resetStars() {
+    currentRating = 0;
+    updateStars(0);
+  }
+
+  // Handle feedback form submission
+  document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    if (currentRating === 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Please select a rating',
+        confirmButtonColor: '#059669'
+      });
+      return;
+    }
+
+    const formData = new FormData(this);
+
+    fetch('../handlers/feedback_handler.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Thank you!',
+            text: data.message,
+            confirmButtonColor: '#059669'
+          }).then(() => {
+            closeFeedbackModal();
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: data.message,
+            confirmButtonColor: '#059669'
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'An error occurred. Please try again.',
+          confirmButtonColor: '#059669'
+        });
+      });
+  });
+
+  // Close modal when clicking outside
+  window.onclick = function(event) {
+    const modal = document.getElementById('feedbackModal');
+    if (event.target === modal) {
+      closeFeedbackModal();
+    }
+  }
+  </script>
 
   <script>
   let currentIndex = 0;
@@ -506,29 +763,29 @@ if (isset($_POST['signup'])) {
   const totalFeedbackSlides = <?php echo ceil($total_feedbacks / 3); ?>;
 
   function updateFeedbackCarousel() {
-      const translateX = currentFeedbackSlide * -100;
-      feedbackCarousel.querySelector('.flex').style.transform = `translateX(${translateX}%)`;
-      
-      // Update dots
-      document.querySelectorAll('.bottom-0 button').forEach((dot, index) => {
-          dot.classList.toggle('bg-gray-400', index === currentFeedbackSlide);
-          dot.classList.toggle('bg-gray-300', index !== currentFeedbackSlide);
-      });
+    const translateX = currentFeedbackSlide * -100;
+    feedbackCarousel.querySelector('.flex').style.transform = `translateX(${translateX}%)`;
+
+    // Update dots
+    document.querySelectorAll('.bottom-0 button').forEach((dot, index) => {
+      dot.classList.toggle('bg-gray-400', index === currentFeedbackSlide);
+      dot.classList.toggle('bg-gray-300', index !== currentFeedbackSlide);
+    });
   }
 
   function nextFeedbackSlide() {
-      currentFeedbackSlide = (currentFeedbackSlide + 1) % totalFeedbackSlides;
-      updateFeedbackCarousel();
+    currentFeedbackSlide = (currentFeedbackSlide + 1) % totalFeedbackSlides;
+    updateFeedbackCarousel();
   }
 
   function prevFeedbackSlide() {
-      currentFeedbackSlide = (currentFeedbackSlide - 1 + totalFeedbackSlides) % totalFeedbackSlides;
-      updateFeedbackCarousel();
+    currentFeedbackSlide = (currentFeedbackSlide - 1 + totalFeedbackSlides) % totalFeedbackSlides;
+    updateFeedbackCarousel();
   }
 
   function goToFeedbackSlide(index) {
-      currentFeedbackSlide = index;
-      updateFeedbackCarousel();
+    currentFeedbackSlide = index;
+    updateFeedbackCarousel();
   }
 
   // Auto-advance slides every 5 seconds
@@ -536,198 +793,136 @@ if (isset($_POST['signup'])) {
 
   // Pause auto-advance on hover
   feedbackCarousel.addEventListener('mouseenter', () => {
-      clearInterval(feedbackInterval);
+    clearInterval(feedbackInterval);
   });
 
   // Resume auto-advance when mouse leaves
   feedbackCarousel.addEventListener('mouseleave', () => {
-      feedbackInterval = setInterval(nextFeedbackSlide, 5000);
+    feedbackInterval = setInterval(nextFeedbackSlide, 5000);
   });
 
   // Initial update
   updateFeedbackCarousel();
   </script>
 
-  <!-- Add this modal form before the closing body tag -->
-  <div id="feedbackModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 transform transition-all duration-300">
-          <div class="p-6">
-              <h3 class="text-2xl font-semibold text-gray-900 mb-4">Share Your Feedback</h3>
-              <form id="feedbackForm" method="POST" action="../handlers/feedback_handler.php" class="space-y-4">
-                  <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
-                      <div class="flex space-x-4">
-                          <?php for($i = 1; $i <= 5; $i++): ?>
-                          <label class="cursor-pointer">
-                              <input type="radio" name="rating" value="<?php echo $i; ?>" class="hidden peer" required>
-                              <svg class="w-8 h-8 star-rating fill-current peer-checked:text-yellow-400 hover:text-yellow-400 text-gray-300 transition-colors duration-200"
-                                  viewBox="0 0 24 24">
-                                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                              </svg>
-                          </label>
-                          <?php endfor; ?>
-                      </div>
-                  </div>
-
-                  <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Your Message</label>
-                      <textarea name="message" rows="4" required
-                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
-                          placeholder="Tell us about your experience..."></textarea>
-                  </div>
-
-                  <div class="flex justify-end space-x-3 mt-6">
-                      <button type="button" onclick="closeFeedbackModal()"
-                          class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-200">
-                          Cancel
-                      </button>
-                      <button type="submit"
-                          class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors duration-200">
-                          Submit Feedback
-                      </button>
-                  </div>
-              </form>
-          </div>
-      </div>
-  </div>
-
-  <!-- Add this JavaScript for the feedback modal -->
   <script>
-  function showFeedbackModal() {
-      document.getElementById('feedbackModal').classList.remove('hidden');
-  }
+  document.getElementById('bookingForm').addEventListener('submit', function(e) {
+    e.preventDefault();
 
-  function closeFeedbackModal() {
-      const modal = document.getElementById('feedbackModal');
-      modal.classList.add('hidden');
-      document.getElementById('feedbackForm').reset();
-      // Reset star appearance
-      document.querySelectorAll('.star-rating').forEach(star => {
-          star.classList.remove('text-yellow-400');
-          star.classList.add('text-gray-300');
+    const formData = new FormData(this);
+    const checkIn = new Date(formData.get('check_in'));
+    const checkOut = new Date(formData.get('check_out'));
+    const guests = parseInt(formData.get('guests'));
+
+    // Validation
+    if (checkIn >= checkOut) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Dates',
+        text: 'Check-out date must be after check-in date',
+        confirmButtonColor: '#059669'
       });
-  }
+      return;
+    }
 
-  // Star rating functionality
-  document.querySelectorAll('.star-rating').forEach((star, index) => {
-      const container = star.parentElement;
-      
-      container.addEventListener('mouseover', () => {
-          // Fill in stars up to the current one
-          document.querySelectorAll('.star-rating').forEach((s, i) => {
-              if (i <= index) {
-                  s.classList.remove('text-gray-300');
-                  s.classList.add('text-yellow-400');
-              }
+    // Show confirmation
+    Swal.fire({
+      title: 'Confirm Booking',
+      text: 'Would you like to proceed with this booking?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#059669',
+      cancelButtonColor: '#dc2626',
+      confirmButtonText: 'Yes, proceed'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Submit booking
+        fetch('../handlers/booking_handler.php', {
+            method: 'POST',
+            body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              Swal.fire({
+                icon: 'success',
+                title: 'Booking Submitted!',
+                text: data.message,
+                confirmButtonColor: '#059669'
+              }).then(() => {
+                window.location.href = 'bookings.php'; // Redirect to bookings page
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Booking Failed',
+                text: data.message,
+                confirmButtonColor: '#059669'
+              });
+            }
+          })
+          .catch(error => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'An error occurred. Please try again.',
+              confirmButtonColor: '#059669'
+            });
           });
-      });
-
-      container.addEventListener('mouseout', () => {
-          // Reset stars to selected state
-          const selectedRating = document.querySelector('input[name="rating"]:checked');
-          const selectedIndex = selectedRating ? parseInt(selectedRating.value) - 1 : -1;
-          
-          document.querySelectorAll('.star-rating').forEach((s, i) => {
-              if (i <= selectedIndex) {
-                  s.classList.remove('text-gray-300');
-                  s.classList.add('text-yellow-400');
-              } else {
-                  s.classList.remove('text-yellow-400');
-                  s.classList.add('text-gray-300');
-              }
-          });
-      });
-
-      container.addEventListener('click', () => {
-          const input = container.querySelector('input');
-          input.checked = true;
-      });
+      }
+    });
   });
 
-  // Close modal when clicking outside
-  document.getElementById('feedbackModal').addEventListener('click', function(e) {
-      if (e.target === this) {
-          closeFeedbackModal();
-      }
-  });
-
-  // Form validation and submission
-  document.getElementById('feedbackForm').addEventListener('submit', function(e) {
-      e.preventDefault(); // Prevent default form submission
-      const rating = this.querySelector('input[name="rating"]:checked');
-      const message = this.querySelector('textarea[name="message"]').value.trim();
-
-      if (!rating) {
-          Swal.fire({
-              icon: 'error',
-              title: 'Please select a rating',
-              toast: true,
-              position: 'top-end',
-              showConfirmButton: false,
-              timer: 3000
-          });
-          return;
-      }
-
-      if (!message) {
-          Swal.fire({
-              icon: 'error',
-              title: 'Please enter your feedback message',
-              toast: true,
-              position: 'top-end',
-              showConfirmButton: false,
-              timer: 3000
-          });
-          return;
-      }
-
-      // Show loading state
-      showLoading();
-
-      // Submit form using fetch
-      fetch(this.action, {
-          method: 'POST',
-          body: new FormData(this)
-      })
-      .then(response => response.json())
-      .then(data => {
-          Swal.fire({
-              icon: data.success ? 'success' : 'error',
-              title: data.message,
-              toast: true,
-              position: 'top-end',
-              showConfirmButton: false,
-              timer: 3000
-          }).then(() => {
-              closeFeedbackModal();
-              location.reload(); // Refresh the page after showing the message
-          });
-      })
-      .catch(error => {
-          Swal.fire({
-              icon: 'error',
-              title: 'An error occurred. Please try again.',
-              toast: true,
-              position: 'top-end',
-              showConfirmButton: false,
-              timer: 3000
-          });
-      });
+  // Date validation
+  document.querySelector('input[name="check_in"]').addEventListener('change', function() {
+    const checkOutInput = document.querySelector('input[name="check_out"]');
+    checkOutInput.min = this.value;
+    if (checkOutInput.value && checkOutInput.value <= this.value) {
+      checkOutInput.value = '';
+    }
   });
   </script>
 
+  <!-- Add this JavaScript for room booking validation -->
   <script>
-  // Function to show loading state
-  function showLoading() {
-    Swal.fire({
-      title: 'Please wait...',
-      allowOutsideClick: false,
-      showConfirmButton: false,
-      willOpen: () => {
-        Swal.showLoading();
-      }
-    });
-  }
+  document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        const formData = new FormData(this);
+        let hasSelection = false;
+        let totalGuests = 0;
+        const maxGuests = parseInt(formData.get('guests'));
+
+        // Check room selections
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+          if (input.name.includes('room') && parseInt(input.value) > 0) {
+            hasSelection = true;
+            // Calculate total guests based on room capacity
+            const roomCapacity = parseInt(input.closest('.bg-gray-50').querySelector('.mb-2').textContent.match(
+              /\d+/)[0]);
+            totalGuests += roomCapacity * parseInt(input.value);
+          }
+        });
+
+        if (!hasSelection && !document.querySelector('input[type="checkbox"]:checked')) {
+          e.preventDefault();
+          Swal.fire({
+            icon: 'error',
+            title: 'No Selection',
+            text: 'Please select at least one room or venue',
+            confirmButtonColor: '#059669'
+          });
+          return;
+        }
+
+        if (totalGuests < maxGuests) {
+          e.preventDefault();
+          Swal.fire({
+            icon: 'error',
+            title: 'Insufficient Capacity',
+            text: 'The selected rooms cannot accommodate all guests. Please select more rooms.',
+            confirmButtonColor: '#059669'
+          });
+          return;
+        });
   </script>
 
 </body>

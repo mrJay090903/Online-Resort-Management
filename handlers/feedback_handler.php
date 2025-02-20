@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $rating = $_POST['rating'];
     $message = $_POST['message'];
     
-    // Get customer_id from the customers table using the user_id
+    // Get customer_id from the customers table using the user_idInvalid or expired reset code.
     $stmt = $conn->prepare("SELECT id FROM customers WHERE user_id = ?");
     $stmt->bind_param("i", $_SESSION['user_id']);
     $stmt->execute();

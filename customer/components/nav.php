@@ -34,6 +34,12 @@ if (session_status() === PHP_SESSION_NONE) {
           class="<?php echo basename($_SERVER['PHP_SELF']) === 'about-us.php' ? 'text-emerald-500' : 'text-gray-600'; ?> hover:text-emerald-500 px-3 py-2 rounded-md text-sm font-medium">
           About Us
         </a>
+        <a href="reservations.php"
+          class="relative font-medium text-gray-800 hover:text-gray-600 transition-colors duration-300 group">
+          Reservations
+          <span
+            class="absolute inset-x-0 bottom-0 h-0.5 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+        </a>
       </div>
 
       <!-- User Menu -->
