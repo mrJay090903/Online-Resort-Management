@@ -810,22 +810,47 @@ if (isset($_POST['signup'])) {
     e.preventDefault();
 
     const formData = new FormData(this);
-    const checkIn = new Date(formData.get('check_in'));
-    const checkOut = new Date(formData.get('check_out'));
-    const guests = parseInt(formData.get('guests'));
+    let hasSelection = false;
+    let totalGuests = 0;
+    const maxGuests = parseInt(formData.get('guests'));
 
-    // Validation
-    if (checkIn >= checkOut) {
+    // Check room selections
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+      if (input.name.includes('room') && parseInt(input.value) > 0) {
+        hasSelection = true;
+        // Calculate total guests based on room capacity
+        const roomCapacity = parseInt(input.closest('.bg-gray-50').querySelector('.mb-2').textContent.match(
+          /\d+/)[0]);
+        totalGuests += roomCapacity * parseInt(input.value);
+      }
+    });
+
+    // Check venue selections
+    document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+      hasSelection = true;
+    });
+
+    if (!hasSelection) {
       Swal.fire({
         icon: 'error',
-        title: 'Invalid Dates',
-        text: 'Check-out date must be after check-in date',
+        title: 'No Selection',
+        text: 'Please select at least one room or venue',
         confirmButtonColor: '#059669'
       });
       return;
     }
 
-    // Show confirmation
+    if (totalGuests < maxGuests && !document.querySelector('input[type="checkbox"]:checked')) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Insufficient Capacity',
+        text: 'The selected rooms cannot accommodate all guests. Please select more rooms.',
+        confirmButtonColor: '#059669'
+      });
+      return;
+    }
+
+    // If validation passes, show confirmation dialog
     Swal.fire({
       title: 'Confirm Booking',
       text: 'Would you like to proceed with this booking?',
@@ -862,6 +887,7 @@ if (isset($_POST['signup'])) {
             }
           })
           .catch(error => {
+            console.error('Error:', error);
             Swal.fire({
               icon: 'error',
               title: 'Error',
@@ -871,58 +897,16 @@ if (isset($_POST['signup'])) {
           });
       }
     });
+
+    // Date validation
+    document.querySelector('input[name="check_in"]').addEventListener('change', function() {
+      const checkOutInput = document.querySelector('input[name="check_out"]');
+      checkOutInput.min = this.value;
+      if (checkOutInput.value && checkOutInput.value <= this.value) {
+        checkOutInput.value = '';
+      }
+    });
   });
-
-  // Date validation
-  document.querySelector('input[name="check_in"]').addEventListener('change', function() {
-    const checkOutInput = document.querySelector('input[name="check_out"]');
-    checkOutInput.min = this.value;
-    if (checkOutInput.value && checkOutInput.value <= this.value) {
-      checkOutInput.value = '';
-    }
-  });
-  </script>
-
-  <!-- Add this JavaScript for room booking validation -->
-  <script>
-  document.getElementById('bookingForm').addEventListener('submit', function(e) {
-        const formData = new FormData(this);
-        let hasSelection = false;
-        let totalGuests = 0;
-        const maxGuests = parseInt(formData.get('guests'));
-
-        // Check room selections
-        document.querySelectorAll('input[type="number"]').forEach(input => {
-          if (input.name.includes('room') && parseInt(input.value) > 0) {
-            hasSelection = true;
-            // Calculate total guests based on room capacity
-            const roomCapacity = parseInt(input.closest('.bg-gray-50').querySelector('.mb-2').textContent.match(
-              /\d+/)[0]);
-            totalGuests += roomCapacity * parseInt(input.value);
-          }
-        });
-
-        if (!hasSelection && !document.querySelector('input[type="checkbox"]:checked')) {
-          e.preventDefault();
-          Swal.fire({
-            icon: 'error',
-            title: 'No Selection',
-            text: 'Please select at least one room or venue',
-            confirmButtonColor: '#059669'
-          });
-          return;
-        }
-
-        if (totalGuests < maxGuests) {
-          e.preventDefault();
-          Swal.fire({
-            icon: 'error',
-            title: 'Insufficient Capacity',
-            text: 'The selected rooms cannot accommodate all guests. Please select more rooms.',
-            confirmButtonColor: '#059669'
-          });
-          return;
-        });
   </script>
 
 </body>

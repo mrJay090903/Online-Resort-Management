@@ -22,7 +22,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
   <script src="https://cdn.lordicon.com/bhenfmcm.js"></script>
   <style>
-    [x-cloak] { display: none !important; }
+  [x-cloak] {
+    display: none !important;
+  }
   </style>
 </head>
 

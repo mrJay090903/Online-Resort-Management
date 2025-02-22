@@ -65,6 +65,35 @@
         <span x-show="open" x-cloak class="ml-3">Dashboard</span>
       </a>
 
+      <!-- Move Reservation Dropdown here -->
+      <div class="relative" x-data="{ dropdownOpen: false }">
+        <button @click="toggleReservation()" class="flex items-center w-full px-6 py-3 hover:bg-emerald-600"
+          :class="{'justify-center': !open}">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span x-show="open" x-cloak class="ml-3">Reservation</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-auto transition-transform duration-200"
+            :class="{ 'rotate-180': reservationOpen, 'hidden': !open }" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        <div x-show="reservationOpen" x-cloak x-transition class="pl-11" :class="{'pl-0': !open}">
+          <a href="reservations.php" 
+             class="block px-6 py-2 hover:bg-emerald-600 <?php echo basename($_SERVER['PHP_SELF']) === 'reservations.php' ? 'bg-emerald-600' : ''; ?>">
+              All Reservations
+          </a>
+          <a href="new_reservation.php" class="block px-6 py-2 hover:bg-emerald-600">Status</a>
+          <a href="reservation_list.php" class="block px-6 py-2 hover:bg-emerald-600">Pending</a>
+          <a href="reservation_list.php" class="block px-6 py-2 hover:bg-emerald-600">Reserved</a>
+          <a href="reservation_list.php" class="block px-6 py-2 hover:bg-emerald-600">Fullpaid</a>
+          <a href="reservation_list.php" class="block px-6 py-2 hover:bg-emerald-600">Reschedule</a>
+        </div>
+      </div>
+
       <a href="rooms.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
         :class="{'justify-center': !open, 'bg-emerald-600': '<?php echo basename($_SERVER['PHP_SELF'])?>' === 'rooms.php'}">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -91,31 +120,6 @@
         </svg>
         <span x-show="open" x-cloak class="ml-3">Features</span>
       </a>
-
-      <!-- Reservation Dropdown -->
-      <div class="relative" x-data="{ dropdownOpen: false }">
-        <button @click="toggleReservation()" class="flex items-center w-full px-6 py-3 hover:bg-emerald-600"
-          :class="{'justify-center': !open}">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <span x-show="open" x-cloak class="ml-3">Reservation</span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-auto transition-transform duration-200"
-            :class="{ 'rotate-180': reservationOpen, 'hidden': !open }" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-
-        <div x-show="reservationOpen" x-cloak x-transition class="pl-11" :class="{'pl-0': !open}">
-          <a href="new_reservation.php" class="block px-6 py-2 hover:bg-emerald-600">Status</a>
-          <a href="reservation_list.php" class="block px-6 py-2 hover:bg-emerald-600">Pending</a>
-          <a href="reservation_list.php" class="block px-6 py-2 hover:bg-emerald-600">Reserved</a>
-          <a href="reservation_list.php" class="block px-6 py-2 hover:bg-emerald-600">Fullpaid</a>
-          <a href="reservation_list.php" class="block px-6 py-2 hover:bg-emerald-600">Reschedule</a>
-        </div>
-      </div>
 
       <!-- User Account Dropdown -->
       <div class="relative">
