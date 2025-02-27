@@ -108,8 +108,25 @@ $result = $conn->query($sql);
             </button>
           </div>
 
+          <!-- Skeleton Loading Screen -->
+          <div id="loading" class="grid md:grid-cols-3 gap-6">
+            <?php for($i = 0; $i < 6; $i++): ?>
+            <div class="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+              <div class="w-full h-48 bg-gray-200"></div>
+              <div class="p-4">
+                <div class="h-6 bg-gray-200 rounded w-1/2 mb-2"></div>
+                <div class="h-5 bg-gray-200 rounded w-20 mb-4"></div>
+                <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div class="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
+                <div class="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+                <div class="h-8 bg-gray-200 rounded w-16"></div>
+              </div>
+            </div>
+            <?php endfor; ?>
+          </div>
+
           <!-- Venues Grid -->
-          <div class="grid md:grid-cols-3 gap-6">
+          <div id="venues-grid" class="hidden grid md:grid-cols-3 gap-6">
             <?php while ($venue = $result->fetch_assoc()): ?>
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
               <img src="../uploads/venues/<?php echo htmlspecialchars($venue['picture']); ?>"
@@ -337,6 +354,18 @@ $result = $conn->query($sql);
             unset($_SESSION['message']);
             unset($_SESSION['success']);
         endif; ?>
+
+  // Show loading screen initially
+  document.getElementById('loading').style.display = 'grid';
+  document.getElementById('venues-grid').style.display = 'none';
+
+  // Simulate data loading
+  window.addEventListener('load', function() {
+    setTimeout(() => {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('venues-grid').style.display = 'grid';
+    }, 1500); // Show loading for 1.5 seconds
+  });
   </script>
 </body>
 

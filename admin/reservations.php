@@ -8,6 +8,15 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
     exit();
 }
 
+// Pagination variables
+$limit = 10; // Number of results per page
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
+// Search functionality
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+$search_query = $search ? "WHERE c.full_name LIKE '%$search%' OR b.id LIKE '%$search%'" : '';
+
 // Get all bookings with customer details
 $bookings_query = "
     SELECT 
@@ -26,10 +35,19 @@ $bookings_query = "
     LEFT JOIN rooms r ON br.room_id = r.id
     LEFT JOIN booking_venues bv ON b.id = bv.booking_id
     LEFT JOIN venues v ON bv.venue_id = v.id
+    $search_query
     GROUP BY b.id
-    ORDER BY b.created_at DESC";
+    ORDER BY b.created_at DESC
+    LIMIT $limit OFFSET $offset";
 
 $bookings = $conn->query($bookings_query);
+
+// Get total number of bookings for pagination
+$total_query = "SELECT COUNT(*) as total FROM bookings b JOIN customers c ON b.customer_id = c.id $search_query";
+$total_result = $conn->query($total_query);
+$total_row = $total_result->fetch_assoc();
+$total_bookings = $total_row['total'];
+$total_pages = ceil($total_bookings / $limit);
 ?>
 
 <!DOCTYPE html>
@@ -55,27 +73,55 @@ $bookings = $conn->query($bookings_query);
         <div class="p-8">
           <h1 class="text-3xl font-semibold text-gray-800 mb-8">Manage Reservations</h1>
 
-          <!-- Filters -->
-          <div class="mb-6 flex gap-4">
-            <button onclick="filterBookings('all')" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">
-              All
-            </button>
-            <button onclick="filterBookings('pending')" class="px-4 py-2 rounded-lg bg-yellow-100 hover:bg-yellow-200">
-              Pending
-            </button>
-            <button onclick="filterBookings('confirmed')" class="px-4 py-2 rounded-lg bg-green-100 hover:bg-green-200">
-              Confirmed
-            </button>
-            <button onclick="filterBookings('cancelled')" class="px-4 py-2 rounded-lg bg-red-100 hover:bg-red-200">
-              Cancelled
-            </button>
-            <button onclick="filterBookings('completed')" class="px-4 py-2 rounded-lg bg-blue-100 hover:bg-blue-200">
-              Completed
-            </button>
+          <!-- Filters and Search Bar -->
+          <div class="mb-6 flex justify-between items-center">
+            <!-- Filter Buttons -->
+            <div class="flex gap-4">
+              <button onclick="filterBookings('all')" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">
+                All
+              </button>
+              <button onclick="filterBookings('pending')"
+                class="px-4 py-2 rounded-lg bg-yellow-100 hover:bg-yellow-200">
+                Pending
+              </button>
+              <button onclick="filterBookings('confirmed')"
+                class="px-4 py-2 rounded-lg bg-green-100 hover:bg-green-200">
+                Confirmed
+              </button>
+              <button onclick="filterBookings('cancelled')" class="px-4 py-2 rounded-lg bg-red-100 hover:bg-red-200">
+                Cancelled
+              </button>
+              <button onclick="filterBookings('completed')" class="px-4 py-2 rounded-lg bg-blue-100 hover:bg-blue-200">
+                Completed
+              </button>
+            </div>
+
+            <!-- Search Bar -->
+            <form method="GET" class="flex items-center">
+              <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>"
+                placeholder="Search by customer name or booking ID"
+                class="border border-gray-300 rounded-lg px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                oninput="filterTable(this.value)">
+              <button type="submit"
+                class="bg-blue-500 text-white rounded-lg px-4 py-2 ml-2 hover:bg-blue-600 transition-colors">
+                Search
+              </button>
+            </form>
+          </div>
+
+          <!-- Skeleton Loading Screen -->
+          <div id="loading" class="bg-white rounded-lg shadow overflow-hidden p-4">
+            <div class="animate-pulse">
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+            </div>
           </div>
 
           <!-- Bookings Table -->
-          <div class="bg-white rounded-lg shadow overflow-hidden">
+          <div id="bookings-table" class="hidden bg-white rounded-lg shadow overflow-hidden">
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-50">
                 <tr>
@@ -102,7 +148,7 @@ $bookings = $conn->query($bookings_query);
                   </th>
                 </tr>
               </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
+              <tbody class="bg-white divide-y divide-gray-200" id="booking-rows">
                 <?php while ($booking = $bookings->fetch_assoc()): ?>
                 <tr class="booking-row" data-status="<?php echo $booking['status']; ?>">
                   <td class="px-6 py-4 whitespace-nowrap">
@@ -223,17 +269,58 @@ $bookings = $conn->query($bookings_query);
               </tbody>
             </table>
           </div>
+
+          <!-- Pagination -->
+          <div class="mt-4">
+            <nav class="flex justify-between">
+              <div>
+                <?php if ($page > 1): ?>
+                <a href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>"
+                  class="text-blue-600 hover:underline">Previous</a>
+                <?php endif; ?>
+              </div>
+              <div>
+                <?php if ($page < $total_pages): ?>
+                <a href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>"
+                  class="text-blue-600 hover:underline">Next</a>
+                <?php endif; ?>
+              </div>
+            </nav>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-
   <script>
+  // Show the loading screen initially
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('bookings-table').style.display = 'none';
+
+  // Simulate data fetching
+  setTimeout(() => {
+    // Hide loading screen and show bookings table
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('bookings-table').style.display = 'block';
+  }, 2000); // Simulate a 2-second loading time
+
   function filterBookings(status) {
     const rows = document.querySelectorAll('.booking-row');
     rows.forEach(row => {
       if (status === 'all' || row.dataset.status === status) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+
+  function filterTable(searchTerm) {
+    const rows = document.querySelectorAll('#booking-rows tr');
+    rows.forEach(row => {
+      const customerName = row.cells[1].textContent.toLowerCase();
+      const bookingId = row.cells[0].textContent.toLowerCase();
+      if (customerName.includes(searchTerm.toLowerCase()) || bookingId.includes(searchTerm.toLowerCase())) {
         row.style.display = '';
       } else {
         row.style.display = 'none';

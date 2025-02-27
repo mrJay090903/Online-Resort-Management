@@ -40,9 +40,10 @@
             localStorage.setItem('sidebarOpen', true);
         }
     }
-}" x-cloak class="flex">
+}" x-cloak>
   <!-- Sidebar -->
-  <div :class="open ? 'w-64' : 'w-16'" class="min-h-screen bg-emerald-500 text-white transition-all duration-300">
+  <div :class="open ? 'w-64' : 'w-16'"
+    class="fixed top-0 left-0 h-full bg-emerald-500 text-white transition-all duration-300 z-50">
     <div class="p-4 flex items-center justify-between">
       <img src="../assets/logos.png" alt="Logo" class="w-36 h-13" x-show="open" x-cloak>
       <button @click="toggleSidebar()" class="text-white">
@@ -60,39 +61,20 @@
         :class="{'justify-center': !open, 'bg-emerald-600': '<?php echo basename($_SERVER['PHP_SELF'])?>' === 'dashboard.php'}">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 01-2-2v-2z" />
+            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 01-2-2v-2z" />
         </svg>
         <span x-show="open" x-cloak class="ml-3">Dashboard</span>
       </a>
 
-      <!-- Move Reservation Dropdown here -->
-      <div class="relative" x-data="{ dropdownOpen: false }">
-        <button @click="toggleReservation()" class="flex items-center w-full px-6 py-3 hover:bg-emerald-600"
-          :class="{'justify-center': !open}">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <span x-show="open" x-cloak class="ml-3">Reservation</span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-auto transition-transform duration-200"
-            :class="{ 'rotate-180': reservationOpen, 'hidden': !open }" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-
-        <div x-show="reservationOpen" x-cloak x-transition class="pl-11" :class="{'pl-0': !open}">
-          <a href="reservations.php" 
-             class="block px-6 py-2 hover:bg-emerald-600 <?php echo basename($_SERVER['PHP_SELF']) === 'reservations.php' ? 'bg-emerald-600' : ''; ?>">
-              All Reservations
-          </a>
-          <a href="new_reservation.php" class="block px-6 py-2 hover:bg-emerald-600">Status</a>
-          <a href="reservation_list.php" class="block px-6 py-2 hover:bg-emerald-600">Pending</a>
-          <a href="reservation_list.php" class="block px-6 py-2 hover:bg-emerald-600">Reserved</a>
-          <a href="reservation_list.php" class="block px-6 py-2 hover:bg-emerald-600">Fullpaid</a>
-          <a href="reservation_list.php" class="block px-6 py-2 hover:bg-emerald-600">Reschedule</a>
-        </div>
-      </div>
+      <!-- All Reservations Link -->
+      <a href="reservations.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
+        :class="{'justify-center': !open, 'bg-emerald-600': '<?php echo basename($_SERVER['PHP_SELF'])?>' === 'reservations.php'}">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <span x-show="open" x-cloak class="ml-3">All Reservations</span>
+      </a>
 
       <a href="rooms.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
         :class="{'justify-center': !open, 'bg-emerald-600': '<?php echo basename($_SERVER['PHP_SELF'])?>' === 'rooms.php'}">
@@ -168,5 +150,13 @@
       </a>
 
     </nav>
+  </div>
+
+  <!-- Main Content Wrapper -->
+  <div :class="open ? 'ml-64' : 'ml-16'" class="flex-1 transition-all duration-300">
+    <div class="w-full">
+      <!-- This div will be used to wrap the main content -->
+      <?php if(isset($content)) echo $content; ?>
+    </div>
   </div>
 </div>

@@ -226,38 +226,41 @@ $staff_result = $conn->query($staff_query);
             </button>
           </div>
 
-          <!-- Table -->
-          <div class="bg-white rounded-lg shadow overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
+          <!-- Skeleton Loading Screen -->
+          <div id="loading" class="bg-white rounded-lg shadow-lg overflow-hidden p-6">
+            <div class="animate-pulse">
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+            </div>
+          </div>
+
+          <!-- Staff Table -->
+          <div id="staff-table" class="hidden">
+            <table class="w-full">
               <thead class="bg-gray-50">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Staff Name
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact
-                    Number</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email
-                    Address
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Password
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions
-                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Staff Name</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact Number</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <?php while($staff = $staff_result->fetch_assoc()): ?>
+              <tbody>
+                <?php while ($row = $staff_result->fetch_assoc()): ?>
                 <tr>
-                  <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($staff['staff_name']); ?></td>
-                  <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($staff['contact_number']); ?></td>
-                  <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($staff['email']); ?></td>
-                  <td class="px-6 py-4 whitespace-nowrap">********</td>
+                  <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($row['staff_name']); ?></td>
+                  <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($row['email']); ?></td>
+                  <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($row['contact_number']); ?></td>
                   <td class="px-6 py-4 whitespace-nowrap flex gap-2">
                     <button
-                      onclick="editStaff(<?php echo $staff['id']; ?>, '<?php echo htmlspecialchars($staff['staff_name']); ?>', '<?php echo htmlspecialchars($staff['contact_number']); ?>', '<?php echo htmlspecialchars($staff['email']); ?>')"
+                      onclick="editStaff(<?php echo $row['id']; ?>, '<?php echo htmlspecialchars($row['staff_name']); ?>', '<?php echo htmlspecialchars($row['contact_number']); ?>', '<?php echo htmlspecialchars($row['email']); ?>')"
                       class="text-yellow-500 hover:text-yellow-600 p-1 rounded-md">
                       <span class="material-symbols-outlined">edit</span>
                     </button>
-                    <button onclick="confirmDelete(<?php echo $staff['id']; ?>)"
+                    <button onclick="confirmDelete(<?php echo $row['id']; ?>)"
                       class="text-red-500 hover:text-red-600 p-1 rounded-md ml-2">
                       <span class="material-symbols-outlined">delete</span>
                     </button>
@@ -619,6 +622,18 @@ $staff_result = $conn->query($staff_query);
             this.submit();
         }
     });
+  });
+
+  // Show loading screen initially
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('staff-table').style.display = 'none';
+
+  // Simulate data loading
+  window.addEventListener('load', function() {
+    setTimeout(() => {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('staff-table').style.display = 'block';
+    }, 1500); // Show loading for 1.5 seconds
   });
   </script>
 </body>

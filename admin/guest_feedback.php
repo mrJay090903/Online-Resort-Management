@@ -79,8 +79,19 @@ $result = $conn->query($sql);
                 </button>
               </div>
 
+              <!-- Skeleton Loading Screen -->
+              <div id="loading" class="bg-white rounded-lg shadow-lg overflow-hidden p-6">
+                <div class="animate-pulse">
+                  <div class="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div class="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div class="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div class="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div class="h-4 bg-gray-200 rounded mb-2"></div>
+                </div>
+              </div>
+
               <!-- Feedback Cards -->
-              <div class="grid gap-6">
+              <div id="feedback-cards" class="grid gap-6 hidden">
                 <?php while ($row = $result->fetch_assoc()): ?>
                 <div class="bg-gray-50 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
                   <div class="flex justify-between items-start mb-4">
@@ -151,6 +162,20 @@ $result = $conn->query($sql);
         unset($_SESSION['message']);
         unset($_SESSION['success']);
     endif; ?>
+
+  <script>
+  // Show loading screen initially
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('feedback-cards').style.display = 'none';
+
+  // Simulate data loading
+  window.addEventListener('load', function() {
+    setTimeout(() => {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('feedback-cards').style.display = 'grid';
+    }, 1500); // Show loading for 1.5 seconds
+  });
+  </script>
 </body>
 
 </html>

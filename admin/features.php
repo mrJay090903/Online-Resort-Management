@@ -173,8 +173,19 @@ if (isset($_GET['delete'])) {
             </button>
           </div>
 
-          <!-- Table -->
-          <div class="bg-white rounded-lg shadow overflow-hidden">
+          <!-- Skeleton Loading Screen -->
+          <div id="loading" class="bg-white rounded-lg shadow-lg overflow-hidden p-6">
+            <div class="animate-pulse">
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+            </div>
+          </div>
+
+          <!-- Features Table -->
+          <div id="features-table" class="hidden">
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-50">
                 <tr>
@@ -377,6 +388,18 @@ if (isset($_GET['delete'])) {
       editModal.classList.add('hidden');
     }
   }
+
+  // Show loading screen initially
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('features-table').style.display = 'none';
+
+  // Simulate data loading
+  window.addEventListener('load', function() {
+    setTimeout(() => {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('features-table').style.display = 'block';
+    }, 1500); // Show loading for 1.5 seconds
+  });
   </script>
 </body>
 

@@ -135,8 +135,44 @@ $result = $conn->query($sql);
             </button>
           </div>
 
+          <!-- Skeleton Loading Screen -->
+          <div id="loading" class="grid md:grid-cols-3 gap-6">
+            <?php for($i = 0; $i < 6; $i++): ?>
+            <div class="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+              <!-- Skeleton Image -->
+              <div class="w-full h-48 bg-gray-200"></div>
+              
+              <div class="p-4">
+                <!-- Skeleton Header -->
+                <div class="flex justify-between items-start mb-2">
+                  <div class="h-6 bg-gray-200 rounded w-1/2"></div>
+                  <div class="h-5 bg-gray-200 rounded w-20"></div>
+                </div>
+
+                <!-- Skeleton Description -->
+                <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+                <div class="h-4 bg-gray-200 rounded w-full mb-2"></div>
+
+                <!-- Skeleton Details -->
+                <div class="space-y-2">
+                  <div class="h-4 bg-gray-200 rounded w-1/3"></div>
+                  <div class="h-4 bg-gray-200 rounded w-2/5"></div>
+                  <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+                  <div class="h-4 bg-gray-200 rounded w-2/5"></div>
+                </div>
+
+                <!-- Skeleton Buttons -->
+                <div class="mt-4 flex justify-end space-x-2">
+                  <div class="h-8 bg-gray-200 rounded w-16"></div>
+                  <div class="h-8 bg-gray-200 rounded w-16"></div>
+                </div>
+              </div>
+            </div>
+            <?php endfor; ?>
+          </div>
+
           <!-- Rooms Grid -->
-          <div class="grid md:grid-cols-3 gap-6">
+          <div id="rooms-grid" class="hidden grid md:grid-cols-3 gap-6">
             <?php while ($room = $result->fetch_assoc()): ?>
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
               <img src="../uploads/rooms/<?php echo htmlspecialchars($room['picture']); ?>"
@@ -284,6 +320,18 @@ $result = $conn->query($sql);
   </div>
 
   <script>
+  // Show loading screen initially
+  document.getElementById('loading').style.display = 'grid';
+  document.getElementById('rooms-grid').style.display = 'none';
+
+  // Simulate data loading
+  window.addEventListener('load', function() {
+    setTimeout(() => {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('rooms-grid').style.display = 'grid';
+    }, 1500); // Show loading for 1.5 seconds
+  });
+
   function openAddModal() {
     document.getElementById('modalTitle').textContent = 'Add New Room';
     document.getElementById('formAction').value = 'add';

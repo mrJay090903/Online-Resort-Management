@@ -86,23 +86,26 @@ $result = $conn->query($sql);
             <h1 class="text-2xl font-semibold text-gray-900">Customer Accounts</h1>
           </div>
 
-          <!-- Table -->
-          <div class="bg-white rounded-lg shadow">
+          <!-- Skeleton Loading Screen -->
+          <div id="loading" class="bg-white rounded-lg shadow-lg overflow-hidden p-6">
+            <div class="animate-pulse">
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+            </div>
+          </div>
+
+          <!-- Customer Table -->
+          <div id="customer-table" class="hidden">
             <table class="w-full">
               <thead class="bg-gray-50">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Full Name
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Email
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Contact Number
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Actions
-                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Full Name</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact Number</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -200,6 +203,18 @@ $result = $conn->query($sql);
       }
     });
   }
+
+  // Show loading screen initially
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('customer-table').style.display = 'none';
+
+  // Simulate data loading
+  window.addEventListener('load', function() {
+    setTimeout(() => {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('customer-table').style.display = 'block';
+    }, 1500); // Show loading for 1.5 seconds
+  });
   </script>
 </body>
 
