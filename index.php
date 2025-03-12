@@ -148,7 +148,7 @@ if (isset($_POST['signup'])) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Casita De Grands</title>
-  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <link href="src/output.css" rel="stylesheet">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -310,33 +310,63 @@ if (isset($_POST['signup'])) {
   </section>
 
   <!-- Feature Section -->
-  <section id="features" class="bg-gray-100 py-30">
+  <section id="features" class="bg-gray-100 py-16">
     <div class="container mx-auto px-6 text-center">
       <h2 class="text-4xl font-bold text-gray-800 mb-6">Our Features</h2>
-      <p class="text-gray-600 mb-12 text-lg">Discover the luxurious amenities and breathtaking experiences at Casita
-        De
+      <p class="text-gray-600 mb-12 text-lg">Discover the luxurious amenities and breathtaking experiences at Casita De
         Grands.</p>
 
-      <div class="grid md:grid-cols-3 gap-12">
-        <!-- Feature 1 -->
-        <div class="bg-white p-6 shadow-lg rounded-lg hover:shadow-xl transition">
-          <img src="assets/infinity-pool.png" alt="Infinity Pool" class="w-16 h-16 mx-auto mb-4">
-          <h3 class="text-xl font-semibold text-gray-800">Infinity Pool</h3>
-          <p class="text-gray-600 mt-2">Enjoy a refreshing swim with a stunning view of nature.</p>
-        </div>
+      <!-- Features Carousel -->
+      <div class="relative max-w-7xl mx-auto px-4">
+        <div class="features-carousel overflow-hidden">
+          <div class="swiper-wrapper">
+            <?php 
+                    // Fetch features from database
+                    $sql = "SELECT * FROM features WHERE status = 'active' ORDER BY id";
+                    $features = $conn->query($sql)->fetch_all(MYSQLI_ASSOC);
+                    
+                    foreach ($features as $feature): 
+                        $title = htmlspecialchars($feature['title']);
+                        $description = htmlspecialchars($feature['description']);
+                    ?>
+            <div class="swiper-slide p-2">
+              <div
+                class="bg-white rounded-xl shadow-xl overflow-hidden transform transition-all duration-500 hover:scale-[1.03] hover:shadow-2xl">
+                <!-- Larger Image Container -->
+                <div class="relative aspect-[16/12] overflow-hidden">
+                  <img src="uploads/features/<?php echo htmlspecialchars($feature['image_url']); ?>"
+                    alt="<?php echo $title; ?>"
+                    class="w-full h-full object-cover transform transition-transform duration-700 hover:scale-105"
+                    loading="lazy">
+                </div>
+                <!-- Content Section -->
+                <div class="p-6 bg-white">
+                  <h3
+                    class="text-2xl font-bold text-gray-800 mb-3 transform transition-all duration-500 animate-fade-in">
+                    <?php echo $title; ?>
+                  </h3>
+                  <p
+                    class="text-gray-600 leading-relaxed transform transition-all duration-500 delay-100 animate-slide-up">
+                    <?php echo $description; ?>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <?php endforeach; ?>
+          </div>
 
-        <!-- Feature 2 -->
-        <div class="bg-white p-6 shadow-lg rounded-lg hover:shadow-xl transition">
-          <img src="assets/cottage.png" alt="Cozy Cottages" class="w-16 h-16 mx-auto mb-4">
-          <h3 class="text-xl font-semibold text-gray-800">Cozy Cottages</h3>
-          <p class="text-gray-600 mt-2">Relax in our well-designed cottages surrounded by lush greenery.</p>
-        </div>
+          <!-- Navigation Buttons -->
+          <button
+            class="absolute left-0 top-1/2 -translate-y-1/2 bg-white/90 text-emerald-600 w-12 h-12 rounded-full shadow-lg hover:bg-emerald-600 hover:text-white transition-all duration-300 z-10 prev-button flex items-center justify-center">
+            <i class="fas fa-chevron-left text-xl"></i>
+          </button>
+          <button
+            class="absolute right-0 top-1/2 -translate-y-1/2 bg-white/90 text-emerald-600 w-12 h-12 rounded-full shadow-lg hover:bg-emerald-600 hover:text-white transition-all duration-300 z-10 next-button flex items-center justify-center">
+            <i class="fas fa-chevron-right text-xl"></i>
+          </button>
 
-        <!-- Feature 3 -->
-        <div class="bg-white p-6 shadow-lg rounded-lg hover:shadow-xl transition">
-          <img src="assets/nature.png" alt="Nature Escape" class="w-16 h-16 mx-auto mb-4">
-          <h3 class="text-xl font-semibold text-gray-800">Nature Escape</h3>
-          <p class="text-gray-600 mt-2">Experience tranquility and reconnect with nature.</p>
+          <!-- Pagination -->
+          <div class="swiper-pagination mt-8"></div>
         </div>
       </div>
     </div>
@@ -709,6 +739,145 @@ if (isset($_POST['signup'])) {
   // Initial update
   updateCarousel();
   </script>
+
+  <!-- Add Swiper CSS and JS before closing body tag -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+
+  <!-- Initialize Swiper -->
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const featuresSwiper = new Swiper('.features-carousel', {
+      slidesPerView: 1,
+      spaceBetween: 24,
+      loop: true,
+      speed: 800,
+      autoplay: {
+        delay: 5000,
+        disableOnInteraction: false,
+      },
+      effect: 'slide',
+      pagination: {
+        el: '.swiper-pagination',
+        clickable: true,
+        dynamicBullets: true,
+      },
+      navigation: {
+        nextEl: '.next-button',
+        prevEl: '.prev-button',
+      },
+      breakpoints: {
+        640: {
+          slidesPerView: 1,
+        },
+        768: {
+          slidesPerView: 2,
+        },
+        1024: {
+          slidesPerView: 3,
+          spaceBetween: 32,
+        },
+      },
+    });
+  });
+  </script>
+
+  <style>
+  /* Text animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    opacity: 0;
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    opacity: 0;
+    animation: slideUp 0.6s ease-out forwards;
+  }
+
+  /* Add animation delay for staggered effect */
+  .delay-100 {
+    animation-delay: 100ms;
+  }
+
+  /* Updated carousel styling */
+  .features-carousel {
+    padding: 20px 0;
+  }
+
+  .swiper-slide {
+    height: auto;
+    opacity: 1;
+    transform: none;
+  }
+
+  .features-carousel .swiper-pagination-bullet {
+    width: 8px;
+    height: 8px;
+    background: #10B981;
+    opacity: 0.5;
+    transition: all 0.3s ease;
+  }
+
+  .features-carousel .swiper-pagination-bullet-active {
+    opacity: 1;
+    background: #059669;
+    transform: scale(1.2);
+  }
+
+  /* Navigation buttons always visible */
+  .prev-button,
+  .next-button {
+    opacity: 1;
+    transform: none;
+    transition: all 0.3s ease;
+  }
+
+  .prev-button:hover,
+  .next-button:hover {
+    transform: scale(1.1);
+  }
+
+  /* Improved card shadows */
+  .shadow-xl {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  }
+
+  .hover\:shadow-2xl:hover {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+  </style>
 </body>
+
+</html>
+}
+
+to {
+opacity: 1;
+transform: translateY(0);
+}
 
 </html>

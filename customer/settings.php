@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Account Settings - Casita De Grands</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="../src/output.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -100,19 +100,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <div>
             <label class="block text-sm font-medium text-gray-700">Full Name</label>
             <input type="text" name="full_name" value="<?php echo htmlspecialchars($user['full_name']); ?>" readonly
-                class="mt-1 block w-full rounded-md bg-gray-100 border-gray-300 shadow-sm cursor-not-allowed">
+              class="mt-1 block w-full rounded-md bg-gray-100 border-gray-300 shadow-sm cursor-not-allowed">
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700">Email</label>
             <input type="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" readonly
-                class="mt-1 block w-full rounded-md bg-gray-100 border-gray-300 shadow-sm cursor-not-allowed">
+              class="mt-1 block w-full rounded-md bg-gray-100 border-gray-300 shadow-sm cursor-not-allowed">
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700">Contact Number</label>
-            <input type="text" name="contact_number" value="<?php echo htmlspecialchars($user['contact_number']); ?>" readonly
-                class="mt-1 block w-full rounded-md bg-gray-100 border-gray-300 shadow-sm cursor-not-allowed">
+            <input type="text" name="contact_number" value="<?php echo htmlspecialchars($user['contact_number']); ?>"
+              readonly class="mt-1 block w-full rounded-md bg-gray-100 border-gray-300 shadow-sm cursor-not-allowed">
           </div>
         </div>
 
@@ -153,110 +153,111 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </div>
 
   <script>
-<?php if (isset($_SESSION['success'])): ?>
-    Swal.fire({
-        icon: 'success',
-        title: 'Success!',
-        text: '<?php echo $_SESSION['success']; ?>',
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true
-    });
-    <?php unset($_SESSION['success']); ?>
-<?php endif; ?>
+  <?php if (isset($_SESSION['success'])): ?>
+  Swal.fire({
+    icon: 'success',
+    title: 'Success!',
+    text: '<?php echo $_SESSION['success']; ?>',
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true
+  });
+  <?php unset($_SESSION['success']); ?>
+  <?php endif; ?>
 
-<?php if (isset($_SESSION['error'])): ?>
-    Swal.fire({
-        icon: 'error',
-        title: 'Error!',
-        text: '<?php echo $_SESSION['error']; ?>',
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true
-    });
-    <?php unset($_SESSION['error']); ?>
-<?php endif; ?>
+  <?php if (isset($_SESSION['error'])): ?>
+  Swal.fire({
+    icon: 'error',
+    title: 'Error!',
+    text: '<?php echo $_SESSION['error']; ?>',
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true
+  });
+  <?php unset($_SESSION['error']); ?>
+  <?php endif; ?>
 
-<script>
-document.querySelector('form').addEventListener('submit', function(e) {
-    e.preventDefault(); // Prevent form submission initially
-    
-    const currentPassword = document.querySelector('input[name="current_password"]').value;
-    const newPassword = document.querySelector('input[name="new_password"]').value;
-    const confirmPassword = document.querySelector('input[name="confirm_password"]').value;
+    <
+    script >
+    document.querySelector('form').addEventListener('submit', function(e) {
+      e.preventDefault(); // Prevent form submission initially
 
-    // Only validate if user is trying to change password
-    if (currentPassword || newPassword || confirmPassword) {
+      const currentPassword = document.querySelector('input[name="current_password"]').value;
+      const newPassword = document.querySelector('input[name="new_password"]').value;
+      const confirmPassword = document.querySelector('input[name="confirm_password"]').value;
+
+      // Only validate if user is trying to change password
+      if (currentPassword || newPassword || confirmPassword) {
         // Check if current password is provided
         if (!currentPassword) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Current Password Required',
-                text: 'Please enter your current password',
-                confirmButtonColor: '#10B981'
-            });
-            return;
+          Swal.fire({
+            icon: 'error',
+            title: 'Current Password Required',
+            text: 'Please enter your current password',
+            confirmButtonColor: '#10B981'
+          });
+          return;
         }
 
         // Check if new password is provided
         if (!newPassword) {
-            Swal.fire({
-                icon: 'error',
-                title: 'New Password Required',
-                text: 'Please enter your new password',
-                confirmButtonColor: '#10B981'
-            });
-            return;
+          Swal.fire({
+            icon: 'error',
+            title: 'New Password Required',
+            text: 'Please enter your new password',
+            confirmButtonColor: '#10B981'
+          });
+          return;
         }
 
         // Validate password length
         if (newPassword.length < 8) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Invalid Password',
-                text: 'New password must be at least 8 characters long',
-                confirmButtonColor: '#10B981'
-            });
-            return;
+          Swal.fire({
+            icon: 'error',
+            title: 'Invalid Password',
+            text: 'New password must be at least 8 characters long',
+            confirmButtonColor: '#10B981'
+          });
+          return;
         }
 
         // Validate password format (letters and numbers)
         if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(newPassword)) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Invalid Password Format',
-                text: 'Password must contain at least one letter and one number',
-                confirmButtonColor: '#10B981'
-            });
-            return;
+          Swal.fire({
+            icon: 'error',
+            title: 'Invalid Password Format',
+            text: 'Password must contain at least one letter and one number',
+            confirmButtonColor: '#10B981'
+          });
+          return;
         }
 
         // Check if passwords match
         if (newPassword !== confirmPassword) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Password Mismatch',
-                text: 'New password and confirmation do not match',
-                confirmButtonColor: '#10B981'
-            });
-            return;
-        }
-    } else {
-        Swal.fire({
-            icon: 'info',
-            title: 'No Changes',
-            text: 'No password changes detected',
+          Swal.fire({
+            icon: 'error',
+            title: 'Password Mismatch',
+            text: 'New password and confirmation do not match',
             confirmButtonColor: '#10B981'
+          });
+          return;
+        }
+      } else {
+        Swal.fire({
+          icon: 'info',
+          title: 'No Changes',
+          text: 'No password changes detected',
+          confirmButtonColor: '#10B981'
         });
         return;
-    }
+      }
 
-    // If all validations pass, show confirmation dialog
-    Swal.fire({
+      // If all validations pass, show confirmation dialog
+      Swal.fire({
         title: 'Change Password?',
         text: 'Are you sure you want to update your password?',
         icon: 'question',
@@ -265,24 +266,24 @@ document.querySelector('form').addEventListener('submit', function(e) {
         cancelButtonColor: '#EF4444',
         confirmButtonText: 'Yes, update it!',
         cancelButtonText: 'Cancel'
-    }).then((result) => {
+      }).then((result) => {
         if (result.isConfirmed) {
-            // Show loading state
-            Swal.fire({
-                title: 'Updating...',
-                text: 'Please wait while we update your password',
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                willOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-            // Submit the form
-            this.submit();
+          // Show loading state
+          Swal.fire({
+            title: 'Updating...',
+            text: 'Please wait while we update your password',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            willOpen: () => {
+              Swal.showLoading();
+            }
+          });
+          // Submit the form
+          this.submit();
         }
+      });
     });
-});
-</script>
+  </script>
   </script>
 </body>
 

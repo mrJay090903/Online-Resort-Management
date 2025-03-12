@@ -136,6 +136,10 @@ if (isset($_POST['signup'])) {
     header('Location: index.php');
     exit();
 }
+
+// Fetch active features
+$features_query = "SELECT * FROM features WHERE status = 'active' ORDER BY id";
+$features = $conn->query($features_query)->fetch_all(MYSQLI_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
@@ -153,7 +157,7 @@ if (isset($_POST['signup'])) {
     display: none !important;
   }
   </style>
-  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <link href="../src/output.css" rel="stylesheet">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -282,33 +286,53 @@ if (isset($_POST['signup'])) {
   <!-- Feature Section -->
   <section class="bg-gray-100 py-16">
     <div class="container mx-auto px-6 text-center">
-      <h2 class="text-4xl font-bold text-gray-800 mb-6">Our Features</h2>
-      <p class="text-gray-600 mb-12 text-lg">Discover the luxurious amenities and breathtaking experiences.</p>
+        <h2 class="text-4xl font-bold text-gray-800 mb-6">Our Features</h2>
+        <p class="text-gray-600 mb-12 text-lg">Discover the luxurious amenities and breathtaking experiences.</p>
 
-      <div class="grid md:grid-cols-3 gap-12">
-        <!-- Feature 1 -->
-        <div class="bg-white p-6 shadow-lg rounded-lg hover:shadow-xl transition">
-          <img src="assets/infinity-pool.png" alt="Infinity Pool" class="w-16 h-16 mx-auto mb-4">
-          <h3 class="text-xl font-semibold text-gray-800">Infinity Pool</h3>
-          <p class="text-gray-600 mt-2">Enjoy a refreshing swim with a stunning view of nature.</p>
-        </div>
+        <!-- Features Carousel -->
+        <div class="relative max-w-7xl mx-auto px-4">
+            <div class="features-carousel overflow-hidden">
+                <div class="swiper-wrapper">
+                    <?php foreach ($features as $feature): ?>
+                    <div class="swiper-slide p-2">
+                        <div class="bg-white rounded-xl shadow-xl overflow-hidden transform transition-all duration-500 hover:scale-[1.03] hover:shadow-2xl">
+                            <!-- Larger Image Container -->
+                            <div class="relative aspect-[16/12] overflow-hidden">
+                                <img src="../uploads/features/<?php echo htmlspecialchars($feature['image_url']); ?>"
+                                     alt="<?php echo htmlspecialchars($feature['title']); ?>"
+                                     class="w-full h-full object-cover transform transition-transform duration-700 hover:scale-105"
+                                     loading="lazy">
+                                <!-- Gradient Overlay -->
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            </div>
+                            <!-- Content Section -->
+                            <div class="p-6 bg-white">
+                                <h3 class="text-2xl font-bold text-gray-800 mb-3 transform transition-all duration-500 animate-fade-in">
+                                    <?php echo htmlspecialchars($feature['title']); ?>
+                                </h3>
+                                <p class="text-gray-600 leading-relaxed transform transition-all duration-500 delay-100 animate-slide-up">
+                                    <?php echo htmlspecialchars($feature['description']); ?>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
 
-        <!-- Feature 2 -->
-        <div class="bg-white p-6 shadow-lg rounded-lg hover:shadow-xl transition">
-          <img src="assets/cottage.png" alt="Cozy Cottages" class="w-16 h-16 mx-auto mb-4">
-          <h3 class="text-xl font-semibold text-gray-800">Cozy Cottages</h3>
-          <p class="text-gray-600 mt-2">Relax in our well-designed cottages surrounded by lush greenery.</p>
-        </div>
+                <!-- Navigation Buttons -->
+                <button class="absolute left-0 top-1/2 -translate-y-1/2 bg-white/90 text-emerald-600 w-12 h-12 rounded-full shadow-lg hover:bg-emerald-600 hover:text-white transition-all duration-300 z-10 prev-button flex items-center justify-center">
+                    <i class="fas fa-chevron-left text-xl"></i>
+                </button>
+                <button class="absolute right-0 top-1/2 -translate-y-1/2 bg-white/90 text-emerald-600 w-12 h-12 rounded-full shadow-lg hover:bg-emerald-600 hover:text-white transition-all duration-300 z-10 next-button flex items-center justify-center">
+                    <i class="fas fa-chevron-right text-xl"></i>
+                </button>
 
-        <!-- Feature 3 -->
-        <div class="bg-white p-6 shadow-lg rounded-lg hover:shadow-xl transition">
-          <img src="assets/nature.png" alt="Nature Escape" class="w-16 h-16 mx-auto mb-4">
-          <h3 class="text-xl font-semibold text-gray-800">Nature Escape</h3>
-          <p class="text-gray-600 mt-2">Experience tranquility and reconnect with nature.</p>
+                <!-- Pagination -->
+                <div class="swiper-pagination mt-8"></div>
+            </div>
         </div>
-      </div>
     </div>
-  </section>
+</section>
 
   <!-- Customer Feedback Section -->
   <section class="bg-white py-16">
@@ -447,104 +471,7 @@ if (isset($_POST['signup'])) {
   </section>
 
   <!-- Footer -->
-  <footer class="bg-gray-800 text-gray-300 py-12">
-    <div class="container mx-auto px-6">
-      <div class="grid md:grid-cols-4 gap-8 text-center md:text-left">
-        <!-- Contact -->
-        <div>
-          <h3 class="font-semibold mb-4 flex items-center justify-center md:justify-start">
-            <i class="fas fa-address-card text-emerald-500 mr-3"></i>
-            Contact Us
-          </h3>
-          <p class="flex items-center justify-center md:justify-start mb-2">
-            <i class="fas fa-phone-alt text-sm mr-3"></i>
-            +63 945 851 0079
-          </p>
-          <p class="flex items-center justify-center md:justify-start">
-            <i class="fas fa-envelope text-sm mr-3"></i>
-            casitadegrands@gmail.com
-          </p>
-        </div>
-
-        <!-- Location -->
-        <div>
-          <h3 class="font-semibold mb-4 flex items-center justify-center md:justify-start">
-            <i class="fas fa-map-marker-alt text-emerald-500 mr-3"></i>
-            Location
-          </h3>
-          <p class="flex items-center justify-center md:justify-start mb-2">
-            <i class="fas fa-map-pin text-sm mr-3"></i>
-            Purok 7, Muladbucad Grande
-          </p>
-          <p class="flex items-center justify-center md:justify-start">
-            <i class="fas fa-city text-sm mr-3"></i>
-            Guinobatan, Albay
-          </p>
-        </div>
-
-        <!-- Quick Links -->
-        <div>
-          <h3 class="font-semibold mb-4 flex items-center justify-center md:justify-start">
-            <i class="fas fa-link text-emerald-500 mr-3"></i>
-            Quick Links
-          </h3>
-          <ul>
-            <li class="mb-2">
-              <a href="about-us.php"
-                class="hover:text-emerald-500 transition-colors flex items-center justify-center md:justify-start">
-                <i class="fas fa-info-circle text-sm mr-3"></i>
-                About Us
-              </a>
-            </li>
-            <li class="mb-2">
-              <a href="my_bookings.php"
-                class="hover:text-emerald-500 transition-colors flex items-center justify-center md:justify-start">
-                <i class="fas fa-calendar-check text-sm mr-3"></i>
-                My Bookings
-              </a>
-            </li>
-            <li>
-              <a href="settings.php"
-                class="hover:text-emerald-500 transition-colors flex items-center justify-center md:justify-start">
-                <i class="fas fa-cog text-sm mr-3"></i>
-                Settings
-              </a>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Social Media -->
-        <div>
-          <h3 class="font-semibold mb-4 flex items-center justify-center md:justify-start">
-            <i class="fas fa-share-alt text-emerald-500 mr-3"></i>
-            Follow Us
-          </h3>
-          <div class="flex justify-center md:justify-start space-x-4">
-            <a href="https://web.facebook.com/profile.php?id=100086503127265"
-              class="hover:text-emerald-500 transition-colors text-2xl">
-              <i class="fab fa-facebook"></i>
-            </a>
-            <a href="https://www.instagram.com/casitadegrands?igsh=Nmc4eHd4bzdyNWNt"
-              class="hover:text-emerald-500 transition-colors text-2xl">
-              <i class="fab fa-instagram"></i>
-            </a>
-            <a href="https://www.tiktok.com/@casitadegrands?_t=ZS-8towhdTSauO&_r=1"
-              class="hover:text-emerald-500 transition-colors text-2xl">
-              <i class="fab fa-tiktok"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Copyright -->
-      <div class="text-center mt-8">
-        <p class="text-gray-500 flex items-center justify-center">
-          <i class="far fa-copyright mr-2"></i>
-          2024 Casita De Grands. All rights reserved.
-        </p>
-      </div>
-    </div>
-  </footer>
+  <?php include('components/footer.php'); ?>
 
   <!-- Feedback Modal -->
   <div id="feedbackModal" class="hidden fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
@@ -908,6 +835,163 @@ if (isset($_POST['signup'])) {
     });
   });
   </script>
+
+  <!-- Add this before closing body tag -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const featuresSwiper = new Swiper('.features-carousel', {
+      slidesPerView: 1,
+      spaceBetween: 24,
+      loop: true,
+      speed: 800,
+      autoplay: {
+        delay: 5000,
+        disableOnInteraction: false,
+      },
+      effect: 'slide', // Changed from coverflow for better visibility
+      pagination: {
+        el: '.swiper-pagination',
+        clickable: true,
+        dynamicBullets: true,
+      },
+      navigation: {
+        nextEl: '.next-button',
+        prevEl: '.prev-button',
+      },
+      breakpoints: {
+        640: {
+          slidesPerView: 1,
+        },
+        768: {
+          slidesPerView: 2,
+        },
+        1024: {
+          slidesPerView: 3,
+          spaceBetween: 32,
+        },
+      },
+    });
+  });
+  </script>
+
+  <style>
+  /* Updated carousel styling */
+  .features-carousel {
+    padding: 20px 0;
+  }
+
+  .swiper-slide {
+    height: auto;
+    opacity: 1; /* Changed from 0 to make slides visible immediately */
+    transform: none; /* Removed initial transform */
+  }
+
+  .features-carousel .swiper-pagination-bullet {
+    width: 8px;
+    height: 8px;
+    background: #10B981;
+    opacity: 0.5;
+    transition: all 0.3s ease;
+  }
+
+  .features-carousel .swiper-pagination-bullet-active {
+    opacity: 1;
+    background: #059669;
+    transform: scale(1.2);
+  }
+
+  /* Navigation buttons always visible */
+  .prev-button,
+  .next-button {
+    opacity: 1;
+    transform: none;
+    transition: all 0.3s ease;
+  }
+
+  .prev-button:hover,
+  .next-button:hover {
+    transform: scale(1.1);
+  }
+
+  /* Improved card shadows */
+  .shadow-xl {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  }
+
+  .hover\:shadow-2xl:hover {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  /* Text animations */
+  @keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    opacity: 0;
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    opacity: 0;
+    animation: slideUp 0.6s ease-out forwards;
+  }
+
+  /* Add animation delay for staggered effect */
+  .delay-100 {
+    animation-delay: 100ms;
+  }
+
+  /* Add hover animations */
+  .swiper-slide:hover .animate-fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+
+  .swiper-slide:hover .animate-slide-up {
+    animation: slideUp 0.4s ease-out forwards;
+  }
+
+  /* Make sure text is visible after animation */
+  .swiper-slide.swiper-slide-active .animate-fade-in,
+  .swiper-slide.swiper-slide-active .animate-slide-up {
+    opacity: 1;
+  }
+
+  /* Add smooth transition for text on hover */
+  .swiper-slide h3,
+  .swiper-slide p {
+    transition: transform 0.3s ease;
+  }
+
+  .swiper-slide:hover h3 {
+    transform: translateY(-2px);
+  }
+
+  .swiper-slide:hover p {
+    transform: translateY(-2px);
+  }
+  </style>
 
 </body>
 

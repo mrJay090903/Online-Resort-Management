@@ -73,7 +73,7 @@ if (isset($_POST['add_staff'])) {
         $_SESSION['error'] = implode("<br>", $errors);
     }
 
-    header("Location: staff_account.php");
+    header("Location: staff_account");
     exit();
 }
 
@@ -110,7 +110,7 @@ if (isset($_GET['delete'])) {
         $_SESSION['success'] = false;
         $_SESSION['message'] = $e->getMessage();
     }
-    header("Location: staff_account.php");
+    header("Location: staff_account");
     exit();
 }
 
@@ -177,7 +177,7 @@ if (isset($_POST['edit_staff'])) {
         $_SESSION['error'] = $e->getMessage();
     }
 
-    header("Location: staff_account.php");
+    header("Location: staff_account");
     exit();
 }
 
@@ -187,6 +187,12 @@ $staff_query = "SELECT s.*, u.email
                 JOIN users u ON s.user_id = u.id 
                 WHERE u.user_type = 'staff'";
 $staff_result = $conn->query($staff_query);
+
+// Update header redirect
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
+    header('Location: ../index');
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
@@ -203,6 +209,7 @@ $staff_result = $conn->query($staff_query);
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <!-- Add Lordicon -->
   <script src="https://cdn.lordicon.com/bhenfmcm.js"></script>
+  <link href="src/output.css" rel="stylesheet">
 </head>
 
 <body class="bg-gray-50">
@@ -347,33 +354,35 @@ $staff_result = $conn->query($staff_query);
                 <h3 class="text-lg font-semibold">Edit Staff</h3>
               </div>
               <div class="p-6">
-                <form action="staff_account.php" method="POST" id="editStaffForm">
+                <form action="staff_account" method="POST" id="editStaffForm">
                   <input type="hidden" id="edit_staff_id" name="staff_id">
                   <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2">Staff Name</label>
                     <input type="text" id="edit_staff_name" name="staff_name" required
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
                   </div>
                   <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2">Contact Number</label>
                     <input type="text" id="edit_contact_number" name="contact_number" required
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
                   </div>
                   <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
                     <input type="email" id="edit_email" name="email" required
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
                   </div>
                   <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">New Password (leave blank to keep current)</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">New Password (leave blank to keep
+                      current)</label>
                     <input type="password" id="edit_password" name="password"
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
                   </div>
                   <div class="flex justify-end space-x-3">
                     <button type="button" onclick="document.getElementById('editStaffModal').classList.add('hidden')"
-                        class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">Cancel</button>
+                      class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">Cancel</button>
                     <button type="submit" name="edit_staff"
-                        class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">Update Staff</button>
+                      class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">Update
+                      Staff</button>
                   </div>
                 </form>
               </div>
@@ -569,7 +578,7 @@ $staff_result = $conn->query($staff_query);
   // Add edit form validation
   document.getElementById('editStaffForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
+
     const staffName = document.getElementById('edit_staff_name').value.trim();
     const contactNumber = document.getElementById('edit_contact_number').value.trim();
     const email = document.getElementById('edit_email').value.trim();
@@ -579,48 +588,48 @@ $staff_result = $conn->query($staff_query);
     let errors = [];
 
     if (!staffName) {
-        errors.push("Staff name is required");
-        isValid = false;
+      errors.push("Staff name is required");
+      isValid = false;
     }
 
     if (!contactNumber) {
-        errors.push("Contact number is required");
-        isValid = false;
+      errors.push("Contact number is required");
+      isValid = false;
     }
 
     if (!email) {
-        errors.push("Email is required");
-        isValid = false;
+      errors.push("Email is required");
+      isValid = false;
     }
 
     if (password && password.length < 8) {
-        errors.push("Password must be at least 8 characters");
-        isValid = false;
+      errors.push("Password must be at least 8 characters");
+      isValid = false;
     }
 
     if (!isValid) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Validation Error',
-            html: errors.join('<br>'),
-            confirmButtonColor: '#3085d6'
-        });
-        return;
+      Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        html: errors.join('<br>'),
+        confirmButtonColor: '#3085d6'
+      });
+      return;
     }
 
     // Show confirmation before submitting
     Swal.fire({
-        title: 'Update Staff',
-        text: 'Are you sure you want to update this staff member?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, update it!'
+      title: 'Update Staff',
+      text: 'Are you sure you want to update this staff member?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, update it!'
     }).then((result) => {
-        if (result.isConfirmed) {
-            this.submit();
-        }
+      if (result.isConfirmed) {
+        this.submit();
+      }
     });
   });
 

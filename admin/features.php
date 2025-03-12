@@ -7,10 +7,17 @@ if (!file_exists('../uploads/features')) {
     mkdir('../uploads/features', 0777, true);
 }
 
+// Update header redirect
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
+    header('Location: ../index');
+    exit();
+}
+
 // Add new feature
 if (isset($_POST['add_feature'])) {
     $title = $_POST['title'];
     $description = $_POST['description'];
+    $status = $_POST['status'];
     
     // Handle image upload
     $image = '';
@@ -39,9 +46,9 @@ if (isset($_POST['add_feature'])) {
         }
     }
     
-    $sql = "INSERT INTO features (title, description, image) VALUES (?, ?, ?)";
+    $sql = "INSERT INTO features (title, description, image_url, status) VALUES (?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sss", $title, $description, $image);
+    $stmt->bind_param("ssss", $title, $description, $image, $status);
     
     if ($stmt->execute()) {
         $_SESSION['success'] = true;
@@ -59,6 +66,7 @@ if (isset($_POST['edit_feature'])) {
     $id = $_POST['id'];
     $title = $_POST['title'];
     $description = $_POST['description'];
+    $status = $_POST['status'];
     
     // Handle image upload
     $image = '';
@@ -88,13 +96,13 @@ if (isset($_POST['edit_feature'])) {
     }
 
     // Update the feature details
-    $sql = "UPDATE features SET title = ?, description = ?" . ($image ? ", image = ?" : "") . " WHERE id = ?";
+    $sql = "UPDATE features SET title = ?, description = ?, status = ?" . ($image ? ", image_url = ?" : "") . " WHERE id = ?";
     $stmt = $conn->prepare($sql);
     
     if ($image) {
-        $stmt->bind_param("sssi", $title, $description, $image, $id);
+        $stmt->bind_param("ssssi", $title, $description, $status, $image, $id);
     } else {
-        $stmt->bind_param("ssi", $title, $description, $id);
+        $stmt->bind_param("sssi", $title, $description, $status, $id);
     }
     
     if ($stmt->execute()) {
@@ -113,7 +121,7 @@ if (isset($_GET['delete'])) {
     $id = $_GET['delete'];
     
     // Get image filename before deleting record
-    $sql = "SELECT image FROM features WHERE id = ?";
+    $sql = "SELECT image_url FROM features WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $id);
     $stmt->execute();
@@ -127,8 +135,8 @@ if (isset($_GET['delete'])) {
     
     if ($stmt->execute()) {
         // Delete the image file if it exists
-        if($feature['image'] && file_exists('../uploads/features/' . $feature['image'])) {
-            unlink('../uploads/features/' . $feature['image']);
+        if($feature['image_url'] && file_exists('../uploads/features/' . $feature['image_url'])) {
+            unlink('../uploads/features/' . $feature['image_url']);
         }
         $_SESSION['success'] = true;
         $_SESSION['message'] = "Feature deleted successfully!";
@@ -152,6 +160,7 @@ if (isset($_GET['delete'])) {
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+  <link href="src/output.css" rel="stylesheet">
 </head>
 
 <body class="bg-gray-50">
@@ -199,6 +208,9 @@ if (isset($_GET['delete'])) {
                     Picture
                   </th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -210,28 +222,29 @@ if (isset($_GET['delete'])) {
             while ($row = $result->fetch_assoc()):
             ?>
                 <tr>
-                  <td class="px-6 py-4 whitespace-nowrap"><?php echo $row['title']; ?></td>
-                  <td class="px-6 py-4 whitespace-nowrap"><?php echo $row['description']; ?></td>
+                  <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($row['title']); ?></td>
+                  <td class="px-6 py-4"><?php echo htmlspecialchars($row['description']); ?></td>
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <?php 
-                    $image_path = "/Online-Resort-Management/uploads/features/" . $row['image'];
-                    if (!empty($row['image']) && file_exists($_SERVER['DOCUMENT_ROOT'] . $image_path)): ?>
-                    <img src="<?php echo $image_path; ?>" alt="Image" class="h-20 w-20 object-cover rounded">
-                    <?php else: ?>
-                    <div class="h-20 w-20 bg-gray-200 rounded flex items-center justify-center">
-                      <span class="material-symbols-outlined">image</span>
-                    </div>
+                    <?php if (!empty($row['image_url'])): ?>
+                    <img src="../uploads/features/<?php echo htmlspecialchars($row['image_url']); ?>" 
+                         alt="Feature Image" 
+                         class="h-20 w-20 object-cover rounded">
                     <?php endif; ?>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center justify-start space-x-3">
-                      <button
-                        onclick="openEditModal(<?php echo $row['id']; ?>, '<?php echo $row['title']; ?>', '<?php echo $row['description']; ?>', '<?php echo $row['image']; ?>')"
-                        class="text-yellow-500 hover:text-yellow-600 p-1 rounded-md">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                               <?php echo $row['status'] === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'; ?>">
+                        <?php echo ucfirst($row['status']); ?>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center space-x-3">
+                      <button onclick="openEditModal(<?php echo htmlspecialchars(json_encode($row)); ?>)"
+                              class="text-yellow-500 hover:text-yellow-600">
                         <span class="material-symbols-outlined">edit</span>
                       </button>
                       <button onclick="confirmDelete(<?php echo $row['id']; ?>)"
-                        class="text-red-500 hover:text-red-600 p-1 rounded-md ml-2">
+                              class="text-red-500 hover:text-red-600">
                         <span class="material-symbols-outlined">delete</span>
                       </button>
                     </div>
@@ -271,6 +284,13 @@ if (isset($_GET['delete'])) {
                     </label>
                     <input type="file" name="image" accept="image/*" required
                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                  <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Status</label>
+                    <select name="status" required class="shadow border rounded w-full py-2 px-3 text-gray-700">
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
                   </div>
                 </div>
                 <div class="flex justify-end gap-4 mt-6">
@@ -317,6 +337,13 @@ if (isset($_GET['delete'])) {
                     </label>
                     <input type="file" name="image" accept="image/*"
                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                  <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Status</label>
+                    <select name="status" id="editStatus" required class="shadow border rounded w-full py-2 px-3 text-gray-700">
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
                   </div>
                 </div>
                 <div class="flex justify-end gap-4 mt-6">
@@ -370,10 +397,11 @@ if (isset($_GET['delete'])) {
     });
   }
 
-  function openEditModal(id, title, description, image) {
-    document.getElementById('editId').value = id;
-    document.getElementById('editTitle').value = title;
-    document.getElementById('editDescription').value = description;
+  function openEditModal(feature) {
+    document.getElementById('editId').value = feature.id;
+    document.getElementById('editTitle').value = feature.title;
+    document.getElementById('editDescription').value = feature.description;
+    document.getElementById('editStatus').value = feature.status;
     document.getElementById('editModal').classList.remove('hidden');
   }
 

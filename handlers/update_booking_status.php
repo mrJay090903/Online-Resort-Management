@@ -1,76 +1,124 @@
 <?php
+// Prevent any output before our JSON response
+ob_start();
+
 session_start();
 require_once '../config/database.php';
 
+// Ensure only JSON is output
 header('Content-Type: application/json');
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SESSION['user_type'] === 'admin') {
-    try {
-        $data = json_decode(file_get_contents('php://input'), true);
-        $booking_id = $data['booking_id'];
-        $status = $data['status'];
+// Check if user is logged in and is admin
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Unauthorized access'
+    ]);
+    exit();
+}
 
-        // Start transaction
-        $conn->begin_transaction();
+// Get the POST data
+$data = json_decode(file_get_contents('php://input'), true);
 
-        try {
-            // Update booking status
-            $update_query = "UPDATE bookings SET status = ? WHERE id = ?";
-            $update_stmt = $conn->prepare($update_query);
-            $update_stmt->bind_param("si", $status, $booking_id);
+if (!isset($data['booking_id']) || !isset($data['status'])) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Missing required parameters'
+    ]);
+    exit();
+}
+
+$booking_id = $data['booking_id'];
+$status = $data['status'];
+
+try {
+    // Begin transaction
+    $conn->begin_transaction();
+
+    // Get booking and user details
+    $stmt = $conn->prepare("
+        SELECT b.id, b.booking_number, c.user_id, c.full_name
+        FROM bookings b 
+        JOIN customers c ON b.customer_id = c.id 
+        WHERE b.id = ?
+    ");
+    $stmt->bind_param("i", $booking_id);
+    $stmt->execute();
+    $booking_result = $stmt->get_result();
+    $booking_data = $booking_result->fetch_assoc();
+    
+    if (!$booking_data) {
+        throw new Exception("Booking not found");
+    }
+
+    // Update booking status
+    $stmt = $conn->prepare("UPDATE bookings SET status = ? WHERE id = ?");
+    $stmt->bind_param("si", $status, $booking_id);
+    
+    if ($stmt->execute()) {
+        // Create notification for customer
+        $notification_title = "";
+        $notification_message = "";
+        $notification_type = "";
+        
+        if ($status === 'rejected') {
+            $notification_title = "Booking Rejected";
+            $notification_message = "Your booking #{$booking_data['booking_number']} has been rejected.";
+            $notification_type = "booking_rejected";
             
-            if (!$update_stmt->execute()) {
-                throw new Exception("Failed to update booking status");
-            }
-
-            // Get customer ID and details for notification
-            $booking_query = "SELECT b.*, c.user_id, c.full_name 
-                            FROM bookings b 
-                            JOIN customers c ON b.customer_id = c.id 
-                            WHERE b.id = ?";
-            $booking_stmt = $conn->prepare($booking_query);
-            $booking_stmt->bind_param("i", $booking_id);
-            $booking_stmt->execute();
-            $booking = $booking_stmt->get_result()->fetch_assoc();
-
-            // Create notification for customer
-            $notif_query = "INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, ?)";
-            $notif_stmt = $conn->prepare($notif_query);
-
-            switch($status) {
-                case 'confirmed':
-                    $title = "Booking Confirmed";
-                    $message = "Your booking #" . str_pad($booking_id, 8, '0', STR_PAD_LEFT) . " has been confirmed.";
-                    $type = 'booking_confirmed';
-                    break;
-                case 'cancelled':
-                    $title = "Booking Rejected";
-                    $message = "Your booking #" . str_pad($booking_id, 8, '0', STR_PAD_LEFT) . " has been rejected.";
-                    $type = 'booking_rejected';
-                    break;
-                case 'completed':
-                    $title = "Booking Completed";
-                    $message = "Your booking #" . str_pad($booking_id, 8, '0', STR_PAD_LEFT) . " has been marked as completed.";
-                    $type = 'booking_completed';
-                    break;
-            }
-
-            $notif_stmt->bind_param("isss", $booking['user_id'], $title, $message, $type);
-            $notif_stmt->execute();
-
-            $conn->commit();
-            echo json_encode(['success' => true]);
-
-        } catch (Exception $e) {
-            $conn->rollback();
-            throw $e;
+            // Free up the rooms and venues
+            $stmt = $conn->prepare("DELETE FROM booking_rooms WHERE booking_id = ?");
+            $stmt->bind_param("i", $booking_id);
+            $stmt->execute();
+            
+            $stmt = $conn->prepare("DELETE FROM booking_venues WHERE booking_id = ?");
+            $stmt->bind_param("i", $booking_id);
+            $stmt->execute();
+        } elseif ($status === 'confirmed') {
+            $notification_title = "Booking Confirmed";
+            $notification_message = "Your booking #{$booking_data['booking_number']} has been confirmed. We're excited to welcome you!";
+            $notification_type = "booking_status";
+        } elseif ($status === 'completed') {
+            $notification_title = "Booking Completed";
+            $notification_message = "Your booking #{$booking_data['booking_number']} has been marked as completed. Thank you for choosing our service!";
+            $notification_type = "booking_completed";
         }
 
-    } catch (Exception $e) {
+        // Insert notification using your existing table structure
+        if ($notification_message && $notification_type) {
+            $stmt = $conn->prepare("
+                INSERT INTO notifications 
+                (user_id, title, message, type, is_read, created_at) 
+                VALUES (?, ?, ?, ?, 0, NOW())
+            ");
+            $stmt->bind_param("isss", 
+                $booking_data['user_id'], 
+                $notification_title,
+                $notification_message,
+                $notification_type
+            );
+            $stmt->execute();
+        }
+        
+        // Commit transaction
+        $conn->commit();
+        
         echo json_encode([
-            'success' => false,
-            'message' => $e->getMessage()
+            'success' => true,
+            'message' => 'Booking status updated successfully'
         ]);
+    } else {
+        throw new Exception("Failed to update booking status");
     }
+} catch (Exception $e) {
+    // Rollback transaction on error
+    $conn->rollback();
+    
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
 }
-?> 
+
+$conn->close();
+?>

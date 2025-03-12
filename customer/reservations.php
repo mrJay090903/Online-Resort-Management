@@ -24,13 +24,15 @@ $user = $stmt->get_result()->fetch_assoc();
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Make a Reservation - Casita De Grands</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="../src/output.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.cdnfonts.com/css/second-quotes" rel="stylesheet">
   <!-- Add SweetAlert2 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-material-ui/material-ui.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
+  <!-- Add Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
 
 <body class="bg-gray-50">
   <?php include('components/nav.php'); ?>
@@ -115,6 +117,7 @@ $user = $stmt->get_result()->fetch_assoc();
     </div>
   </section>
 
+  <!-- Footer -->
   <?php include('components/footer.php'); ?>
 
   <script>
@@ -125,33 +128,33 @@ $user = $stmt->get_result()->fetch_assoc();
     // Get and validate dates
     const checkInDate = new Date(formData.get('check_in'));
     const checkOutDate = new Date(formData.get('check_out'));
-    
+
     // Validate dates
     if (isNaN(checkInDate.getTime()) || isNaN(checkOutDate.getTime())) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Invalid Dates',
-            text: 'Please select valid check-in and check-out dates',
-            confirmButtonColor: '#059669'
-        });
-        return;
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Dates',
+        text: 'Please select valid check-in and check-out dates',
+        confirmButtonColor: '#059669'
+      });
+      return;
     }
 
     // Format dates as YYYY-MM-DD
     const checkIn = checkInDate.toISOString().split('T')[0];
     const checkOut = checkOutDate.toISOString().split('T')[0];
-    
+
     // Update hidden fields in booking form
     document.getElementById('booking_check_in').value = checkIn;
     document.getElementById('booking_check_out').value = checkOut;
     document.getElementById('booking_guests').value = formData.get('guests');
     document.getElementById('booking_type').value = formData.get('booking_type');
 
-    console.log('Search form dates:', { 
-        checkIn, 
-        checkOut, 
-        guests: formData.get('guests'),
-        bookingType: formData.get('booking_type')
+    console.log('Search form dates:', {
+      checkIn,
+      checkOut,
+      guests: formData.get('guests'),
+      bookingType: formData.get('booking_type')
     });
 
     // Show loading state
@@ -273,20 +276,20 @@ $user = $stmt->get_result()->fetch_assoc();
 
     // Validate all required fields
     if (!checkIn || !checkOut || !guests || !bookingType) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Missing Information',
-            text: 'Please fill in all required fields',
-            confirmButtonColor: '#059669'
-        });
-        return;
+      Swal.fire({
+        icon: 'error',
+        title: 'Missing Information',
+        text: 'Please fill in all required fields',
+        confirmButtonColor: '#059669'
+      });
+      return;
     }
 
-    console.log('Booking form data:', { 
-        checkIn, 
-        checkOut, 
-        guests, 
-        bookingType 
+    console.log('Booking form data:', {
+      checkIn,
+      checkOut,
+      guests,
+      bookingType
     });
 
     // Add to formData
@@ -301,51 +304,51 @@ $user = $stmt->get_result()->fetch_assoc();
     const selectedVenues = Array.from(document.querySelectorAll('input[name^="venue_"]:checked'));
 
     if (!selectedRoom && selectedVenues.length === 0) {
-        Swal.fire({
-            icon: 'error',
-            title: 'No Selection',
-            text: 'Please select at least one room or venue to continue.',
-            confirmButtonColor: '#059669'
-        });
-        return;
+      Swal.fire({
+        icon: 'error',
+        title: 'No Selection',
+        text: 'Please select at least one room or venue to continue.',
+        confirmButtonColor: '#059669'
+      });
+      return;
     }
 
     // Calculate total capacity and gather selections
     let totalCapacity = 0;
     const selections = {
-        room: selectedRoom ? {
-            id: selectedRoom.value,
-            capacity: parseInt(selectedRoom.dataset.capacity)
-        } : null,
-        venues: selectedVenues.map(venue => ({
-            id: venue.value,
-            capacity: parseInt(venue.dataset.capacity)
-        }))
+      room: selectedRoom ? {
+        id: selectedRoom.value,
+        capacity: parseInt(selectedRoom.dataset.capacity)
+      } : null,
+      venues: selectedVenues.map(venue => ({
+        id: venue.value,
+        capacity: parseInt(venue.dataset.capacity)
+      }))
     };
 
     // Calculate total capacity
     if (selections.room) {
-        totalCapacity += selections.room.capacity;
+      totalCapacity += selections.room.capacity;
     }
     selections.venues.forEach(venue => {
-        totalCapacity += venue.capacity;
+      totalCapacity += venue.capacity;
     });
 
     // Check if total capacity can accommodate guests
     if (totalCapacity < parseInt(guests)) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Insufficient Capacity',
-            text: 'The selected room/venues cannot accommodate all guests. Please select more or reduce guest count.',
-            confirmButtonColor: '#059669'
-        });
-        return;
+      Swal.fire({
+        icon: 'error',
+        title: 'Insufficient Capacity',
+        text: 'The selected room/venues cannot accommodate all guests. Please select more or reduce guest count.',
+        confirmButtonColor: '#059669'
+      });
+      return;
     }
 
     // Show confirmation dialog with selections
     Swal.fire({
-        title: 'Confirm Booking',
-        html: `
+      title: 'Confirm Booking',
+      html: `
             <div class="text-left">
                 <p class="mb-2"><strong>Check-in:</strong> ${checkIn}</p>
                 <p class="mb-2"><strong>Check-out:</strong> ${checkOut}</p>
@@ -354,52 +357,52 @@ $user = $stmt->get_result()->fetch_assoc();
                 <p class="text-sm text-gray-600 mt-4">* A 50% down payment will be required to confirm your booking.</p>
             </div>
         `,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#059669',
-        cancelButtonColor: '#dc2626',
-        confirmButtonText: 'Proceed to Payment',
-        cancelButtonText: 'Cancel'
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#059669',
+      cancelButtonColor: '#dc2626',
+      confirmButtonText: 'Proceed to Payment',
+      cancelButtonText: 'Cancel'
     }).then((result) => {
-        if (result.isConfirmed) {
-            // Add selections to form data
-            formData.append('selected_room', selectedRoom ? selectedRoom.value : '');
-            formData.append('selected_venues', JSON.stringify(selectedVenues.map(v => v.value)));
+      if (result.isConfirmed) {
+        // Add selections to form data
+        formData.append('selected_room', selectedRoom ? selectedRoom.value : '');
+        formData.append('selected_venues', JSON.stringify(selectedVenues.map(v => v.value)));
 
-            // Submit booking and proceed to payment
-            fetch('../handlers/booking_handler.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Redirect to payment page
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = 'payment.php';
+        // Submit booking and proceed to payment
+        fetch('../handlers/booking_handler.php', {
+            method: 'POST',
+            body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Redirect to payment page
+              const form = document.createElement('form');
+              form.method = 'POST';
+              form.action = 'payment.php';
 
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'booking_data';
-                    input.value = JSON.stringify(data.booking_data);
+              const input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = 'booking_data';
+              input.value = JSON.stringify(data.booking_data);
 
-                    form.appendChild(input);
-                    document.body.appendChild(form);
-                    form.submit();
-                } else {
-                    throw new Error(data.message || 'Failed to create booking');
-                }
-            })
-            .catch(error => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: error.message || 'An error occurred. Please try again.',
-                    confirmButtonColor: '#059669'
-                });
+              form.appendChild(input);
+              document.body.appendChild(form);
+              form.submit();
+            } else {
+              throw new Error(data.message || 'Failed to create booking');
+            }
+          })
+          .catch(error => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: error.message || 'An error occurred. Please try again.',
+              confirmButtonColor: '#059669'
             });
-        }
+          });
+      }
     });
   });
 
@@ -409,12 +412,12 @@ $user = $stmt->get_result()->fetch_assoc();
     const nextDay = new Date(this.value);
     nextDay.setDate(nextDay.getDate() + 1);
     const minCheckOut = nextDay.toISOString().split('T')[0];
-    
+
     checkOutInput.min = minCheckOut;
     if (checkOutInput.value && new Date(checkOutInput.value) <= new Date(this.value)) {
-        checkOutInput.value = minCheckOut;
-        // Update hidden field
-        document.getElementById('booking_check_out').value = minCheckOut;
+      checkOutInput.value = minCheckOut;
+      // Update hidden field
+      document.getElementById('booking_check_out').value = minCheckOut;
     }
     // Update hidden field
     document.getElementById('booking_check_in').value = this.value;

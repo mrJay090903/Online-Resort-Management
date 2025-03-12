@@ -14,66 +14,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Debug logging
         error_log("Search Parameters - Check In: $check_in, Check Out: $check_out, Guests: $guests, Type: $booking_type");
 
-        // First, let's check the structure of the bookings table
-        $table_check = $conn->query("DESCRIBE bookings");
-        $columns = [];
-        while($row = $table_check->fetch_assoc()) {
-            $columns[] = $row['Field'];
-        }
-        error_log("Bookings table columns: " . implode(", ", $columns));
-
-        // Get rooms that are not booked for the selected dates
+        // Get rooms that are available
         $rooms_query = "
-            SELECT r.*
+            SELECT DISTINCT r.*
             FROM rooms r
             WHERE r.status = 'available'
             AND r.capacity >= ?
             AND NOT EXISTS (
                 SELECT 1
-                FROM bookings b
-                JOIN booking_rooms br ON b.id = br.booking_id
+                FROM booking_rooms br
+                JOIN bookings b ON br.booking_id = b.id
                 WHERE br.room_id = r.id
-                AND b.status NOT IN ('cancelled')
+                AND b.status IN ('pending', 'confirmed', 'reschedule')  -- Exclude completed bookings
                 AND (
-                    (b.check_in_date <= ? AND b.check_out_date >= ?) OR
-                    (b.check_in_date <= ? AND b.check_out_date >= ?) OR
-                    (b.check_in_date >= ? AND b.check_out_date <= ?)
+                    (b.check_in_date <= ? AND b.check_out_date >= ?)   -- Booking overlaps with check-in
+                    OR (b.check_in_date <= ? AND b.check_out_date >= ?) -- Booking overlaps with check-out
+                    OR (b.check_in_date >= ? AND b.check_out_date <= ?) -- Booking is within the dates
                 )
-            )";
+            )
+            ORDER BY r.room_name ASC";
 
         $stmt = $conn->prepare($rooms_query);
         $stmt->bind_param("issssss", 
             $guests,
-            $check_out, $check_in,  // Covers end of existing booking overlapping with start of new booking
-            $check_in, $check_in,   // Covers start of existing booking overlapping with new booking
-            $check_in, $check_out   // Covers existing booking completely within new booking
+            $check_out, $check_in,
+            $check_out, $check_out,
+            $check_in, $check_out
         );
         $stmt->execute();
         $rooms = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-        // Get venues that are not booked for the selected dates
+        // Get venues that are available
         $venues_query = "
-            SELECT v.*
+            SELECT DISTINCT v.*
             FROM venues v
             WHERE v.status = 'available'
             AND v.capacity >= ?
             AND NOT EXISTS (
                 SELECT 1
-                FROM bookings b
-                WHERE b.venue_id = v.id
-                AND b.status NOT IN ('cancelled')
+                FROM booking_venues bv
+                JOIN bookings b ON bv.booking_id = b.id
+                WHERE bv.venue_id = v.id
+                AND b.status IN ('pending', 'confirmed', 'reschedule')  -- Exclude completed bookings
                 AND (
-                    (b.check_in_date <= ? AND b.check_out_date >= ?) OR
-                    (b.check_in_date <= ? AND b.check_out_date >= ?) OR
-                    (b.check_in_date >= ? AND b.check_out_date <= ?)
+                    (b.check_in_date <= ? AND b.check_out_date >= ?)   -- Booking overlaps with check-in
+                    OR (b.check_in_date <= ? AND b.check_out_date >= ?) -- Booking overlaps with check-out
+                    OR (b.check_in_date >= ? AND b.check_out_date <= ?) -- Booking is within the dates
                 )
-            )";
+            )
+            ORDER BY v.name ASC";
 
         $stmt = $conn->prepare($venues_query);
         $stmt->bind_param("issssss", 
             $guests,
             $check_out, $check_in,
-            $check_in, $check_in,
+            $check_out, $check_out,
             $check_in, $check_out
         );
         $stmt->execute();
@@ -102,14 +97,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             echo json_encode([
                 'success' => true,
-                'rooms' => array_values($rooms), // Reset array keys
+                'rooms' => array_values($rooms),
                 'venues' => $venues,
-                'debug_info' => [
-                    'check_in' => $check_in,
-                    'check_out' => $check_out,
-                    'guests' => $guests,
-                    'booking_type' => $booking_type
-                ]
+                'booking_type' => $booking_type
             ]);
         }
 
@@ -117,14 +107,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         error_log("Search Error: " . $e->getMessage());
         echo json_encode([
             'success' => false,
-            'message' => 'An error occurred while searching for availability: ' . $e->getMessage(),
-            'debug_info' => [
-                'check_in' => $check_in ?? null,
-                'check_out' => $check_out ?? null,
-                'guests' => $guests ?? null,
-                'booking_type' => $booking_type ?? null
-            ]
+            'message' => 'An error occurred while searching for availability: ' . $e->getMessage()
         ]);
     }
 }
-?> 
+?>

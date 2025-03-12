@@ -4,7 +4,7 @@ require_once '../config/database.php';
 
 // Check if user is logged in and is an admin
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
-    header('Location: ../index.php');
+    header('Location: ../index');
     exit();
 }
 
@@ -89,6 +89,7 @@ $result = $conn->query($sql);
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
   <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+  <link href="src/output.css" rel="stylesheet">
 </head>
 
 <body class="bg-gray-50">

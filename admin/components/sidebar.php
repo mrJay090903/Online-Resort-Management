@@ -57,7 +57,7 @@
     <!-- Navigation Links -->
     <nav class="mt-4 space-y-2">
 
-      <a href="dashboard.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
+      <a href="dashboard" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
         :class="{'justify-center': !open, 'bg-emerald-600': '<?php echo basename($_SERVER['PHP_SELF'])?>' === 'dashboard.php'}">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -67,7 +67,7 @@
       </a>
 
       <!-- All Reservations Link -->
-      <a href="reservations.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
+      <a href="reservations" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
         :class="{'justify-center': !open, 'bg-emerald-600': '<?php echo basename($_SERVER['PHP_SELF'])?>' === 'reservations.php'}">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -76,7 +76,7 @@
         <span x-show="open" x-cloak class="ml-3">All Reservations</span>
       </a>
 
-      <a href="rooms.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
+      <a href="rooms" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
         :class="{'justify-center': !open, 'bg-emerald-600': '<?php echo basename($_SERVER['PHP_SELF'])?>' === 'rooms.php'}">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -85,8 +85,8 @@
         <span x-show="open" x-cloak class="ml-3">Rooms</span>
       </a>
 
-      <a href="venues.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
-        :class="{'justify-center': !open}">
+      <a href="venues" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600" <a href="venues.php"
+        class="flex items-center px-6 py-3 text-white hover:bg-emerald-600" :class="{'justify-center': !open}">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />

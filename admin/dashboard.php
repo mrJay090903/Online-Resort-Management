@@ -60,15 +60,51 @@ $available_rooms_query = "SELECT COUNT(*) as total FROM rooms WHERE status = 'av
 $available_rooms_result = $conn->query($available_rooms_query);
 $available_rooms_count = $available_rooms_result->fetch_assoc()['total'];
 
-// Calculate monthly revenue
-$monthly_revenue_query = "
+// Get monthly revenue (only from completed bookings)
+$revenue_query = "
+    SELECT 
+        MONTH(check_in_date) as month,
+        YEAR(check_in_date) as year,
+        SUM(total_amount) as total
+    FROM bookings 
+    WHERE status = 'completed' 
+    AND YEAR(check_in_date) = YEAR(CURRENT_DATE)
+    GROUP BY MONTH(check_in_date), YEAR(check_in_date)
+    ORDER BY YEAR(check_in_date), MONTH(check_in_date)
+";
+
+$revenue_result = $conn->query($revenue_query);
+$monthly_revenue = array_fill(0, 12, 0); // Initialize all months to 0
+
+while ($row = $revenue_result->fetch_assoc()) {
+    $month_index = intval($row['month']) - 1; // Convert to 0-based index
+    $monthly_revenue[$month_index] = floatval($row['total']);
+}
+
+// Get total revenue for current year (only from completed bookings)
+$total_revenue_query = "
     SELECT SUM(total_amount) as total 
     FROM bookings 
-    WHERE MONTH(created_at) = MONTH(CURRENT_DATE())
-    AND YEAR(created_at) = YEAR(CURRENT_DATE())
+    WHERE status = 'completed'
+    AND YEAR(check_in_date) = YEAR(CURRENT_DATE)
 ";
-$monthly_revenue_result = $conn->query($monthly_revenue_query);
-$monthly_revenue = $monthly_revenue_result->fetch_assoc()['total'] ?? 0;
+
+$total_result = $conn->query($total_revenue_query);
+$total_revenue = $total_result->fetch_assoc()['total'] ?? 0;
+
+// Get booking statistics
+$booking_stats_query = "
+    SELECT 
+        COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_count,
+        COUNT(CASE WHEN status = 'confirmed' THEN 1 END) as confirmed_count,
+        COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_count,
+        COUNT(CASE WHEN status = 'reschedule' THEN 1 END) as reschedule_count
+    FROM bookings
+    WHERE YEAR(check_in_date) = YEAR(CURRENT_DATE)
+";
+
+$stats_result = $conn->query($booking_stats_query);
+$booking_stats = $stats_result->fetch_assoc();
 
 // Get recent bookings
 $recent_bookings_query = "
@@ -145,6 +181,75 @@ $activities_query = "
     LIMIT 10
 ";
 $activities = $conn->query($activities_query);
+
+// Add new queries for enhanced statistics
+$daily_revenue_query = "
+    SELECT 
+        DATE(check_in_date) as date,
+        SUM(total_amount) as total
+    FROM bookings 
+    WHERE status = 'completed'
+    AND check_in_date >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)
+    GROUP BY DATE(check_in_date)
+    ORDER BY date DESC
+";
+$daily_revenue = $conn->query($daily_revenue_query);
+
+// Get customer demographics
+$customer_stats_query = "
+    SELECT 
+        COUNT(DISTINCT c.id) as total_customers,
+        COUNT(DISTINCT b.id) as total_bookings,
+        ROUND(COUNT(DISTINCT b.id) / COUNT(DISTINCT c.id), 2) as booking_per_customer
+    FROM customers c
+    LEFT JOIN bookings b ON c.id = b.customer_id
+";
+$customer_stats = $conn->query($customer_stats_query)->fetch_assoc();
+
+// Get recent feedback
+$recent_feedback_query = "
+    SELECT 
+        f.id,
+        f.message,
+        f.rating,
+        f.created_at,
+        c.full_name as customer_name
+    FROM feedbacks f
+    JOIN customers c ON f.customer_id = c.id
+    ORDER BY f.created_at DESC
+    LIMIT 5
+";
+$recent_feedback = $conn->query($recent_feedback_query);
+
+// Get available rooms with details
+$available_rooms_query = "
+    SELECT 
+        r.id,
+        r.room_name,
+        r.price,
+        r.status,
+        r.description,
+        r.capacity
+    FROM rooms r
+    WHERE r.status = 'available'
+    ORDER BY r.room_name
+";
+$available_rooms = $conn->query($available_rooms_query);
+
+// Get available venues with details
+$available_venues_query = "
+    SELECT 
+        v.id,
+        v.name,
+        v.price,
+        v.status,
+        v.description,
+        v.capacity
+    FROM venues v
+    WHERE v.status = 'available'
+    ORDER BY v.name
+";
+$available_venues = $conn->query($available_venues_query);
 ?>
 
 <!DOCTYPE html>
@@ -155,14 +260,33 @@ $activities = $conn->query($activities_query);
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard - Casita de Grands</title>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <link href="src/output.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
   <script src="https://cdn.lordicon.com/bhenfmcm.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <style>
   [x-cloak] {
     display: none !important;
+  }
+  /* Custom Scrollbar */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: #f7f7f7;
+    border-radius: 3px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 3px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #d1d5db;
   }
   </style>
 </head>
@@ -181,91 +305,125 @@ $activities = $conn->query($activities_query);
             <h1 class="text-2xl font-semibold text-gray-900">Dashboard Overview</h1>
           </div>
 
-          <!-- Stats Cards -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            <!-- Total Users Card -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-              <div class="flex items-center">
-                <div class="p-3 rounded-full bg-blue-100 text-blue-500">
-                  <lord-icon src="https://cdn.lordicon.com/dxjqoygy.json" trigger="hover" colors="primary:#3b82f6"
-                    style="width:32px;height:32px">
-                  </lord-icon>
+          <!-- Summary Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Revenue Card -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-emerald-500">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-gray-500 mb-1">Total Revenue (YTD)</p>
+                  <h3 class="text-2xl font-bold text-gray-800">₱<?php echo number_format($total_revenue, 2); ?></h3>
+                  <p class="text-xs text-gray-400 mt-1">From completed bookings</p>
                 </div>
-                <div class="ml-4">
-                  <h2 class="text-gray-600">Total Users</h2>
-                  <p class="text-2xl font-semibold"><?php echo number_format($users_count); ?></p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Active Reservations -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-              <div class="flex items-center">
-                <div class="p-3 rounded-full bg-green-100 text-green-500">
-                  <lord-icon src="https://cdn.lordicon.com/uukerzzv.json" trigger="hover" colors="primary:#22c55e"
-                    style="width:32px;height:32px">
-                  </lord-icon>
-                </div>
-                <div class="ml-4">
-                  <h2 class="text-gray-600">Active Reservations</h2>
-                  <p class="text-2xl font-semibold"><?php echo number_format($active_reservations_count); ?></p>
+                <div class="p-3 bg-emerald-50 rounded-lg">
+                  <svg class="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                    </path>
+                  </svg>
                 </div>
               </div>
             </div>
 
-            <!-- Available Rooms -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-              <div class="flex items-center">
-                <div class="p-3 rounded-full bg-yellow-100 text-yellow-500">
-                  <lord-icon src="https://cdn.lordicon.com/gmzxduhd.json" trigger="hover" colors="primary:#eab308"
-                    style="width:32px;height:32px">
-                  </lord-icon>
+            <!-- Booking Statistics Card -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-gray-500 mb-1">Active Bookings</p>
+                  <h3 class="text-2xl font-bold text-gray-800"><?php echo $booking_stats['confirmed_count']; ?></h3>
+                  <p class="text-xs text-gray-400 mt-1">Currently confirmed</p>
                 </div>
-                <div class="ml-4">
-                  <h2 class="text-gray-600">Available Rooms</h2>
-                  <p class="text-2xl font-semibold"><?php echo number_format($available_rooms_count); ?></p>
+                <div class="p-3 bg-blue-50 rounded-lg">
+                  <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
                 </div>
               </div>
             </div>
 
-            <!-- Monthly Revenue -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-              <div class="flex items-center">
-                <div class="p-3 rounded-full bg-purple-100 text-purple-500">
-                  <lord-icon src="https://cdn.lordicon.com/qhviklyi.json" trigger="hover" colors="primary:#9333ea"
-                    style="width:32px;height:32px">
-                  </lord-icon>
+            <!-- Customer Stats Card -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-gray-500 mb-1">Total Customers</p>
+                  <h3 class="text-2xl font-bold text-gray-800"><?php echo $customer_stats['total_customers']; ?></h3>
+                  <p class="text-xs text-gray-400 mt-1">Avg <?php echo $customer_stats['booking_per_customer']; ?>
+                    bookings/customer</p>
                 </div>
-                <div class="ml-4">
-                  <h2 class="text-gray-600">Monthly Revenue</h2>
-                  <p class="text-2xl font-semibold">₱<?php echo number_format($monthly_revenue); ?></p>
+                <div class="p-3 bg-purple-50 rounded-lg">
+                  <svg class="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                    </path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Room Occupancy Card -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-gray-500 mb-1">Available Rooms</p>
+                  <h3 class="text-2xl font-bold text-gray-800"><?php echo $available_rooms_count; ?></h3>
+                  <p class="text-xs text-gray-400 mt-1">Ready for booking</p>
+                </div>
+                <div class="p-3 bg-yellow-50 rounded-lg">
+                  <svg class="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                    </path>
+                  </svg>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Charts Section -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <!-- Revenue Chart -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-              <h2 class="text-xl font-semibold text-gray-800 mb-4">Revenue Overview</h2>
-              <canvas id="revenueChart"></canvas>
+          <!-- Charts Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Revenue Trend -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Revenue Trend</h3>
+                <div class="text-sm text-gray-500">Monthly</div>
+              </div>
+              <canvas id="revenueChart" height="250"></canvas>
             </div>
 
-            <!-- Bookings Chart -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-              <h2 class="text-xl font-semibold text-gray-800 mb-4">Booking Statistics</h2>
-              <canvas id="bookingsChart"></canvas>
+            <!-- Booking Status Distribution -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Booking Status</h3>
+                <div class="text-sm text-gray-500">Current Year</div>
+              </div>
+              <canvas id="bookingStatusChart" height="250"></canvas>
+            </div>
+
+            <!-- Daily Revenue Chart -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Daily Revenue</h3>
+                <div class="text-sm text-gray-500">Last 7 Days</div>
+              </div>
+              <canvas id="dailyRevenueChart" height="250"></canvas>
             </div>
           </div>
 
-          <!-- Recent Bookings and Popular Items -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <!-- Recent Activity and Stats -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <!-- Recent Bookings -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-              <h2 class="text-xl font-semibold text-gray-800 mb-4">Recent Bookings</h2>
-              <div class="space-y-4">
-                <?php while ($booking = $recent_bookings->fetch_assoc()): ?>
+            <div class="bg-white rounded-xl shadow-lg p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Recent Bookings</h3>
+                <a href="bookings.php" class="text-sm text-emerald-600 hover:text-emerald-700">View All</a>
+              </div>
+              <div class="space-y-4 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-gray-50">
+                <?php 
+                $count = 0;
+                while ($booking = $recent_bookings->fetch_assoc()): 
+                    if ($count >= 3) echo '<div class="border-t border-gray-100 pt-2 mt-2"></div>';
+                ?>
                 <div class="border-b border-gray-200 pb-3">
                   <div class="flex justify-between items-start">
                     <div>
@@ -283,7 +441,7 @@ $activities = $conn->query($activities_query);
                           switch($booking['status']) {
                             case 'pending': echo 'bg-yellow-100 text-yellow-800'; break;
                             case 'confirmed': echo 'bg-green-100 text-green-800'; break;
-                            case 'cancelled': echo 'bg-red-100 text-red-800'; break;
+                            case 'reschedule': echo 'bg-purple-100 text-orange-800'; break;
                             case 'completed': echo 'bg-blue-100 text-blue-800'; break;
                           }
                         ?>">
@@ -296,97 +454,196 @@ $activities = $conn->query($activities_query);
                     <?php echo date('M j, Y g:i A', strtotime($booking['created_at'])); ?>
                   </p>
                 </div>
-                <?php endwhile; ?>
+                <?php 
+                    $count++;
+                endwhile; 
+                ?>
               </div>
             </div>
 
-            <!-- Popular Items -->
-            <div class="space-y-6">
-              <!-- Popular Rooms -->
-              <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">Popular Rooms</h2>
-                <div class="space-y-3">
-                  <?php while ($room = $popular_rooms->fetch_assoc()): ?>
-                  <div class="flex justify-between items-center">
-                    <div>
-                      <h3 class="font-medium"><?php echo htmlspecialchars($room['room_name']); ?></h3>
-                      <p class="text-sm text-gray-600"><?php echo $room['booking_count']; ?> bookings</p>
-                    </div>
-                    <span class="text-sm font-medium text-gray-900">₱<?php echo number_format($room['price']); ?></span>
+            <!-- Popular Rooms -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Popular Rooms</h3>
+                <a href="rooms.php" class="text-sm text-emerald-600 hover:text-emerald-700">View All</a>
+              </div>
+              <div class="space-y-4 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-gray-50">
+                <?php 
+                $count = 0;
+                while ($room = $popular_rooms->fetch_assoc()): 
+                    if ($count >= 3) echo '<div class="border-t border-gray-100 pt-2 mt-2"></div>';
+                ?>
+                <div class="flex justify-between items-center">
+                  <div>
+                    <h3 class="font-medium"><?php echo htmlspecialchars($room['room_name']); ?></h3>
+                    <p class="text-sm text-gray-600"><?php echo $room['booking_count']; ?> bookings</p>
                   </div>
-                  <?php endwhile; ?>
+                  <span class="text-sm font-medium text-gray-900">₱<?php echo number_format($room['price']); ?></span>
                 </div>
+                <?php 
+                    $count++;
+                endwhile; 
+                ?>
               </div>
+            </div>
 
-              <!-- Popular Venues -->
-              <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">Popular Venues</h2>
-                <div class="space-y-3">
-                  <?php while ($venue = $popular_venues->fetch_assoc()): ?>
-                  <div class="flex justify-between items-center">
+            <!-- Recent Activities -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Recent Activities</h3>
+                <div class="text-sm text-gray-500">Last 10 Activities</div>
+              </div>
+              <div class="space-y-4 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-gray-50">
+                <?php 
+                $count = 0;
+                while ($activity = $activities->fetch_assoc()): 
+                    if ($count >= 3) echo '<div class="border-t border-gray-100 pt-2 mt-2"></div>';
+                ?>
+                <div class="border-b border-gray-200 pb-3">
+                  <div class="flex justify-between items-start">
                     <div>
-                      <h3 class="font-medium"><?php echo htmlspecialchars($venue['name']); ?></h3>
-                      <p class="text-sm text-gray-600"><?php echo $venue['booking_count']; ?> bookings</p>
+                      <h3 class="font-medium"><?php echo htmlspecialchars($activity['user']); ?></h3>
+                      <p class="text-sm text-gray-600"><?php echo htmlspecialchars($activity['details']); ?></p>
                     </div>
-                    <span
-                      class="text-sm font-medium text-gray-900">₱<?php echo number_format($venue['price']); ?></span>
-                  </div>
-                  <?php endwhile; ?>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Recent Activity Table -->
-          <div class="bg-white rounded-lg shadow-md overflow-hidden">
-            <div class="p-6 border-b border-gray-200">
-              <h2 class="text-xl font-semibold text-gray-800">Recent Activity</h2>
-            </div>
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                  <?php while ($activity = $activities->fetch_assoc()): ?>
-                  <tr>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <span
-                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                        <?php echo $activity['type'] === 'booking' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'; ?>">
-                        <?php echo ucfirst($activity['type']); ?>
-                      </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($activity['user']); ?></td>
-                    <td class="px-6 py-4"><?php echo htmlspecialchars($activity['details']); ?></td>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-right">
                       <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                         <?php
                           switch($activity['status']) {
                             case 'pending': echo 'bg-yellow-100 text-yellow-800'; break;
                             case 'confirmed': echo 'bg-green-100 text-green-800'; break;
-                            case 'cancelled': echo 'bg-red-100 text-red-800'; break;
+                            case 'reschedule': echo 'bg-purple-100 text-purple-800'; break;
                             case 'completed': echo 'bg-blue-100 text-blue-800'; break;
                           }
                         ?>">
                         <?php echo ucfirst($activity['status']); ?>
                       </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <?php echo date('M j, Y g:i A', strtotime($activity['created_at'])); ?>
-                    </td>
-                  </tr>
-                  <?php endwhile; ?>
-                </tbody>
-              </table>
+                    </div>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">
+                    <?php echo date('M j, Y g:i A', strtotime($activity['created_at'])); ?>
+                  </p>
+                </div>
+                <?php 
+                    $count++;
+                endwhile; 
+                ?>
+              </div>
+            </div>
+
+            <!-- Customer Feedback -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Customer Feedback</h3>
+                <a href="guest_feedback.php" class="text-sm text-emerald-600 hover:text-emerald-700">View All</a>
+              </div>
+              <div class="space-y-4 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-gray-50">
+                <?php 
+                $count = 0;
+                while ($feedback = $recent_feedback->fetch_assoc()): 
+                    if ($count >= 3) echo '<div class="border-t border-gray-100 pt-2 mt-2"></div>';
+                ?>
+                <div class="border-b border-gray-200 pb-3">
+                  <div class="flex justify-between items-start">
+                    <div>
+                      <h3 class="font-medium"><?php echo htmlspecialchars($feedback['customer_name']); ?></h3>
+                      <p class="text-sm text-gray-600"><?php echo htmlspecialchars($feedback['message']); ?></p>
+                    </div>
+                    <div class="text-right">
+                      <div class="flex items-center">
+                        <?php for($i = 1; $i <= 5; $i++): ?>
+                        <svg
+                          class="w-4 h-4 <?php echo $i <= $feedback['rating'] ? 'text-yellow-400' : 'text-gray-300'; ?>"
+                          fill="currentColor" viewBox="0 0 20 20">
+                          <path
+                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        <?php endfor; ?>
+                      </div>
+                      <p class="text-xs text-gray-500 mt-1">
+                        <?php echo date('M j, Y g:i A', strtotime($feedback['created_at'])); ?>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <?php 
+                    $count++;
+                endwhile; 
+                ?>
+                <?php if ($recent_feedback->num_rows === 0): ?>
+                <div class="text-center text-gray-500 py-4">
+                  <p>No feedback available</p>
+                </div>
+                <?php endif; ?>
+              </div>
+            </div>
+          </div>
+
+          <!-- Available Rooms and Venues -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <!-- Available Rooms -->
+              <div class="bg-white rounded-xl shadow-lg p-6">
+                  <div class="flex items-center justify-between mb-4">
+                      <h3 class="text-lg font-semibold text-gray-800">Available Rooms</h3>
+                      <a href="rooms.php" class="text-sm text-emerald-600 hover:text-emerald-700">Manage Rooms</a>
+                  </div>
+                  <div class="space-y-4 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-gray-50">
+                      <?php if ($available_rooms->num_rows === 0): ?>
+                      <div class="text-center text-gray-500 py-4">
+                          <p>No rooms available at the moment</p>
+                      </div>
+                      <?php else: ?>
+                          <?php while ($room = $available_rooms->fetch_assoc()): ?>
+                          <div class="border-b border-gray-200 pb-4">
+                              <div class="flex justify-between items-start">
+                                  <div>
+                                      <h4 class="font-medium text-gray-900"><?php echo htmlspecialchars($room['room_name']); ?></h4>
+                                      <p class="text-sm text-gray-600 mt-1">Capacity: <?php echo $room['capacity']; ?> persons</p>
+                                      <p class="text-sm text-gray-500 mt-1 line-clamp-2"><?php echo htmlspecialchars($room['description']); ?></p>
+                                  </div>
+                                  <div class="text-right">
+                                      <span class="text-lg font-semibold text-gray-900">₱<?php echo number_format($room['price'], 2); ?></span>
+                                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-1">
+                                          Available
+                                      </span>
+                                  </div>
+                              </div>
+                          </div>
+                          <?php endwhile; ?>
+                      <?php endif; ?>
+                  </div>
+              </div>
+
+              <!-- Available Venues -->
+              <div class="bg-white rounded-xl shadow-lg p-6">
+                  <div class="flex items-center justify-between mb-4">
+                      <h3 class="text-lg font-semibold text-gray-800">Available Venues</h3>
+                      <a href="venues.php" class="text-sm text-emerald-600 hover:text-emerald-700">Manage Venues</a>
+                  </div>
+                  <div class="space-y-4 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-gray-50">
+                      <?php if ($available_venues->num_rows === 0): ?>
+                      <div class="text-center text-gray-500 py-4">
+                          <p>No venues available at the moment</p>
+                      </div>
+                      <?php else: ?>
+                          <?php while ($venue = $available_venues->fetch_assoc()): ?>
+                          <div class="border-b border-gray-200 pb-4">
+                              <div class="flex justify-between items-start">
+                                  <div>
+                                      <h4 class="font-medium text-gray-900"><?php echo htmlspecialchars($venue['name']); ?></h4>
+                                      <p class="text-sm text-gray-600 mt-1">Capacity: <?php echo $venue['capacity']; ?> persons</p>
+                                      <p class="text-sm text-gray-500 mt-1 line-clamp-2"><?php echo htmlspecialchars($venue['description']); ?></p>
+                                  </div>
+                                  <div class="text-right">
+                                      <span class="text-lg font-semibold text-gray-900">₱<?php echo number_format($venue['price'], 2); ?></span>
+                                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-1">
+                                          Available
+                                      </span>
+                                  </div>
+                              </div>
+                          </div>
+                          <?php endwhile; ?>
+                      <?php endif; ?>
+              </div>
             </div>
           </div>
         </div>
@@ -395,29 +652,86 @@ $activities = $conn->query($activities_query);
   </div>
 
   <script>
-  // Revenue Chart
-  const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-  new Chart(revenueCtx, {
+  // Revenue Trend Chart (existing)
+  const revenueChart = new Chart(document.getElementById('revenueChart'), {
     type: 'line',
     data: {
-      labels: <?php echo json_encode($revenue_labels); ?>,
+      labels: <?php echo json_encode(array_map(function($m) { return date('M', mktime(0, 0, 0, $m + 1, 1)); }, array_keys($monthly_revenue))); ?>,
       datasets: [{
         label: 'Monthly Revenue',
-        data: <?php echo json_encode($revenue_data); ?>,
-        borderColor: 'rgb(59, 130, 246)',
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        data: <?php echo json_encode(array_values($monthly_revenue)); ?>,
+        borderColor: '#059669',
         tension: 0.4,
-        fill: true
+        fill: false
       }]
     },
     options: {
       responsive: true,
       plugins: {
         legend: {
-          position: 'top',
-        },
-        title: {
-          display: false
+          position: 'top'
+        }
+      }
+    }
+  });
+
+  // Booking Status Chart
+  const bookingStatusChart = new Chart(document.getElementById('bookingStatusChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Pending', 'Confirmed', 'Completed', 'Reschedule'],
+      datasets: [{
+        data: [
+          <?php echo $booking_stats['pending_count']; ?>,
+          <?php echo $booking_stats['confirmed_count']; ?>,
+          <?php echo $booking_stats['completed_count']; ?>,
+          <?php echo $booking_stats['reschedule_count']; ?>
+        ],
+        backgroundColor: [
+          '#FCD34D', // yellow for pending
+          '#34D399', // green for confirmed
+          '#60A5FA', // blue for completed
+          '#C084FC' // purple for reschedule
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'right'
+        }
+      }
+    }
+  });
+
+  // Daily Revenue Chart
+  const dailyRevenueChart = new Chart(document.getElementById('dailyRevenueChart'), {
+    type: 'bar',
+    data: {
+      labels: [
+        <?php 
+        $daily_labels = [];
+        $daily_data = [];
+        while ($day = $daily_revenue->fetch_assoc()) {
+          $daily_labels[] = date('M d', strtotime($day['date']));
+          $daily_data[] = $day['total'];
+        }
+        echo "'" . implode("','", $daily_labels) . "'";
+        ?>
+      ],
+      datasets: [{
+        label: 'Daily Revenue',
+        data: [<?php echo implode(',', $daily_data); ?>],
+        backgroundColor: '#EC4899',
+        borderRadius: 5
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'top'
         }
       },
       scales: {
@@ -427,50 +741,6 @@ $activities = $conn->query($activities_query);
             callback: function(value) {
               return '₱' + value.toLocaleString();
             }
-          }
-        }
-      }
-    }
-  });
-
-  // Bookings Chart
-  const bookingsCtx = document.getElementById('bookingsChart').getContext('2d');
-  new Chart(bookingsCtx, {
-    type: 'bar',
-    data: {
-      labels: ['Pending', 'Confirmed', 'Completed', 'Cancelled'],
-      datasets: [{
-        label: 'Number of Bookings',
-        data: [<?php echo $booking_stats['pending']; ?>, <?php echo $booking_stats['confirmed']; ?>,
-          <?php echo $booking_stats['completed']; ?>, <?php echo $booking_stats['cancelled']; ?>
-        ],
-        backgroundColor: [
-          'rgba(234, 179, 8, 0.5)', // yellow for pending
-          'rgba(34, 197, 94, 0.5)', // green for confirmed
-          'rgba(59, 130, 246, 0.5)', // blue for completed
-          'rgba(239, 68, 68, 0.5)' // red for cancelled
-        ],
-        borderColor: [
-          'rgb(234, 179, 8)',
-          'rgb(34, 197, 94)',
-          'rgb(59, 130, 246)',
-          'rgb(239, 68, 68)'
-        ],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: {
-          position: 'top',
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            stepSize: 1
           }
         }
       }

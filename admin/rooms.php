@@ -21,7 +21,7 @@ if (!file_exists($upload_dir)) {
 
 // Check if user is logged in and is an admin
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
-    header('Location: ../index.php');
+    header('Location: ../index');
     exit();
 }
 
@@ -109,7 +109,7 @@ $result = $conn->query($sql);
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Manage Rooms - Admin Dashboard</title>
-  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <link href="src/output.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -141,7 +141,7 @@ $result = $conn->query($sql);
             <div class="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
               <!-- Skeleton Image -->
               <div class="w-full h-48 bg-gray-200"></div>
-              
+
               <div class="p-4">
                 <!-- Skeleton Header -->
                 <div class="flex justify-between items-start mb-2">
@@ -426,7 +426,7 @@ $result = $conn->query($sql);
   window.onclick = function(event) {
     let modal = document.getElementById('roomModal');
     if (event.target == modal) {
-        closeModal();
+      closeModal();
     }
   }
   </script>

@@ -4,7 +4,7 @@ require_once '../config/database.php';
 
 // Check if user is logged in and is an admin
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
-    header('Location: ../index.php');
+    header('Location: ../index');
     exit();
 }
 
@@ -47,7 +47,7 @@ if (isset($_GET['delete'])) {
         }
     }
     
-    header("Location: customer_account.php");
+    header("Location: customer_account");
     exit();
 }
 
@@ -70,6 +70,7 @@ $result = $conn->query($sql);
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="src/output.css" rel="stylesheet">
 </head>
 
 <body class="bg-gray-50">

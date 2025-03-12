@@ -208,8 +208,8 @@ try {
             $notif_stmt = $conn->prepare($notif_query);
             $notif_title = "New Booking Requires Confirmation";
             $notif_message = sprintf(
-                "New booking #%d from %s requires your confirmation. Check-in: %s, Check-out: %s",
-                $booking_id,
+                "New booking %s from %s requires your confirmation. Check-in: %s, Check-out: %s",
+                $booking_data['booking_number'],
                 $booking_data['customer_name'],
                 date('M d, Y', strtotime($booking_data['check_in'])),
                 date('M d, Y', strtotime($booking_data['check_out']))
@@ -231,8 +231,8 @@ try {
         $customer_notif_stmt = $conn->prepare($customer_notif_query);
         $customer_title = "Booking Payment Received";
         $customer_message = sprintf(
-            "Your payment for booking #%d has been received and is pending confirmation. We'll notify you once it's confirmed.",
-            $booking_id
+            "Your payment for booking %s has been received and is pending confirmation. We'll notify you once it's confirmed.",
+            $booking_data['booking_number']
         );
 
         $customer_notif_stmt->bind_param(
