@@ -19,9 +19,9 @@ if (!file_exists($upload_dir)) {
     echo "Created directory: $upload_dir";
 }
 
-// Check if user is logged in and is an admin
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
-    header('Location: ../index');
+// Check if user is logged in and has appropriate access
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_type'], ['admin', 'staff'])) {
+    header('Location: ../index.php');
     exit();
 }
 
@@ -109,7 +109,7 @@ $result = $conn->query($sql);
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Manage Rooms - Admin Dashboard</title>
-  <link href="src/output.css" rel="stylesheet">
+  <link href="../src/output.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

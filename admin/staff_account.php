@@ -209,7 +209,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <!-- Add Lordicon -->
   <script src="https://cdn.lordicon.com/bhenfmcm.js"></script>
-  <link href="src/output.css" rel="stylesheet">
+  <link href="../src/output.css" rel="stylesheet">
 </head>
 
 <body class="bg-gray-50">

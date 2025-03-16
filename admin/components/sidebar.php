@@ -1,7 +1,15 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
+<!DOCTYPE html>
+<html>
+
 <head>
   <!-- ... other head elements ... -->
-  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
   <style>
   [x-cloak] {
     display: none !important;
@@ -10,45 +18,17 @@
 </head>
 
 <div x-data="{ 
-    open: localStorage.getItem('sidebarOpen') === 'true', 
-    reservationOpen: localStorage.getItem('reservationOpen') === 'true',
-    userAccountOpen: localStorage.getItem('userAccountOpen') === 'true',
-    toggleSidebar() {
-        this.open = !this.open;
-        // Close dropdowns when sidebar is closed
-        if (!this.open) {
-            this.reservationOpen = false;
-            this.userAccountOpen = false;
-            localStorage.setItem('reservationOpen', false);
-            localStorage.setItem('userAccountOpen', false);
-        }
-        localStorage.setItem('sidebarOpen', this.open);
-    },
-    toggleReservation() {
-        this.reservationOpen = !this.reservationOpen;
-        localStorage.setItem('reservationOpen', this.reservationOpen);
-        if (!this.open) {
-            this.open = true;
-            localStorage.setItem('sidebarOpen', true);
-        }
-    },
-    toggleUserAccount() {
-        this.userAccountOpen = !this.userAccountOpen;
-        localStorage.setItem('userAccountOpen', this.userAccountOpen);
-        if (!this.open) {
-            this.open = true;
-            localStorage.setItem('sidebarOpen', true);
-        }
-    }
-}" x-cloak>
+    open: localStorage.getItem('sidebarOpen') === 'true' || true,
+    activeDropdown: null
+}" class="relative">
   <!-- Sidebar -->
   <div :class="open ? 'w-64' : 'w-16'"
     class="fixed top-0 left-0 h-full bg-emerald-500 text-white transition-all duration-300 z-50">
     <div class="p-4 flex items-center justify-between">
       <img src="../assets/logos.png" alt="Logo" class="w-36 h-13" x-show="open" x-cloak>
-      <button @click="toggleSidebar()" class="text-white">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-          :class="{'rotate-180': !open}">
+      <button @click="open = !open; localStorage.setItem('sidebarOpen', open)"
+        class="p-2 rounded-lg hover:bg-emerald-600 transition-colors focus:outline-none">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
@@ -56,100 +36,83 @@
 
     <!-- Navigation Links -->
     <nav class="mt-4 space-y-2">
-
-      <a href="dashboard" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
-        :class="{'justify-center': !open, 'bg-emerald-600': '<?php echo basename($_SERVER['PHP_SELF'])?>' === 'dashboard.php'}">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 01-2-2v-2z" />
-        </svg>
+      <!-- Staff & Admin Access -->
+      <a href="dashboard.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
+        :class="{'justify-center': !open, 'bg-emerald-600': window.location.pathname.includes('dashboard.php')}">
+        <span class="material-symbols-outlined">dashboard</span>
         <span x-show="open" x-cloak class="ml-3">Dashboard</span>
       </a>
 
-      <!-- All Reservations Link -->
-      <a href="reservations" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
-        :class="{'justify-center': !open, 'bg-emerald-600': '<?php echo basename($_SERVER['PHP_SELF'])?>' === 'reservations.php'}">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-        <span x-show="open" x-cloak class="ml-3">All Reservations</span>
+      <a href="reservations.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
+        :class="{'justify-center': !open, 'bg-emerald-600': window.location.pathname.includes('reservations.php')}">
+        <span class="material-symbols-outlined">book_online</span>
+        <span x-show="open" x-cloak class="ml-3">Reservations</span>
       </a>
 
-      <a href="rooms" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
-        :class="{'justify-center': !open, 'bg-emerald-600': '<?php echo basename($_SERVER['PHP_SELF'])?>' === 'rooms.php'}">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-        </svg>
+      <a href="rooms.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
+        :class="{'justify-center': !open, 'bg-emerald-600': window.location.pathname.includes('rooms.php')}">
+        <span class="material-symbols-outlined">hotel</span>
         <span x-show="open" x-cloak class="ml-3">Rooms</span>
       </a>
 
-      <a href="venues" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600" <a href="venues.php"
-        class="flex items-center px-6 py-3 text-white hover:bg-emerald-600" :class="{'justify-center': !open}">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-        </svg>
+      <a href="cottage.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
+        :class="{'justify-center': !open, 'bg-emerald-600': window.location.pathname.includes('cottage.php')}">
+        <span class="material-symbols-outlined">house</span>
+        <span x-show="open" x-cloak class="ml-3">Cottage</span>
+      </a>
+
+      <a href="venues.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
+        :class="{'justify-center': !open, 'bg-emerald-600': window.location.pathname.includes('venues.php')}">
+        <span class="material-symbols-outlined">location_on</span>
         <span x-show="open" x-cloak class="ml-3">Venues</span>
       </a>
 
-      <a href="features.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
-        :class="{'justify-center': !open}">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-        </svg>
-        <span x-show="open" x-cloak class="ml-3">Features</span>
-      </a>
-
-      <!-- User Account Dropdown -->
-      <div class="relative">
-        <button @click="toggleUserAccount()" class="flex items-center w-full px-6 py-3 hover:bg-emerald-600"
-          :class="{'justify-center': !open}">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
-          <span x-show="open" x-cloak class="ml-3">User Account</span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-auto transition-transform duration-200"
-            :class="{ 'rotate-180': userAccountOpen, 'hidden': !open }" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-
-        <div x-show="userAccountOpen" x-cloak x-transition class="pl-11" :class="{'pl-0': !open}">
-          <a href="customer_account.php"
-            class="block px-6 py-2 hover:bg-emerald-600 <?php echo strpos($_SERVER['PHP_SELF'], 'customer_account.php') !== false ? 'bg-emerald-600' : ''; ?>">
-            Customer
-          </a>
-          <a href="staff_account.php"
-            class="block px-6 py-2 hover:bg-emerald-600 <?php echo strpos($_SERVER['PHP_SELF'], 'staff_account.php') !== false ? 'bg-emerald-600' : ''; ?>">
-            Staff
-          </a>
-        </div>
-      </div>
-
       <a href="reports.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
-        :class="{'justify-center': !open}">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
+        :class="{'justify-center': !open, 'bg-emerald-600': window.location.pathname.includes('reports.php')}">
+        <span class="material-symbols-outlined">monitoring</span>
         <span x-show="open" x-cloak class="ml-3">Reports</span>
       </a>
 
-      <a href="guest_feedback.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
-        :class="{'justify-center': !open}">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-        </svg>
-        <span x-show="open" x-cloak class="ml-3">Guest Feedback</span>
+      <?php if ($_SESSION['user_type'] === 'admin'): ?>
+      <!-- Admin-only sections -->
+      <a href="features.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
+        :class="{'justify-center': !open, 'bg-emerald-600': window.location.pathname.includes('features.php')}">
+        <span class="material-symbols-outlined">stars</span>
+        <span x-show="open" x-cloak class="ml-3">Features</span>
       </a>
 
+      <div x-data="{ dropdownOpen: false }" class="relative">
+        <button @click="dropdownOpen = !dropdownOpen"
+          class="flex items-center w-full px-6 py-3 text-white hover:bg-emerald-600">
+          <span class="material-symbols-outlined">manage_accounts</span>
+          <span x-show="open" x-cloak class="ml-3">User Account</span>
+          <span x-show="open" class="material-symbols-outlined ml-auto"
+            :class="{'rotate-180': dropdownOpen}">expand_more</span>
+        </button>
+        <div x-show="dropdownOpen && open" @click.away="dropdownOpen = false" class="pl-12 bg-emerald-600">
+          <a href="customer_account.php" class="block py-2 text-white hover:bg-emerald-700">Customer Account</a>
+          <a href="staff_account.php" class="block py-2 text-white hover:bg-emerald-700">Staff Account</a>
+        </div>
+      </div>
+
+      <a href="guest_feedback.php" class="flex items-center px-6 py-3 text-white hover:bg-emerald-600"
+        :class="{'justify-center': !open, 'bg-emerald-600': window.location.pathname.includes('guest_feedback.php')}">
+        <span class="material-symbols-outlined">feedback</span>
+        <span x-show="open" x-cloak class="ml-3">Guest Feedback</span>
+      </a>
+      <?php endif; ?>
     </nav>
+
+    <!-- User Profile Section -->
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-emerald-600">
+      <div class="flex items-center" :class="{'justify-center': !open}">
+        <span class="material-symbols-outlined text-2xl">account_circle</span>
+        <div x-show="open" class="ml-3">
+          <p class="text-sm font-medium"><?php echo $_SESSION['email']; ?></p>
+          <p class="text-xs text-emerald-200"><?php echo ucfirst($_SESSION['user_type']); ?></p>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Main Content Wrapper -->
@@ -160,3 +123,5 @@
     </div>
   </div>
 </div>
+
+</html>

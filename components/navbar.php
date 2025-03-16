@@ -17,14 +17,14 @@
               class="absolute inset-x-0 bottom-0 h-0.5 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
           </a>
 
-          <a href="#"
+          <a href="rooms.php"
             class="relative font-medium text-gray-800 hover:text-gray-600 transition-colors duration-300 group">
             Rooms
             <span
               class="absolute inset-x-0 bottom-0 h-0.5 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
           </a>
 
-          <a href="#"
+          <a href="#" onclick="toggleLoginForReservation(event)"
             class="relative font-medium text-gray-800 hover:text-gray-600 transition-colors duration-300 group">
             Reservations
             <span
@@ -49,46 +49,33 @@
 
       <!-- User Profile/Login Button -->
       <div class="flex items-center space-x-4">
-        <?php if (isset($_SESSION['logged_in']) && $_SESSION['logged_in']): ?>
-        <div x-data="{ open: false }" class="relative">
-          <button @click="open = !open" class="flex items-center space-x-3 focus:outline-none">
-            <span class="text-gray-700">Welcome, <?php echo htmlspecialchars($_SESSION['name']); ?></span>
-            <div class="h-8 w-8 rounded-full bg-emerald-500 flex items-center justify-center text-white">
-              <?php echo strtoupper(substr($_SESSION['name'], 0, 1)); ?>
-            </div>
-            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-              fill="currentColor">
-              <path fill-rule="evenodd"
-                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                clip-rule="evenodd" />
+        <?php if (isset($_SESSION['user_id'])): ?>
+        <div class="relative" x-data="{ open: false }">
+          <button @click="open = !open" class="flex items-center space-x-2 text-gray-700 hover:text-emerald-600">
+            <span
+              class="text-sm font-medium"><?php echo htmlspecialchars($_SESSION['full_name'] ?? $_SESSION['email']); ?></span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
 
           <!-- Dropdown Menu -->
-          <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-100"
-            x-transition:enter-start="transform opacity-0 scale-95"
-            x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75"
-            x-transition:leave-start="transform opacity-100 scale-100"
-            x-transition:leave-end="transform opacity-0 scale-95"
+          <div x-show="open" @click.away="open = false"
             class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-            <?php if ($_SESSION['user_type'] === 'admin'): ?>
-            <a href="admin/dashboard.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-              <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
-            </a>
-            <?php elseif ($_SESSION['user_type'] === 'customer'): ?>
-            <a href="customer/customer_dashboard.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-              <i class="fas fa-user mr-2"></i> My Account
-            </a>
+            <?php if ($_SESSION['user_type'] === 'customer'): ?>
+            <a href="customer/dashboard.php"
+              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</a>
+            <a href="customer/profile.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+            <?php elseif (in_array($_SESSION['user_type'], ['admin', 'staff'])): ?>
+            <a href="admin/dashboard.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Admin
+              Dashboard</a>
             <?php endif; ?>
-            <hr class="my-1">
-            <a href="handlers/logout_handler.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-              <i class="fas fa-sign-out-alt mr-2"></i> Logout
-            </a>
+            <a href="handlers/logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Logout</a>
           </div>
         </div>
         <?php else: ?>
         <button onclick="toggleModal()"
-          class="bg-emerald-500 text-white px-4 py-2 rounded-md hover:bg-emerald-600 transition duration-300">
+          class="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition duration-300">
           Login
         </button>
         <?php endif; ?>
@@ -578,4 +565,21 @@ document.getElementById('newPassword').addEventListener('input', function() {
       break;
   }
 });
+
+function toggleLoginForReservation(event) {
+    event.preventDefault();
+    
+    // Check if user is logged in
+    <?php if (!isset($_SESSION['user_id'])): ?>
+        // If not logged in, show login modal
+        toggleModal();
+    <?php else: ?>
+        // If logged in, redirect to reservations page based on user type
+        <?php if ($_SESSION['user_type'] === 'customer'): ?>
+            window.location.href = 'customer/reservations.php';
+        <?php elseif (in_array($_SESSION['user_type'], ['admin', 'staff'])): ?>
+            window.location.href = 'admin/reservations.php';
+        <?php endif; ?>
+    <?php endif; ?>
+}
 </script>

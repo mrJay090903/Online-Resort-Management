@@ -149,7 +149,7 @@ $features = $conn->query($features_query)->fetch_all(MYSQLI_ASSOC);
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Customer Dashboard - Casita de Grands</title>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="/src/js/app.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
   <style>
@@ -203,7 +203,7 @@ $features = $conn->query($features_query)->fetch_all(MYSQLI_ASSOC);
       <p class="font-['Raleway'] text-sm uppercase tracking-widest">Welcome To</p>
       <h1 class="text-6xl font-bold font-['playfair']">CASITA DE GRANDS</h1>
       <p class="mt-2 text-lg">Escape to Tranquility, Your Hidden Paradise Awaits</p>
-      <a href="new_booking.php"
+      <a href="reservations.php"
         class="w-40 mt-6 px-4 py-2 border-2 border-white text-white bg-transparent bg-opacity-40 backdrop-blur-md hover:bg-white hover:text-black transition-all duration-300">
         Book Now
       </a>
@@ -286,53 +286,60 @@ $features = $conn->query($features_query)->fetch_all(MYSQLI_ASSOC);
   <!-- Feature Section -->
   <section class="bg-gray-100 py-16">
     <div class="container mx-auto px-6 text-center">
-        <h2 class="text-4xl font-bold text-gray-800 mb-6">Our Features</h2>
-        <p class="text-gray-600 mb-12 text-lg">Discover the luxurious amenities and breathtaking experiences.</p>
+      <h2 class="text-4xl font-bold text-gray-800 mb-6">Our Features</h2>
+      <p class="text-gray-600 mb-12 text-lg">Discover the luxurious amenities and breathtaking experiences.</p>
 
-        <!-- Features Carousel -->
-        <div class="relative max-w-7xl mx-auto px-4">
-            <div class="features-carousel overflow-hidden">
-                <div class="swiper-wrapper">
-                    <?php foreach ($features as $feature): ?>
-                    <div class="swiper-slide p-2">
-                        <div class="bg-white rounded-xl shadow-xl overflow-hidden transform transition-all duration-500 hover:scale-[1.03] hover:shadow-2xl">
-                            <!-- Larger Image Container -->
-                            <div class="relative aspect-[16/12] overflow-hidden">
-                                <img src="../uploads/features/<?php echo htmlspecialchars($feature['image_url']); ?>"
-                                     alt="<?php echo htmlspecialchars($feature['title']); ?>"
-                                     class="w-full h-full object-cover transform transition-transform duration-700 hover:scale-105"
-                                     loading="lazy">
-                                <!-- Gradient Overlay -->
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            </div>
-                            <!-- Content Section -->
-                            <div class="p-6 bg-white">
-                                <h3 class="text-2xl font-bold text-gray-800 mb-3 transform transition-all duration-500 animate-fade-in">
-                                    <?php echo htmlspecialchars($feature['title']); ?>
-                                </h3>
-                                <p class="text-gray-600 leading-relaxed transform transition-all duration-500 delay-100 animate-slide-up">
-                                    <?php echo htmlspecialchars($feature['description']); ?>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
+      <!-- Features Carousel -->
+      <div class="relative max-w-7xl mx-auto px-4">
+        <div class="features-carousel overflow-hidden">
+          <div class="swiper-wrapper">
+            <?php foreach ($features as $feature): ?>
+            <div class="swiper-slide p-2">
+              <div
+                class="bg-white rounded-xl shadow-xl overflow-hidden transform transition-all duration-500 hover:scale-[1.03] hover:shadow-2xl">
+                <!-- Larger Image Container -->
+                <div class="relative aspect-[16/12] overflow-hidden">
+                  <img src="../uploads/features/<?php echo htmlspecialchars($feature['image_url']); ?>"
+                    alt="<?php echo htmlspecialchars($feature['title']); ?>"
+                    class="w-full h-full object-cover transform transition-transform duration-700 hover:scale-105"
+                    loading="lazy">
+                  <!-- Gradient Overlay -->
+                  <div
+                    class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  </div>
                 </div>
-
-                <!-- Navigation Buttons -->
-                <button class="absolute left-0 top-1/2 -translate-y-1/2 bg-white/90 text-emerald-600 w-12 h-12 rounded-full shadow-lg hover:bg-emerald-600 hover:text-white transition-all duration-300 z-10 prev-button flex items-center justify-center">
-                    <i class="fas fa-chevron-left text-xl"></i>
-                </button>
-                <button class="absolute right-0 top-1/2 -translate-y-1/2 bg-white/90 text-emerald-600 w-12 h-12 rounded-full shadow-lg hover:bg-emerald-600 hover:text-white transition-all duration-300 z-10 next-button flex items-center justify-center">
-                    <i class="fas fa-chevron-right text-xl"></i>
-                </button>
-
-                <!-- Pagination -->
-                <div class="swiper-pagination mt-8"></div>
+                <!-- Content Section -->
+                <div class="p-6 bg-white">
+                  <h3
+                    class="text-2xl font-bold text-gray-800 mb-3 transform transition-all duration-500 animate-fade-in">
+                    <?php echo htmlspecialchars($feature['title']); ?>
+                  </h3>
+                  <p
+                    class="text-gray-600 leading-relaxed transform transition-all duration-500 delay-100 animate-slide-up">
+                    <?php echo htmlspecialchars($feature['description']); ?>
+                  </p>
+                </div>
+              </div>
             </div>
+            <?php endforeach; ?>
+          </div>
+
+          <!-- Navigation Buttons -->
+          <button
+            class="absolute left-0 top-1/2 -translate-y-1/2 bg-white/90 text-emerald-600 w-12 h-12 rounded-full shadow-lg hover:bg-emerald-600 hover:text-white transition-all duration-300 z-10 prev-button flex items-center justify-center">
+            <i class="fas fa-chevron-left text-xl"></i>
+          </button>
+          <button
+            class="absolute right-0 top-1/2 -translate-y-1/2 bg-white/90 text-emerald-600 w-12 h-12 rounded-full shadow-lg hover:bg-emerald-600 hover:text-white transition-all duration-300 z-10 next-button flex items-center justify-center">
+            <i class="fas fa-chevron-right text-xl"></i>
+          </button>
+
+          <!-- Pagination -->
+          <div class="swiper-pagination mt-8"></div>
         </div>
+      </div>
     </div>
-</section>
+  </section>
 
   <!-- Customer Feedback Section -->
   <section class="bg-white py-16">
@@ -885,8 +892,10 @@ $features = $conn->query($features_query)->fetch_all(MYSQLI_ASSOC);
 
   .swiper-slide {
     height: auto;
-    opacity: 1; /* Changed from 0 to make slides visible immediately */
-    transform: none; /* Removed initial transform */
+    opacity: 1;
+    /* Changed from 0 to make slides visible immediately */
+    transform: none;
+    /* Removed initial transform */
   }
 
   .features-carousel .swiper-pagination-bullet {
@@ -928,23 +937,25 @@ $features = $conn->query($features_query)->fetch_all(MYSQLI_ASSOC);
   /* Text animations */
   @keyframes fadeIn {
     from {
-        opacity: 0;
-        transform: translateY(-10px);
+      opacity: 0;
+      transform: translateY(-10px);
     }
+
     to {
-        opacity: 1;
-        transform: translateY(0);
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 
   @keyframes slideUp {
     from {
-        opacity: 0;
-        transform: translateY(20px);
+      opacity: 0;
+      transform: translateY(20px);
     }
+
     to {
-        opacity: 1;
-        transform: translateY(0);
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 

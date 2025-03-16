@@ -64,6 +64,11 @@ if (isset($_POST['login'])) {
                 $_SESSION['user_type'] = $user['user_type'];
                 $_SESSION['full_name'] = $user['display_name'];
                 
+                // Set staff-specific session variables
+                if ($user['user_type'] === 'staff') {
+                    $_SESSION['staff_name'] = $user['display_name'];
+                }
+                
                 if ($user['contact_number']) {
                     $_SESSION['contact_number'] = $user['contact_number'];
                 }
@@ -71,7 +76,7 @@ if (isset($_POST['login'])) {
                 // Redirect based on user type
                 switch($user['user_type']) {
                     case 'staff':
-                        header('Location: staff/staff_dashboard.php');
+                        header('Location: admin/dashboard.php');
                         break;
                     case 'customer':
                         header('Location: customer/customer_dashboard.php');
@@ -488,6 +493,8 @@ if (isset($_POST['signup'])) {
     </div>
   </section>
 
+
+
   <!-- Booknow Section -->
   <section class="bg-gray-900 text-white py-35 text-center">
     <h2 class="text-4xl font-cursive mb-4 font-['Winter_Story']">Begin Your Journey</h2>
@@ -871,13 +878,5 @@ if (isset($_POST['signup'])) {
   }
   </style>
 </body>
-
-</html>
-}
-
-to {
-opacity: 1;
-transform: translateY(0);
-}
 
 </html>

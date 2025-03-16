@@ -156,7 +156,7 @@ if (isset($_GET['delete'])) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Feature Management</title>
-  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <link href="../src/output.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
@@ -226,25 +226,25 @@ if (isset($_GET['delete'])) {
                   <td class="px-6 py-4"><?php echo htmlspecialchars($row['description']); ?></td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <?php if (!empty($row['image_url'])): ?>
-                    <img src="../uploads/features/<?php echo htmlspecialchars($row['image_url']); ?>" 
-                         alt="Feature Image" 
-                         class="h-20 w-20 object-cover rounded">
+                    <img src="../uploads/features/<?php echo htmlspecialchars($row['image_url']); ?>"
+                      alt="Feature Image" class="h-20 w-20 object-cover rounded">
                     <?php endif; ?>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                    <span
+                      class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                <?php echo $row['status'] === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'; ?>">
-                        <?php echo ucfirst($row['status']); ?>
+                      <?php echo ucfirst($row['status']); ?>
                     </span>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center space-x-3">
                       <button onclick="openEditModal(<?php echo htmlspecialchars(json_encode($row)); ?>)"
-                              class="text-yellow-500 hover:text-yellow-600">
+                        class="text-yellow-500 hover:text-yellow-600">
                         <span class="material-symbols-outlined">edit</span>
                       </button>
                       <button onclick="confirmDelete(<?php echo $row['id']; ?>)"
-                              class="text-red-500 hover:text-red-600">
+                        class="text-red-500 hover:text-red-600">
                         <span class="material-symbols-outlined">delete</span>
                       </button>
                     </div>
@@ -340,7 +340,8 @@ if (isset($_GET['delete'])) {
                   </div>
                   <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2">Status</label>
-                    <select name="status" id="editStatus" required class="shadow border rounded w-full py-2 px-3 text-gray-700">
+                    <select name="status" id="editStatus" required
+                      class="shadow border rounded w-full py-2 px-3 text-gray-700">
                       <option value="active">Active</option>
                       <option value="inactive">Inactive</option>
                     </select>

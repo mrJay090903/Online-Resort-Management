@@ -1,22 +1,21 @@
 <?php
-// Ensure session is started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Check if user is logged in and is admin
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
+// Check if user is logged in and has appropriate access
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_type'], ['admin', 'staff'])) {
     header('Location: ../index.php');
     exit();
 }
 ?>
 
-<header class="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
+<header class="bg-white border-b border-gray-200 sticky top-0 z-50">
   <div class="px-6 py-4">
     <div class="flex items-center justify-between">
-      <!-- Left side -->
+      <!-- Left side - Page Title -->
       <div class="flex items-center">
-        <h2 class="text-xl font-semibold text-gray-800">
+        <h2 class="text-2xl font-semibold text-gray-800">
           <?php
             $current_page = basename($_SERVER['PHP_SELF'], '.php');
             echo ucfirst(str_replace('_', ' ', $current_page));
@@ -24,119 +23,159 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
         </h2>
       </div>
 
-      <!-- Right side -->
-      <div class="flex items-center space-x-4">
-        <!-- Notifications -->
+      <!-- Right side - Notifications and Profile -->
+      <div class="flex items-center space-x-6">
+        <!-- Notifications Dropdown -->
         <div class="relative" x-data="{ open: false }">
           <button @click="open = !open"
-            class="p-1 rounded-full text-gray-600 hover:text-gray-700 focus:outline-none relative">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
-              </path>
-            </svg>
+            class="relative p-2 text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-full focus:outline-none">
+            <span class="material-symbols-outlined">notifications</span>
             <?php
-            // Get unread notifications count
-            $notif_count_query = "
-                SELECT COUNT(*) as count 
-                FROM notifications 
-                WHERE is_read = 0 
-                AND type IN ('new_booking', 'reschedule_request')
-            ";
+            // Get unread notifications count based on user type
+            if ($_SESSION['user_type'] === 'admin') {
+                $notif_count_query = "
+                    SELECT COUNT(*) as count 
+                    FROM notifications 
+                    WHERE is_read = 0 
+                    AND type IN ('new_booking', 'reschedule_request')
+                ";
+            } else { // staff
+                $notif_count_query = "
+                    SELECT COUNT(*) as count 
+                    FROM notifications 
+                    WHERE is_read = 0 
+                    AND type IN ('new_booking')
+                ";
+            }
             $notif_count = $conn->query($notif_count_query)->fetch_assoc()['count'];
             
             if ($notif_count > 0): ?>
             <span
-              class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+              class="absolute top-0 right-0 h-5 w-5 text-xs flex items-center justify-center bg-red-500 text-white rounded-full">
               <?php echo $notif_count; ?>
             </span>
             <?php endif; ?>
           </button>
 
-          <!-- Dropdown panel -->
+          <!-- Notifications Panel -->
           <div x-show="open" @click.away="open = false"
-            class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg overflow-hidden z-50">
-            <div class="py-2">
-              <div class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50">
-                Recent Notifications
-              </div>
+            class="absolute right-0 mt-3 w-80 bg-white rounded-lg shadow-lg overflow-hidden z-50">
+            <div class="p-3 bg-gray-50 border-b border-gray-200">
+              <h3 class="text-sm font-semibold text-gray-700">Notifications</h3>
+            </div>
+
+            <div class="divide-y divide-gray-200">
               <?php
-              // Get recent notifications with booking details
-              $recent_notif_query = "
-                  SELECT n.*, b.booking_number 
-                  FROM notifications n
-                  LEFT JOIN bookings b ON b.id = SUBSTRING_INDEX(n.message, '#', -1)
-                  WHERE n.type IN ('new_booking', 'reschedule_request')
-                  ORDER BY n.created_at DESC 
-                  LIMIT 5
-              ";
+              // Get recent notifications based on user type
+              if ($_SESSION['user_type'] === 'admin') {
+                  $recent_notif_query = "
+                      SELECT n.*, b.booking_number 
+                      FROM notifications n
+                      LEFT JOIN bookings b ON b.id = SUBSTRING_INDEX(n.message, '#', -1)
+                      WHERE n.type IN ('new_booking', 'reschedule_request')
+                      ORDER BY n.created_at DESC 
+                      LIMIT 5
+                  ";
+              } else { // staff
+                  $recent_notif_query = "
+                      SELECT n.*, b.booking_number 
+                      FROM notifications n
+                      LEFT JOIN bookings b ON b.id = SUBSTRING_INDEX(n.message, '#', -1)
+                      WHERE n.type IN ('new_booking')
+                      ORDER BY n.created_at DESC 
+                      LIMIT 5
+                  ";
+              }
               $recent_notifications = $conn->query($recent_notif_query);
               
               if ($recent_notifications->num_rows > 0):
                 while ($notif = $recent_notifications->fetch_assoc()): ?>
-              <a href="notifications"
-                class="block px-4 py-3 hover:bg-gray-50 transition <?php echo $notif['is_read'] ? 'opacity-75' : ''; ?>">
-                <p class="text-sm font-medium text-gray-900">
-                  <?php echo htmlspecialchars($notif['title']); ?>
-                </p>
-                <p class="text-sm text-gray-500 truncate">
-                  <?php 
-                  // Replace the ID with booking number in the message
-                  $message = preg_replace(
-                      '/Booking ID: #(\d+)/', 
-                      'Booking Number: ' . $notif['booking_number'], 
-                      $notif['message']
-                  );
-                  echo htmlspecialchars($message); 
-                  ?>
-                </p>
-                <p class="mt-1 text-xs text-gray-400">
-                  <?php echo date('M d, Y h:i A', strtotime($notif['created_at'])); ?>
-                </p>
+              <a href="notifications" class="block px-4 py-3 hover:bg-gray-50 transition-colors">
+                <div class="flex items-start">
+                  <span class="material-symbols-outlined text-emerald-500 mr-3">
+                    <?php echo $notif['type'] === 'new_booking' ? 'event_available' : 'schedule'; ?>
+                  </span>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900">
+                      <?php echo htmlspecialchars($notif['title']); ?>
+                    </p>
+                    <p class="text-sm text-gray-500 truncate">
+                      <?php 
+                        // Replace the ID with booking number in the message
+                        $message = preg_replace(
+                            '/Booking ID: #(\d+)/', 
+                            'Booking Number: ' . $notif['booking_number'], 
+                            $notif['message']
+                        );
+                        echo htmlspecialchars($message); 
+                      ?>
+                    </p>
+                    <p class="mt-1 text-xs text-gray-400">
+                      <?php echo date('M d, Y h:i A', strtotime($notif['created_at'])); ?>
+                    </p>
+                  </div>
+                  <?php if (!$notif['is_read']): ?>
+                  <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                  <?php endif; ?>
+                </div>
               </a>
               <?php endwhile;
               else: ?>
-              <div class="px-4 py-3 text-sm text-gray-500">
-                No new notifications
+              <div class="px-4 py-6 text-center text-gray-500">
+                <span class="material-symbols-outlined text-4xl mb-2">notifications_off</span>
+                <p>No new notifications</p>
               </div>
               <?php endif; ?>
+            </div>
 
-              <div class="border-t border-gray-100 mt-2">
-                <a href="notifications" class="block px-4 py-2 text-sm text-center text-emerald-600 hover:bg-gray-50">
-                  View All Notifications
-                </a>
-              </div>
+            <div class="p-2 bg-gray-50 border-t border-gray-200">
+              <a href="notifications"
+                class="block w-full px-4 py-2 text-center text-sm text-emerald-600 hover:bg-gray-100 rounded-md transition-colors">
+                View All Notifications
+              </a>
             </div>
           </div>
         </div>
 
-        <!-- User Menu -->
+        <!-- Profile Dropdown -->
         <div class="relative" x-data="{ open: false }">
-          <button @click="open = !open" class="flex items-center space-x-2 focus:outline-none">
-            <img src="../assets/profile.jpg" alt="Profile" class="w-8 h-8 rounded-full object-cover">
-            <span class="text-sm font-medium text-gray-700">
-              <?php echo isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : 'Admin'; ?>
-            </span>
-            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
+          <button @click="open = !open"
+            class="flex items-center space-x-3 focus:outline-none hover:bg-gray-100 p-2 rounded-lg">
+            <?php
+            // Get display name based on user type
+            if ($_SESSION['user_type'] === 'staff') {
+                $display_name = $_SESSION['staff_name'] ?? $_SESSION['full_name'] ?? $_SESSION['email'];
+            } else {
+                $display_name = $_SESSION['full_name'] ?? $_SESSION['email'];
+            }
+            
+            // Get first letter, with fallback
+            $first_letter = !empty($display_name) ? strtoupper(substr($display_name, 0, 1)) : '?';
+            ?>
+            <div class="h-8 w-8 rounded-full bg-emerald-500 flex items-center justify-center text-white font-semibold">
+              <?php echo htmlspecialchars($first_letter); ?>
+            </div>
+            <div class="text-left">
+              <p class="text-sm font-medium text-gray-700"><?php echo htmlspecialchars($display_name); ?></p>
+              <p class="text-xs text-gray-500"><?php echo ucfirst($_SESSION['user_type']); ?></p>
+            </div>
           </button>
 
-          <!-- User dropdown -->
-          <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 transform scale-95"
-            x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-75"
-            x-transition:leave-start="opacity-100 transform scale-100"
-            x-transition:leave-end="opacity-0 transform scale-95"
-            class="absolute right-0 w-48 mt-2 bg-white rounded-lg shadow-lg py-2 z-50">
-            <a href="profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-              Profile Settings
+          <!-- Profile Dropdown Menu -->
+          <div x-show="open" @click.away="open = false"
+            class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+            <a href="profile.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              <span class="material-symbols-outlined mr-2">person</span>
+              Profile
             </a>
-            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-              Help & Support
+            <?php if ($_SESSION['user_type'] === 'admin'): ?>
+            <a href="help.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              <span class="material-symbols-outlined mr-2">help</span>
+              Help
             </a>
-            <div class="border-t border-gray-200"></div>
-            <a href="../handlers/logout_handler" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+            <?php endif; ?>
+            <a href="../handlers/logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+              <span class="material-symbols-outlined mr-2">logout</span>
               Sign out
             </a>
           </div>
@@ -144,11 +183,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
       </div>
     </div>
   </div>
-</header>
 
-<!-- Breadcrumbs -->
-<div class="bg-gray-50 border-b border-gray-200">
-  <div class="px-6 py-2">
+  <!-- Breadcrumbs -->
+  <div class="bg-gray-50 px-6 py-2 border-b border-gray-200">
     <nav class="flex" aria-label="Breadcrumb">
       <ol class="flex items-center space-x-2">
         <li>
@@ -156,10 +193,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
         </li>
         <?php if (basename($_SERVER['PHP_SELF']) !== 'dashboard.php'): ?>
         <li class="flex items-center">
-          <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-          </svg>
-          <span class="ml-2 text-gray-700">
+          <span class="material-symbols-outlined text-gray-400 mx-1" style="font-size: 16px;">chevron_right</span>
+          <span class="text-gray-700">
             <?php echo ucfirst(str_replace('_', ' ', basename($_SERVER['PHP_SELF'], '.php'))); ?>
           </span>
         </li>
@@ -167,7 +202,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
       </ol>
     </nav>
   </div>
-</div>
+</header>
 
 <script>
 // ... existing script content ...
